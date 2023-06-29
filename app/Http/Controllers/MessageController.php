@@ -129,6 +129,7 @@ class MessageController extends Controller
         {   
             $c_token=$message->conversation_token;
             $data = message::where('conversation_token', $c_token)
+                ->where('messages.id', '<=', $message->id)
                 ->join('users', 'users.id', '=', 'messages.user_id')
                 ->select('messages.*', 'users.email')
                 ->get();

@@ -42,7 +42,7 @@
                                 @endif
                             @else
 
-                               <a href="" class="btn btn-default btn-xs">&nbsp;{{ Auth::user()->email }}&nbsp;</a>
+                               <a href="{{ route('profile.view') }}" class="btn btn-default btn-xs">&nbsp;{{ Auth::user()->email }}&nbsp;</a>
 
                                 <a href="{{ route('logout') }}" class="btn btn-default btn-xs" onclick="event.preventDefault();
                                 document.getElementById('logout-form').submit();">&nbsp;Logout&nbsp;</a>&nbsp;

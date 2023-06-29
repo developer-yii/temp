@@ -11,7 +11,7 @@ $auth_id=Auth::user()->id;
             {{ $error }}
         </div>  
         <div class="spacer">
-            <a href="{{ route('home')}}" class="btn btn-default"> Clear This Page / Write a New Message</a>
+            <a href="{{ route('home')}}" class="btn btn-default"> Write a New Message</a>
         </div>   
     </div>
 @endif
@@ -47,9 +47,8 @@ function showReplyTextarea()
 }
 
 
-$(document).ready(function() {
-    
-
+$(document).ready(function() 
+{
     $('#confirmation-form').submit(function(e) 
     {    
         var getHtmlurl="{{ route('message.read', ['token' => $message->url]) }}";

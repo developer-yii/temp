@@ -11,25 +11,19 @@ $auth_id=Auth::user()->id;
             • The contents of this page will disappear in 1 hour.
         </div>
     </div>
-            
-    
-        @php
-            $prevDate = null;
-        @endphp
-        <div class="panel panel-default panel-message1">
+       
         @foreach($data as $replydata)   
         @php                
-            $day = date("l", strtotime($replydata->created_at));
-            $date=date('d-m-Y', strtotime($replydata->created_at));
-            $time = date("H:i", strtotime($replydata->created_at));
-        @endphp
-        
-            
-            <div class="panel-body panel-message2"><b>{{ $replydata->email }} -</b>  {{ $date }} <br>{{ $replydata->message }} &nbsp;<sub>{{ $time }}</div>
-            <hr>      
-        
-        @endforeach
+            $date=date('d-m-Y H:i' , strtotime($replydata->created_at));            
+        @endphp     
+        <div class="panel panel-default panel-message1">
+            <div class="panel-body panel-message2">
+                <b>{{ $replydata->email }} -</b>  {{ $date }} <br>
+                {{ $replydata->message }} 
+            </div>
         </div>
+        @endforeach
+        
 
         <form  method="post" id="reply-form" autocomplete="off" style="display:none;">
             @csrf  
@@ -72,17 +66,22 @@ $auth_id=Auth::user()->id;
             </div>
         </form>
     <div class="form-group">
-        <a name="Reply" class="btn btnreply btn-primary" id="reply-btn" onclick="showReplyTextarea()">Reply</a>
-        <a href="" class="btn btn-default" onclick="DeleteChat(event)">Delete This Chat</a>
-        <form id="delete-chat" action="{{ route('chat.delete', ['token' => $message->conversation_token ]) }}" method="POST" style="display: none;">            
-            
-            @csrf
-        </form>
+        <a name="Reply" class="btn btnreply btn-primary" id="reply-btn" onclick="showReplyTextarea()">Reply</a>        
     </div>
-    <div class="spacer">
-        <a href="{{ route('home')}}" class="btn btn-default"> Clear This Page / Write a New Message</a>
-    </div>  
+    <div class="spacer-block">
+        <div class="spacer">
+            <a href="{{ route('home')}}" class="btn btn-default"> Write a New Message</a>
+        </div>
+        <div class="spacer">
+            <a href="" class="btn btn-default" onclick="DeleteChat(event)">Delete This Chat</a>
+            <form id="delete-chat" action="{{ route('chat.delete', ['token' => $message->conversation_token ]) }}" method="POST" style="display: none;">            
+
+                @csrf
+            </form>
+        </div>
+    </div>      
 </div>
+
 
 <div class="panel-body" id="createurl" style="display: none;">
     <div class="alert alert-success">

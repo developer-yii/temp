@@ -9,7 +9,7 @@
     </div>
 
     <div class="spacer">
-        <a href="{{ route('home') }}" class="btn btn-default"> Clear This Page / Write a New Message</a>
+        <a href="{{ route('home') }}" class="btn btn-default"> Write a New Message</a>
     </div>
                             
 </div>
@@ -20,7 +20,7 @@
         {{ session('error') }}
     </div>   
     <div class="spacer">
-        <a href="{{ route('home')}}" class="btn btn-default"> Clear This Page / Write a New Message</a>
+        <a href="{{ route('home')}}" class="btn btn-default"> Write a New Message</a>
     </div>   
 </div>
 @else

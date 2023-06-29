@@ -206,42 +206,9 @@ a.footerlink:visited {
   color: red;
   font-weight: bold;
 }
-.msg-date
+.spacer-block
 {
-    background-color:#cfe1cf;
-    padding: 8px;
-    border-radius:10px;
-    text-decoration: none !important;
-    cursor: default;
+    width:100%;
+    display:inline-block;
 }
-.user-msg
-{
-    background-color:#e4f9e4; 
-    padding: 3px !important;
-    border-radius:10px !important;
-    text-decoration: none !important;
-    cursor: default;
-}
-.user-msg-right
-{
-    text-align: right;
-    margin-left: 25%;
-}
-.reply-msg
-{
-    background-color:#f8efc0; 
-    padding: 3px !important;
-    border-radius:10px;
-    text-decoration: none !important;
-    cursor: default;
-}
-.user-msg-left
-{
-    text-align: left;
-    margin-right:25%;
-}
-.msg-padding
-{
-    margin: 0px !important;
 
-}
