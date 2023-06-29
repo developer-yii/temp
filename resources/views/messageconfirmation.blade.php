@@ -9,11 +9,11 @@ $auth_id=Auth::user()->id;
         <div class="alert alert-danger">
             <b>Error!</b><br>
             {{ $error }}
-        </div>    
+        </div>  
+        <div class="spacer">
+            <a href="{{ route('home')}}" class="btn btn-default"> Clear This Page / Write a New Message</a>
+        </div>   
     </div>
-    <div class="spacer">
-        <a href="{{ route('home')}}" class="btn btn-default"> Clear This Page / Write a New Message</a>
-    </div>  
 @endif
 @if(isset($message))
     <div class="panel-body" id="confirmation">
