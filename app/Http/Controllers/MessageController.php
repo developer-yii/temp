@@ -1,0 +1,189 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Message;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Session;
+use Validator;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
+class MessageController extends Controller
+{
+   public function store(Request $request)
+    {
+        $validatedData = Validator::make($request->all(),[
+            'note' => 'required|string|max:33554432',
+            'ttl' => 'required|string',
+        ]);
+
+        if ($validatedData->fails()) 
+        {
+            $response = ['status' => false,'errors' => $validatedData->errors()];            
+            return response()->json($response);
+        }
+
+        $conversation_token = Str::random(10);
+        while (Message::where('conversation_token', $conversation_token)->exists()) 
+        {
+            $conversation_token = Str::random(10);
+        }
+
+        $url = Str::random(30);
+        while (Message::where('url', $url)->exists()) 
+        {
+            $url = Str::random(30);
+        }
+
+        $message = new Message();
+        $message->user_id = Auth::id();
+        $message->conversation_token = $conversation_token;
+        $message->url = $url;
+        $message->message = $request['note'];
+        $message->expiry = self::calculateExpiryDate($request['ttl']);
+        $message->created_at = Carbon::now();
+
+        if ($message->save()) 
+        {
+            $response = ['status' => true,'message' => $message];            
+            return response()->json($response);
+        }        
+    }
+
+    public function delete($token)
+    {
+        $message = Message::where('url', $token)->first();
+        if ($message) 
+        {
+            $message->delete();
+            return redirect()->route('home')->with('success', 'Message deleted successfully.');
+        } 
+        else
+        {
+            return redirect()->route('home')->with('error', 'The message has either been read/expired/deleted or this URL is invalid.');  
+        }        
+    }
+
+    public static function calculateExpiryDate($ttl)
+    {
+        $timeUnit = substr($ttl, -1); 
+        $timeValue = intval(substr($ttl, 0, -1));
+        $seconds = 0;
+        switch ($timeUnit) 
+        {
+            case 'm':
+                $seconds = $timeValue * 60;
+                break;
+            case 'h':
+                $seconds = $timeValue * 60 * 60;
+                break;
+            case 'd':
+                $seconds = $timeValue * 24 * 60 * 60;
+                break;
+            default:
+                break;
+        }
+
+        $expiryTimestamp = time() + $seconds;
+        $expiryDate = date('Y-m-d H:i:s', $expiryTimestamp);
+        return $expiryDate;
+    }
+
+    public function messageConfirm(Request $request, $token)
+    {        
+           
+        $currenttime=Carbon::now();
+        $message = message::where('url', $token)
+                ->where('link_visit_count', '<', 2)
+                ->where('expiry', '>=', $currenttime)
+                ->first();
+                  
+        if ($message) 
+        {
+            return view('messageconfirmation')->with('message', $message);
+        } 
+        else 
+        {              
+            return view('messageconfirmation')->with('error', 'The message has either been read/expired/deleted or this URL is invalid.');
+        }
+        
+    }
+
+    public function messageRead(Request $request, $token)
+    {      
+        
+        $currenttime=Carbon::now();
+        $message = message::where('url', $token)
+                ->where('link_visit_count', '<', 2)
+                ->where('expiry', '>=', $currenttime)
+                ->first();        
+        
+            $message->link_visit_count++;
+            $message->save();
+        
+        if ($message) 
+        {   
+            $c_token=$message->conversation_token;
+            $data = message::where('conversation_token', $c_token)
+                ->join('users', 'users.id', '=', 'messages.user_id')
+                ->select('messages.*', 'users.email')
+                ->get();
+            $message_html = view('showmessage', compact('message','data'))->render();
+             return response()->json(['message_html' => $message_html], 200);
+        } 
+        else 
+        {            
+            return view('messageconfirmation')->with('error', 'The message has either been read/expired/deleted or this URL is invalid.');
+        }
+       
+    }
+    public function reply(Request $request)
+    {
+        $validatedData = Validator::make($request->all(),[
+            'reply' => 'required|string|max:33554432',
+            'ttl' => 'required|string',
+        ]);
+
+        if ($validatedData->fails()) 
+        {
+            $response = ['status' => false,'errors' => $validatedData->errors()];            
+            return response()->json($response);
+        }
+
+        $conversation_token = $request['token'];
+        
+        $url = Str::random(30);
+        while (Message::where('url', $url)->exists()) 
+        {
+            $url = Str::random(30);
+        }
+
+        $message = new Message();
+        $message->user_id = Auth::id();
+        $message->conversation_token = $conversation_token;
+        $message->url = $url;
+        $message->message = $request['reply'];
+        $message->expiry = self::calculateExpiryDate($request['ttl']);
+        $message->created_at = Carbon::now();
+
+        if ($message->save()) 
+        {
+            $response = ['status' => true,'message' => $message];            
+            return response()->json($response);
+        }        
+    }
+    public function deleteChat($token)
+    {
+      
+        $delete = Message::where('conversation_token', $token)->delete();
+        if ($delete) 
+        {
+            return redirect()->route('home')->with('success', 'Message deleted successfully.');
+        }          
+    }
+}
+
