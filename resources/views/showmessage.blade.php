@@ -109,10 +109,10 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
     </div>
     <div class="spacer">
         <a href="" class="btn btn-default"> Write Another Message</a>
-        <a href="#" class="btn btn-default" onclick="confirmDelete(event)">Delete This Message</a>
+        <!-- <a href="#" class="btn btn-default" onclick="confirmDelete(event)">Delete This Message</a>
         <form id="delete-form" action="" method="POST" style="display: none;">
             @csrf
-        </form>
+        </form> -->
     </div>                            
 </div>
 
