@@ -47,9 +47,27 @@ class MessageController extends Controller
         $message->expiry = self::calculateExpiryDate($request['ttl']);
         $message->created_at = Carbon::now();
 
+        $selectedValue = $_POST["ttl"];
+        $options = array(
+            "15m" => "15 minutes",
+            "30m" => "30 minutes",
+            "45m" => "45 minutes",
+            "1h" => "1 hour",
+            "6h" => "6 hours",
+            "12h" => "12 hours",
+            "1d" => "1 day",
+            "3d" => "3 days",
+            "7d" => "7 days",
+            "30d" => "1 month",
+            "60d" => "2 months",
+        );
+
+        $ttl = $options[$selectedValue];
+
+        
         if ($message->save()) 
         {
-            $response = ['status' => true,'message' => $message];            
+            $response = ['status' => true,'message' => $message, 'ttl'=> $ttl];            
             return response()->json($response);
         }        
     }
@@ -155,6 +173,23 @@ class MessageController extends Controller
             return response()->json($response);
         }
 
+        $selectedValue = $_POST["ttl"];
+        $options = array(
+            "15m" => "15 minutes",
+            "30m" => "30 minutes",
+            "45m" => "45 minutes",
+            "1h" => "1 hour",
+            "6h" => "6 hours",
+            "12h" => "12 hours",
+            "1d" => "1 day",
+            "3d" => "3 days",
+            "7d" => "7 days",
+            "30d" => "1 month",
+            "60d" => "2 months",
+        );
+
+        $ttl = $options[$selectedValue];
+
         $conversation_token = $request['token'];
         
         $url = Str::random(30);
@@ -173,7 +208,7 @@ class MessageController extends Controller
 
         if ($message->save()) 
         {
-            $response = ['status' => true,'message' => $message];            
+            $response = ['status' => true,'message' => $message, 'ttl' => $ttl ];            
             return response()->json($response);
         }        
     }

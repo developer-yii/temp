@@ -1,6 +1,10 @@
 
 @php
 $auth_id=Auth::user()->id;
+
+$expiryTimestamp = strtotime($message->expiry);
+$expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
+
 @endphp
 <div class="panel-body" id="messagereply">  
     <div class="alert alert-warning">
@@ -8,7 +12,7 @@ $auth_id=Auth::user()->id;
         <div style="text-align: justify;">
             • This message has now been securely deleted. You can't open the URL again or refresh this page!<br>
             • If you need to save the message contents somewhere, please make sure you use appropriate encryption.<br>
-            • The contents of this page will disappear in 1 hour.
+            • The contents of this page will disappear in <span id="message_time2">{{ $expirydate }}</span>.
         </div>
     </div>
        
@@ -90,7 +94,7 @@ $auth_id=Auth::user()->id;
             • Copy the URL below and send it to the recipient.<br>
             • The message will self-destruct after being read or after the timer expires if the message hasn't been read in time.<br>
             • In case you need to delete the message you just wrote, use the corresponding button.<br>
-            • The contents of this page will disappear in 1 hour.
+            • The contents of this page will disappear in <span id="message_time"></span>.
         </div>        
     </div>
 

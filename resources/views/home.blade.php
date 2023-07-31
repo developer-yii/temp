@@ -82,7 +82,7 @@
             • Copy the URL below and send it to the recipient.<br>
             • The message will self-destruct after being read or after the timer expires if the message hasn't been read in time.<br>
             • In case you need to delete the message you just wrote, use the corresponding button.<br>
-            • The contents of this page will disappear in 1 hour.
+            • The contents of this page will disappear in <span id="message_time"></span>.
         </div>        
     </div>
 
@@ -97,10 +97,10 @@
     </div>
     <div class="spacer">
         <a href="" class="btn btn-default"> Write Another Message</a>
-        <a href="#" class="btn btn-default" onclick="confirmDelete(event)">Delete This Message</a>
+        <!-- <a href="#" class="btn btn-default" onclick="confirmDelete(event)">Delete This Message</a>
         <form id="delete-form" action="" method="POST" style="display: none;">
             @csrf
-        </form>
+        </form> -->
     </div>                            
 </div>
 @endsection
@@ -125,6 +125,7 @@ $(document).ready(function() {
                     //$('#createmessage').hide();
                     $('#message-form')[0].reset();
                     $('#createurl').show();
+                    $('#message_time').html(response.ttl);
                     var generatedurl="{{ asset('/') }}" + response.message.url;
                     //var token=response.message.conversation_token;
                     $('#noteurl1').val(generatedurl);     

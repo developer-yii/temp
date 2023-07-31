@@ -63,9 +63,9 @@ $(document).ready(function()
             {
                 $('#confirmation').hide();
                 $('#message-box').html(response.message_html); 
-                var deleteCon = "{{ route('chat.delete', ['token' => 'CHAT_TOKEN']) }}";
+                /*var deleteCon = "{{ route('chat.delete', ['token' => 'CHAT_TOKEN']) }}";
                     deleteCon = deleteCon.replace('CHAT_TOKEN', response.message.conversation_token);
-                    $('#delete-chat').attr('action', deleteCon); 
+                    $('#delete-chat').attr('action', deleteCon); */
                 
             },
             error: function(xhr, status, error) 
@@ -89,9 +89,11 @@ $(document).ready(function()
             {
                 if (response.status == true) 
                 {
+
                     //$('#createmessage').hide();
                     $('#reply-form')[0].reset();
                     $('#createurl').show();
+                    $('#message_time').html(response.ttl);
                     var generatedurl="{{ asset('/') }}" + response.message.url;
                     //var token=response.message.conversation_token;
                     $('#noteurl1').val(generatedurl);     
