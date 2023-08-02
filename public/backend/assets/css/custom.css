@@ -1,0 +1,38 @@
+
+.ajax-loader {
+  display: block;
+position: absolute;
+top: 0;
+left: 0;
+z-index: 1051;
+width: 100vw;
+height: 100vh;
+background-color: rgba(192, 192, 192, 0.5);
+background-image: url('../images/loader.gif');
+background-repeat: no-repeat;
+background-position: center;}
+/* visibility: hidden; */
+/* display: none; */
+/* background-color: rgba(255,255,255,0.7);
+position: absolute;
+z-index: 1051 !important;
+width: 100%;
+height:100%; */
+/* } */
+
+
+.ajax-loader img {
+position: relative;
+top:50%;
+left:50%;
+}
+
+.unread-noti 
+{    
+  background-color: #f3f5fb;
+}
+
+.card-body-notification
+{
+  padding: 0.5rem;
+}
