@@ -122,6 +122,13 @@ $(document).on('submit','.edit-form', function(e){
     });       
 });
 
+$('#btn-cancel').on('click', function() 
+{    
+    var form = $('#edit-form')[0];    
+    form.reset();    
+    $('#edit-modal').modal('hide');
+});
+
 
 $('body').on('click', '.delete-user', function(e) 
 {
@@ -162,8 +169,8 @@ $('body').on('click', '.delete-user', function(e)
 //user module end
 
 //admin profile start
-$(document).on('submit','.edit-profile-form', function(e){
-    
+$(document).on('submit','.edit-profile-form', function(e)
+{    
     event.preventDefault();  
     var $this = $(this);
     var dataString = new FormData($('#edit-profile-form')[0]);
@@ -211,5 +218,11 @@ $(document).on('submit','.edit-profile-form', function(e){
             location.reload();
         }
     });       
+});
+$('#btn-edit-cancel').on('click', function() 
+{    
+    var form = $('#edit-profile-form')[0];    
+    form.reset();    
+    $('#edit-profile').modal('hide');
 });
 //admin profile end

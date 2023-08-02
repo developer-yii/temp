@@ -6,31 +6,6 @@
 <div class="navbar-custom">
     <ul class="list-unstyled topbar-right-menu float-right mb-0">
         <li class="dropdown notification-list">
-            <a class="nav-link dropdown-toggle arrow-none" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false" >
-                <i class="dripicons-bell noti-icon"></i>                    
-                   <div id="noti_count">  </div>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right dropdown-menu-animated dropdown-lg">
-                <div class="dropdown-item noti-title">                        
-                    <h5 class="m-0">
-                        <span class="float-right">
-                            <a href="javascript: void(0);" id="clear_noti" class="text-dark clear_all_noti" data-user="{{ Auth::user()->id }}">
-                                
-                            </a>
-                        </span>Notifications
-                    </h5>                       
-                </div>
-
-                <div id="notificationContainer" class="px-3" data-simplebar>
-                </div>
-
-                <!-- All-->
-                <a href="javascript:void(0);" id="notify-item" class="dropdown-item text-center text-primary notify-item border-top border-light py-2">                    
-                </a>
-            </div>
-        </li>
-
-        <li class="dropdown notification-list">
             <a class="nav-link dropdown-toggle nav-user arrow-none mr-0" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
                 aria-expanded="false">
                 <span class="account-user-avatar"> 
@@ -60,7 +35,6 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                     @csrf
                 </form>
-
             </div>
         </li>
     </ul> 

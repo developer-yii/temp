@@ -13,7 +13,7 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="">Temp</a></li>
-                        <li class="breadcrumb-item active"><a href="">Message list</a></li>
+                        <li class="breadcrumb-item active">Message list</li>
                     </ol>
                 </div>
                 <h4 class="page-title">Message list</h4>
