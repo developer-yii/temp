@@ -192,6 +192,7 @@ $(document).on('submit','.edit-profile-form', function(e)
                 toastr.success(result.message);
                 $('#btn-edit-close').click();
                 $('.error').html("");
+                location.reload();
             }
 
             else if(result.status == false && result.validationError == true)

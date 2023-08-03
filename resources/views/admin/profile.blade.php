@@ -57,7 +57,7 @@
                         </div> <!-- end col-->
 
                         <div class="col-sm-4">
-                            <div class="text-center mt-sm-0 mt-3 text-sm-end">
+                            <div class="float-right mt-sm-0 mt-3 text-sm-end">
                                 <a href="javascript:void(0);" data-toggle="modal" data-target="#edit-profile" id="editprofile" class="btn btn-light editprofile"  data-id=""><i class="mdi mdi-account-edit me-1"></i> Edit Profile</a>
                             </div>
                         </div> <!-- end col-->
