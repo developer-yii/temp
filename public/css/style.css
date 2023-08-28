@@ -20,7 +20,7 @@ body {
     color: #000;
     padding: 0 2px;
 }
-.btn-info,
+/*.btn-info,*/
 .btn-primary {
     margin-top: 9px;
 }
@@ -201,6 +201,10 @@ a.footerlink:visited {
 .mb-1
 {
 	margin-bottom: 10px;
+}
+.ml-1
+{
+    margin-left: 10px;
 }
 .error {
   color: red;

@@ -9,14 +9,25 @@
     <meta name="application-name" content="Temp.PM">
     
     <meta name="description" content="Temporary Private Message service with encryption, self-destruction and many other security features.">    
-    
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Temp.PM - Temporary Private Message</title>
     
     <link rel="shortcut icon" href="{{ asset('/')}}images/favicon.ico">
     <link rel="stylesheet" href="{{ asset('/')}}css/bootstrap.min.css" >
-    <link rel="stylesheet" href="{{ asset('/')}}css/bootstrap-theme.min.css" >
-    <link rel="stylesheet" href="{{ asset('/')}}css/style.css" >
     
+    <link rel="stylesheet" href="{{ asset('/')}}css/style.css" >
+    <link rel="stylesheet" href="{{ asset('/')}}css/toastr.css" >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+    <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    <!-- <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"> -->
+
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" /> -->
+    <!-- <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"> -->
+    <!-- <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet"> -->
+
+    <link rel="stylesheet" href="{{ asset('/')}}backend/assets/css/custom.css" >
 </head>
 
 <body>      
@@ -41,6 +52,8 @@
                                     <a href="{{ route('register') }}" class="btn btn-default btn-xs">&nbsp;Register&nbsp;</a>&nbsp;
                                 @endif
                             @else
+
+                                <a href="{{ route('image.list') }}" class="btn btn-default btn-xs">My Images</a>
 
                                <a href="{{ route('profile.view') }}" class="btn btn-default btn-xs">&nbsp;{{ Auth::user()->email }}&nbsp;</a>
 
@@ -73,8 +86,16 @@
 <script src="{{ asset('/')}}js/jquery.min.js.download" ></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
-<script src="{{ asset('/')}}js/custom.js?{{time()}}" ></script>
 
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>       
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="{{ asset('/')}}js/custom.js?{{time()}}" ></script>
+<script src="{{ asset('/')}}js/toastr.js?{{time()}}"></script>
+
+
+@yield('modal')
 @yield('script')
 </body>
 </html>

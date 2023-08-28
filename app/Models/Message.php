@@ -10,7 +10,7 @@ class Message extends Model
     use HasFactory;
     public $timestamps = false;
     protected $fillable = [
-        'user_id', 'conversation_token','url','message', 'expiry','link_visit_count', 'created_at',
+        'user_id', 'conversation_token','url','message','image_ids', 'expiry','link_visit_count', 'created_at',
     ];
 
     

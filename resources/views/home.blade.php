@@ -27,6 +27,7 @@
 <div class="panel-body" id="createmessage">                                    
     <form action="" method="post" id="message-form" autocomplete="off">
         @csrf
+        <input type="hidden" name="imgids" value="" id="img-ids">
         <div class="well">
             <b>How to use this?</b><br>
             1. Write a message<br>
@@ -71,7 +72,14 @@
                 </select>
                 <span class="error"></span> 
             </div>
-        </div>                                  
+        </div>
+
+        <div class="spacer">
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#imageModal"> 
+                <img src="{{ asset('images/upload.png') }}" width="16" height="16" border="0" align="absmiddle"> 
+                <b>Upload files !</b> 
+            </button>
+        </div>                              
     </form>            
 </div>
 @endif
@@ -104,11 +112,72 @@
     </div>                            
 </div>
 @endsection
+@section('modal')
+    <div class="modal fade" id="imageModal" role="dialog">
+        <div class="modal-dialog">
+        
+          <!-- Modal content-->
+            <div class="modal-content">
+                <!-- Modal Header -->
+                    <form action="" method="post" id="image-store" enctype="multipart/form-data">
+                        @csrf
+                      <div class="modal-header">
+                        <div class="row">
+                            <div class="col-md-6">
+                              <label for="upload-files"><h4 class="modal-title">Upload files</h4></label>
+                            </div>
+                            <div class="col-md-6">
+                              <button type="button" id="btn-close" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                        </div>                    
+                      </div>
+                      
+                      <!-- Modal Body -->
+                      <div class="modal-body">
+                        <div class="container">
+                          <div class="row mb-1">
+                            <div class="col-md-3">
+                              <label for="choose-file">Choose File<span class="error">*</span>:</label>
+                            </div>
+                            <div class="col-md-5 form-input">
+                              <input type="file" id="files" name="files[]" class="form-control" multiple>
+                              <span class="error"></span>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-3">
+                              <label for="password">File(s) Password :</label>
+                            </div>
+                            <div class="col-md-5">
+                              <input type="password" id="password" name="password" class="form-control">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  
+                      <!-- Modal Footer -->
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info">Save</button>
+                      </div>
+                  </form>
+            </div>
+        </div>
+    </div>
+@endsection
 @section('script')
 
 <script>
 $(document).ready(function() {
     var createurl="{{ route('messages.store') }}";
+    var createimage="{{ route('image.store') }}";
+
+    $.ajaxSetup({
+        headers : {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     $('#message-form').submit(function(e) 
     {        
         e.preventDefault();
@@ -154,7 +223,81 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('#image-store').submit(function(e) 
+    { 
+        e.preventDefault();        
+        var dataString = new FormData($('#image-store')[0]);
+        var $this = $(this);
+
+        $.ajax({
+            type: 'POST',
+            url: createimage,
+            data: dataString,
+            processData: false,
+            contentType: false,
+            beforeSend: function() 
+            {
+                $($this).find('button[type="submit"]').prop('disabled', true);
+            },
+            success: function(result) 
+            {
+                $($this).find('button[type="submit"]').prop('disabled',false);
+                if(result.status == true)
+                {                
+                    $this[0].reset();
+                    toastr.success(result.message);
+                    $('#imageModal').modal('hide'); 
+                    
+                    var imgLinks = result.imageLinks;           
+                    var imgIds = result.imageIds;           
+
+                    var linksHtml = '';
+                    $.each(imgLinks, function(index, link) 
+                    {
+                        linksHtml += link + '\n';
+                    });
+                                       
+                    $('#note').val(function(index, currentValue) 
+                    {
+                        return currentValue + '\n' + linksHtml; // Add the links below the existing content
+                    });
+                    $('#img-ids').val(imgIds);
+
+                }                
+                else 
+                { 
+                    console.log("hjsdhfk");
+                    first_input = "";
+                    $('.error').html("");
+                    $.each(result.errors, function(key) {                        
+                        if(first_input=="") first_input=key;
+                        if (key.includes(".")) 
+                        {
+                            console.log(result.errors);
+                            let main_key = key.split('.')[0];
+                            console.log(main_key);
+                            $('#'+main_key).closest('.form-input').find('.error').html(result.errors[key]);
+                        }
+                        else
+                        {
+                            $('#'+key).closest('.form-input').find('.error').html(result.errors[key]);    
+                        }
+                        
+                    });
+                    $('#image-store').find("#"+first_input).focus();
+                }
+            },
+            error: function(error) 
+            {
+                $($this).find('button[type="submit"]').prop('disabled', false);
+                alert('Something went wrong!', 'error');
+            }
+        });
+        
+    });
 });
 
 </script>
 @endsection
+

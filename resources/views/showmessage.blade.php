@@ -16,14 +16,14 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
         </div>
     </div>
        
-        @foreach($data as $replydata)   
+        @foreach($data as $replydata)
         @php                
-            $date=date('d-m-Y H:i' , strtotime($replydata->created_at));            
+            $date=date('d-m-Y H:i' , strtotime($replydata->created_at)); 
         @endphp     
         <div class="panel panel-default panel-message1">
             <div class="panel-body panel-message2">
                 <b>{{ $replydata->email }} -</b>  {{ $date }} <br>
-                {{ $replydata->message }} 
+                <pre>{{ $replydata->message }}</pre>
             </div>
         </div>
         @endforeach
@@ -31,6 +31,7 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
 
         <form  method="post" id="reply-form" autocomplete="off" style="display:none;">
             @csrf  
+            <input type="hidden" name="imgids" value="" id="img-ids">
             <input type="hidden" name="token" value="{{ $message->conversation_token }}"> 
             <div class="form-group">
                 <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="33554432" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
@@ -67,6 +68,12 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
                     </select>
                     <span class="error"></span> 
                 </div> 
+            </div>
+            <div class="spacer">
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#imageModal">
+                    <img src="{{ asset('images/upload.png') }}" width="16" height="16" border="0" align="absmiddle"> 
+                    <b>Upload files !</b> 
+                </button>
             </div>
         </form>
     <div class="form-group">

@@ -36,3 +36,32 @@ left:50%;
 {
   padding: 0.5rem;
 }
+
+
+#option {
+    margin: 1px;
+    padding: 0;
+    margin-top: 15px;
+    text-align: left;
+}
+.fieldset-border
+{
+  BORDER: 1px SOLID #CCCCCC;
+    border-radius: 5px;
+}
+
+.legend-border
+{
+  width: auto !important;
+  color: #267DDC;
+  margin-left: 10px;
+  border-bottom: 0px !important;
+}
+
+.message-font
+{
+  font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-size: 16px;
+  color:#FF0000;
+  font-weight: bold;
+}

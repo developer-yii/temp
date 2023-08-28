@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
+use App\Models\UserImage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Session;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
-   public function store(Request $request)
+    public function store(Request $request)
     {
         $validatedData = Validator::make($request->all(),[
             'note' => 'required|string|max:33554432',
@@ -44,6 +45,7 @@ class MessageController extends Controller
         $message->conversation_token = $conversation_token;
         $message->url = $url;
         $message->message = $request['note'];
+        $message->image_ids = $request['imgids'];
         $message->expiry = self::calculateExpiryDate($request['ttl']);
         $message->created_at = Carbon::now();
 
@@ -67,6 +69,17 @@ class MessageController extends Controller
         
         if ($message->save()) 
         {
+            $data = Message::find($message->id);
+
+            $image_ids = explode(',', $data->image_ids);
+            foreach ($image_ids as $image_id) 
+            {
+                $user_image = new UserImage();
+                $user_image->user_id = Auth::id();
+                $user_image->image_id = $image_id;
+                $user_image->save();
+            }
+
             $response = ['status' => true,'message' => $message, 'ttl'=> $ttl];            
             return response()->json($response);
         }        
@@ -132,8 +145,7 @@ class MessageController extends Controller
     }
 
     public function messageRead(Request $request, $token)
-    {      
-        
+    {   
         $currenttime=Carbon::now();
         $message = message::where('url', $token)
                 ->where('link_visit_count', '<', 2)
@@ -151,6 +163,28 @@ class MessageController extends Controller
                 ->join('users', 'users.id', '=', 'messages.user_id')
                 ->select('messages.*', 'users.email')
                 ->get();
+
+            $getimg= UserImage::where('user_id', Auth::id())->pluck('image_id')->toArray();
+
+            foreach ($data as $msgdata) 
+            {
+                $data1 = Message::find($msgdata->id);
+
+                $image_ids = explode(',', $data1->image_ids);
+                
+
+                foreach ($image_ids as $image_id) 
+                {
+                    if(!in_array($image_id, $getimg))
+                    {
+                        $user_image = new UserImage();
+                        $user_image->user_id = Auth::id();
+                        $user_image->image_id = $image_id;
+                        $user_image->save();
+                    }
+                }
+            }
+
             $message_html = view('showmessage', compact('message','data'))->render();
              return response()->json(['message_html' => $message_html], 200);
         } 
@@ -203,11 +237,23 @@ class MessageController extends Controller
         $message->conversation_token = $conversation_token;
         $message->url = $url;
         $message->message = $request['reply'];
+        $message->image_ids = $request['imgids'];
         $message->expiry = self::calculateExpiryDate($request['ttl']);
         $message->created_at = Carbon::now();
 
         if ($message->save()) 
         {
+            $data = Message::find($message->id);
+
+            $image_ids = explode(',', $data->image_ids);
+            foreach ($image_ids as $image_id) 
+            {
+                $user_image = new UserImage();
+                $user_image->user_id = Auth::id();
+                $user_image->image_id = $image_id;
+                $user_image->save();
+            }
+
             $response = ['status' => true,'message' => $message, 'ttl' => $ttl ];            
             return response()->json($response);
         }        

@@ -55,11 +55,8 @@
                                  <div class="conversation-text">
                                     <div class="ctext-wrap">
                                        <i style="font-size: 15px;">{{ $data->user_email}}</i>
-                                       <p style="font-size: 15px;">
-                                          {{ $data->message }}
-                                       </p>
-                                       <p style="color: #927c8f">
-                                          {{ $data->created_at}}</p>
+                                          <pre>{{ $data->message }}</pre>
+                                       <p style="color: #927c8f">{{ $data->created_at}}</p>
                                     </div>
                                  </div>
                               </li>

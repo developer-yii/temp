@@ -21,7 +21,15 @@ Route::group(['middleware' => 'auth'], function ()
     Route::post('/profile/update', 'HomeController@updateProfile')->name('profile.update');
     Route::match(['get', 'post'], '/', 'HomeController@index')->name('home');
     Route::post('/messages', 'MessageController@store')->name('messages.store');
-    Route::match(['get', 'post'], '/messages/{token}', 'MessageController@delete')->name('message.delete');        
+    Route::match(['get', 'post'], '/messages/{token}', 'MessageController@delete')->name('message.delete');
+
+    Route::post('/image/store', 'ImageController@store')->name('image.store');
+    Route::get('/image_action/{token}', 'ImageController@imageAction')->name('image.action');
+    Route::get('/image/index', 'ImageController@list')->name('image.list');
+    Route::post('/image/delete','ImageController@delete')->name('image.delete');
+    Route::post('/image/download','ImageController@download')->name('image.download');
+
+
     Route::get('/{token}', 'MessageController@messageConfirm')->name('message.confirm');    
     Route::get('/read/{token}', 'MessageController@messageRead')->name('message.read');      
     Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
