@@ -181,18 +181,24 @@ $(document).ready(function() {
     $('#message-form').submit(function(e) 
     {        
         e.preventDefault();
-       var formData = $(this).serialize();
+        var $this = $(this);
+        var formData = $(this).serialize();
 
         $.ajax({
             url: createurl,
             type: "POST",
             data: formData,
+            beforeSend: function() 
+            {
+                $($this).find('button[type="submit"]').prop('disabled', true);
+            },
             success: function(response) 
             {
+                $($this).find('button[type="submit"]').prop('disabled',false);
                 if (response.status == true) 
                 {
-                    //$('#createmessage').hide();
                     $('#message-form')[0].reset();
+                    $('.error').html("");
                     $('#createurl').show();
                     $('#message_time').html(response.ttl);
                     var generatedurl="{{ asset('/') }}" + response.message.url;
@@ -219,6 +225,7 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) 
             {
+                $($this).find('button[type="submit"]').prop('disabled', false);
                 alert('Something went wrong!', 'error');
             }
         });

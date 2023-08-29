@@ -130,21 +130,27 @@ $(document).ready(function()
     });
 
     var replyurl="{{ route('messages.reply') }}";
-    $('body').on('click', '#sendreply', function(e) {
+    $('body').on('click', '#sendreply', function(e) 
+    {
         e.preventDefault();
-       var formData = $('#reply-form').serialize();
+        var $this = $(this);
+        var formData = $('#reply-form').serialize();
 
         $.ajax({
             url: replyurl,
             type: "POST",
             data: formData,
+            beforeSend: function() 
+            {
+                $($this).find('button[type="submit"]').prop('disabled', true);
+            },
             success: function(response) 
             {
+                $($this).find('button[type="submit"]').prop('disabled',false);
                 if (response.status == true) 
                 {
-
-                    //$('#createmessage').hide();
                     $('#reply-form')[0].reset();
+                    $('.error').html("");
                     $('#createurl').show();
                     $('#message_time').html(response.ttl);
                     var generatedurl="{{ asset('/') }}" + response.message.url;
@@ -171,6 +177,7 @@ $(document).ready(function()
             },
             error: function(xhr, status, error) 
             {
+                $($this).find('button[type="submit"]').prop('disabled', false);
                 alert('Something went wrong!', 'error');
             }
         });

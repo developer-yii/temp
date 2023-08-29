@@ -140,7 +140,7 @@ class ImageController extends Controller
             $filename = $image->image_path;
             $imagePath = Storage::url('uploaded_images/' . $filename); 
             $filePath = 'public/uploaded_images/' . $filename;            
-            echo $filePath; exit;
+            
             $exists = Storage::disk('local')->exists($filePath);
                         
             if ($exists) 
