@@ -7,17 +7,6 @@
 @section('content')
 <div class="panel-body" id="messagereply">
     @if($image)
-        @if(!isset($image->password))
-        <fieldset class="fieldset-border">
-            <legend class="legend-border">{{ $image->image_name}}</legend>
-            <div class="row mb-1">
-                <div class="col-md-12 text-center">
-                    <img src="{{ $image->getImageUrl() }}" height="100">
-                </div>
-            </div>
-        </fieldset>
-        @endif
-        
         <form action="" method="post" id="file-download">
             <input type="hidden" value="{{ $image->id}}" name="id">      
 

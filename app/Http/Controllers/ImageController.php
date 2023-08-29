@@ -123,8 +123,22 @@ class ImageController extends Controller
     {        
         $image = Image::where('short_link_token', $request->token)->first();
         if($image)
-        {            
-            return view('downloadimage', compact('image'));    
+        {       
+            $filename = $image->image_path;
+            $imagePath = Storage::url('uploaded_images/' . $filename); 
+            $filePath = 'public/uploaded_images/' . $filename;            
+            
+            $exists = Storage::disk('local')->exists($filePath);
+                        
+            if ($exists) 
+            {     
+                return view('downloadimage', compact('image'));
+            }
+            else
+            {
+                $image = "";
+                return view('downloadimage', compact('image'));   
+            }
         }   
         else
         {
@@ -144,7 +158,7 @@ class ImageController extends Controller
             $exists = Storage::disk('local')->exists($filePath);
                         
             if ($exists) 
-            {
+            {                
                 if($image->password != "" || $image->password != null)
                 {                
                     if($image->password == md5($request->password))
