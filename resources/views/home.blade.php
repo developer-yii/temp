@@ -273,17 +273,14 @@ $(document).ready(function() {
 
                 }                
                 else 
-                { 
-                    console.log("hjsdhfk");
+                {                     
                     first_input = "";
                     $('.error').html("");
                     $.each(result.errors, function(key) {                        
                         if(first_input=="") first_input=key;
                         if (key.includes(".")) 
                         {
-                            console.log(result.errors);
                             let main_key = key.split('.')[0];
-                            console.log(main_key);
                             $('#'+main_key).closest('.form-input').find('.error').html(result.errors[key]);
                         }
                         else

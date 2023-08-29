@@ -62,8 +62,8 @@ $auth_id=Auth::user()->id;
                             <div class="col-md-3">
                               <label for="choose-file">Choose File<span class="error">*</span>:</label>
                             </div>
-                            <div class="col-md-5 form-input">
-                              <input type="file" id="files" name="files[]" class="form-control" multiple accept="image/*">
+                            <div class="col-md-5 form-input">                              
+                              <input type="file" id="files" name="files[]" class="form-control" multiple>
                               <span class="error"></span>
                             </div>
                           </div>
@@ -229,9 +229,18 @@ $(document).ready(function()
                 {   
                     first_input = "";
                     $('.error').html("");
-                    $.each(result.errors, function(key) {
+                    $.each(result.errors, function(key) {                        
                         if(first_input=="") first_input=key;
-                        $('#'+key).closest('.form-input').find('.error').html(result.errors[key]);
+                        if (key.includes(".")) 
+                        {
+                            let main_key = key.split('.')[0];
+                            $('#'+main_key).closest('.form-input').find('.error').html(result.errors[key]);
+                        }
+                        else
+                        {
+                            $('#'+key).closest('.form-input').find('.error').html(result.errors[key]);    
+                        }
+                        
                     });
                     $('#image-store').find("#"+first_input).focus();
                 }
