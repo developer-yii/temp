@@ -151,11 +151,11 @@ class ImageController extends Controller
         $image = Image::find($request->id);
         if($image)
         {
-            $filename = $image->image_path;
-            $imagePath = Storage::url('uploaded_images/' . $filename); 
-            $filePath = 'public/uploaded_images/' . $filename;            
-            
-            $exists = Storage::disk('local')->exists($filePath);
+            $filename = $image->image_path;            
+            $imagePath = asset('storage/uploaded_images/' . $filename); 
+            $filepath = 'public/uploaded_images/' . $filename;
+
+            $exists = Storage::disk('local')->exists($filepath);
                         
             if ($exists) 
             {                
