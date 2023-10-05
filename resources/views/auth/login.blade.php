@@ -10,7 +10,7 @@
             <div class="col-md-8 mb-1 col-md-offset-2">
                 <label for="email" class="col-md-2 col-form-label text-md-end">Email</label>
                 <div class="col-md-8">
-                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" autofocus>
+                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" @if($errors->has('email')) autofocus @endif>
                     @error('email')
                     <span class="error" id="email-error" role="alert">
                         <strong>{{ $message }}</strong>
@@ -23,7 +23,7 @@
                 <label for="password" class="col-md-2 col-form-label text-md-end">Password</label>
                 <div class="col-md-8">
 
-                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="current-password">
+                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="current-password" @if($errors->has('password')) autofocus @endif>
 
                     @error('password')
                     <span class="error" id="password-error" role="alert">

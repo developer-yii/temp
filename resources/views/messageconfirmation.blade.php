@@ -253,6 +253,11 @@ $(document).ready(function()
         });
         
     });
+
+    $('#imageModal').on('hidden.bs.modal',function(e){
+        $('#image-store')[0].reset();       
+    });
+    
 });
 </script>
 @endsection

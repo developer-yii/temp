@@ -54,31 +54,22 @@ class LoginController extends Controller
 
         $this->validateLogin($request);
 
-        if ($this->hasTooManyLoginAttempts($request)) {
+        if ($this->hasTooManyLoginAttempts($request)) 
+        {
             $this->fireLockoutEvent($request);
-
             return $this->sendLockoutResponse($request);
         }
 
         $user = User::where('email', $request->email)->first();
-        $password = $request->input('password');
-        if($user && Hash::check($password, $user->password))
-        {            
-            if(($user->role_type == '1'))
-            {  
-                $user = Auth::login($user);
-                return redirect()->route('admin.home');   
-            }
-            else
-            {   
-                $user = Auth::login($user);                                       
-                return redirect()->route('home');               
-            }            
+
+        if ($user && Hash::check($request->password, $user->password)) 
+        {
+            $redirectRoute = ($user->role_type == '1') ? 'admin.home' : 'home';
+            Auth::login($user);
+            return redirect()->route($redirectRoute);
         }
-        else 
-        {  
-            return redirect('login')->withInput()->with('error','The Password is wrong.');
-        }
+
+        return redirect('login')->withErrors(['password' => 'The Password is wrong.'])->withInput();
     }
     public function logout(Request $request) 
     {
