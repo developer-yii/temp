@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -65,15 +66,16 @@ class LoginController extends Controller
         if ($user && Hash::check($request->password, $user->password)) 
         {
             $redirectRoute = ($user->role_type == '1') ? 'admin.home' : 'home';
-            Auth::login($user);
-            return redirect()->route($redirectRoute);
+            Auth::login($user);           
+            return redirect()->intended(route($redirectRoute));
         }
 
         return redirect('login')->withErrors(['password' => 'The Password is wrong.'])->withInput();
     }
     public function logout(Request $request) 
     {
-      Auth::logout();
-      return redirect('/home')->with('message','You have been successfully logout!');
+        Auth::logout();
+        Session::forget('url.intended');
+        return redirect('login')->with('message','You have been successfully logout!');
     }
 }
