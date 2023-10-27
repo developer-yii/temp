@@ -122,12 +122,17 @@ class ImageController extends Controller
     public function imageAction(Request $request)
     {        
         $image = Image::where('short_link_token', $request->token)->first();
-        
+
         if($image)
         {       
             $filename = $image->image_path;
             $imagePath = Storage::url('uploaded_images/' . $filename); 
-            $filePath = 'public/uploaded_images/' . $filename;            
+            $filePath = 'public/uploaded_images/' . $filename;  
+
+            if (strpos($imagePath, 'public') == false && config('app.env') != 'local')
+            {
+                $imagePath = asset('public/storage/uploaded_images/' . $filename); 
+            }           
             
             $exists = Storage::disk('local')->exists($filePath);
                         

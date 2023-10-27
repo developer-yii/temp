@@ -137,6 +137,7 @@ $(document).ready(function()
         var $this = $(this);
         var formData = $('#reply-form').serialize();
         $('#count').text('500');
+        $('#copy-url-button').html('Copy');
         $.ajax({
             url: replyurl,
             type: "POST",
