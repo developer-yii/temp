@@ -15,10 +15,24 @@
                 <div class="container">
                   <div class="row mb-1">
                     <div class="col-md-6">
-                      <center><button type="submit" name="btn btn-default">Download</button><br>
-                      
-                      <img src="{{ asset('images/download.gif') }}" border="0"></center>
+                      <center>
+                        <button type="submit" name="btn btn-default" style="border : 0px;">
+                            <img src="{{ asset('images/download.gif') }}" border="0">
+                        </button>                      
+                      </center>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <center>
+                            @php
+                                $fileInfo = pathinfo($imagePath);
+                                $validExtensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp'];
+                            @endphp
 
+                            @if(empty($image->password) && !empty($imagePath) && in_array($fileInfo['extension'], $validExtensions))
+                                <img src="{{ $imagePath }}" height="128">
+                            @endif
+                        </center>
                     </div>
                     @if(!empty($image->password))
                     <div class="col-md-4 form-input">
@@ -74,7 +88,7 @@ $(document).ready(function() {
                 if (response.imagePath) 
                 {
                     var link = document.createElement('a');
-                    link.href = response.imagePath;
+                    link.href = response.imagePath;                    
                     link.download = response.imagename;
                     link.target = '_blank';
                     link.style.display = 'none';

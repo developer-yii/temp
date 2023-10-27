@@ -36,8 +36,13 @@
             4. Copy the URL that will be generated for you and send it to the message recipient<br>
         </div>
         <div class="form-group">
-            <textarea name="note" id="note" class="form-control form-message" rows="8" maxlength="33554432" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
-            <span class="error"></span> 
+            <textarea name="note" id="note" class="form-control form-message" rows="8" maxlength="500" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
+            <span class="error" id="error"></span> 
+            <div id="char-count">
+                Characters remaining: 
+                <span id="count">500</span>
+                <span id="maximum">/ 500</span>
+            </div>
         </div>
 
         <div class="spacer">
@@ -183,7 +188,7 @@ $(document).ready(function() {
         e.preventDefault();
         var $this = $(this);
         var formData = $(this).serialize();
-
+        $('#count').text('500');
         $.ajax({
             url: createurl,
             type: "POST",
@@ -263,12 +268,43 @@ $(document).ready(function() {
                     $.each(imgLinks, function(index, link) 
                     {
                         linksHtml += link + '\n';
-                    });
-                                       
-                    $('#note').val(function(index, currentValue) 
+                    });  
+
+                    const textarea = document.getElementById("note");
+                    const charCount = document.getElementById("count");
+                    const maxCharLimit = 500;
+
+                    if (textarea.value.length + linksHtml.length > maxCharLimit) 
+                    {                    
+                        const errorMessage = document.getElementById("error");
+                        errorMessage.textContent = "Character limit exceeded!";
+                        setTimeout(function () {
+                            errorMessage.textContent = ""; // Clear the error message
+                        }, 5000);
+                    }
+                    else 
                     {
-                        return currentValue + '\n' + linksHtml; // Add the links below the existing content
-                    });
+                        $('#note').val(function (index, currentValue) {
+                            const newContent = currentValue + '\n' + linksHtml;
+                            if (newContent.length <= maxCharLimit) 
+                            {
+                                return newContent;
+                            } 
+                            else 
+                            {
+                                const errorMessage = document.getElementById("error");
+                                errorMessage.textContent = "Character limit exceeded!";
+                                setTimeout(function () {
+                                    errorMessage.textContent = ""; // Clear the error message
+                                }, 5000);                                
+                                return currentValue; // Do not exceed character limit
+                            }
+                        });
+                    }
+
+                    const remainingChars = maxCharLimit - textarea.value.length;
+                    charCount.textContent = remainingChars;
+
                     $('#img-ids').val(imgIds);
 
                 }                
@@ -306,7 +342,14 @@ $(document).ready(function() {
     });
 
 });
-
+document.addEventListener("DOMContentLoaded", function () {
+    const textarea = document.getElementById("note");
+    const charCount = document.getElementById("count");
+    textarea.addEventListener("input", function () {
+        const remainingChars = 500 - textarea.value.length;
+        charCount.textContent = remainingChars;
+    });
+});
 </script>
 @endsection
 

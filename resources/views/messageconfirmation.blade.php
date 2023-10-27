@@ -98,6 +98,7 @@ function showReplyTextarea()
     replyform.style.display = 'block';
     var replybut = document.getElementById('reply-btn');
     replybut.style.display = 'none';
+    callTextCounter();
 }
 
 
@@ -135,7 +136,7 @@ $(document).ready(function()
         e.preventDefault();
         var $this = $(this);
         var formData = $('#reply-form').serialize();
-
+        $('#count').text('500');
         $.ajax({
             url: replyurl,
             type: "POST",
@@ -202,6 +203,7 @@ $(document).ready(function()
             },
             success: function(result) 
             {
+                $('.error').html("");
                 $($this).find('button[type="submit"]').prop('disabled',false);
                 if(result.status == true)
                 {                
@@ -217,13 +219,42 @@ $(document).ready(function()
                     {
                         linksHtml += link + '\n';
                     });
-                                       
-                    $('#reply').val(function(index, currentValue) 
-                    {
-                        return currentValue + '\n' + linksHtml; // Add the links below the existing content
-                    });
-                    $('#img-ids').val(imgIds);
+                    
+                    const textarea = document.getElementById("reply");
+                    const charCount = document.getElementById("count");
+                    const maxCharLimit = 500;
 
+                    if (textarea.value.length + linksHtml.length > maxCharLimit) 
+                    {                    
+                        const errorMessage = document.getElementById("error");
+                        errorMessage.textContent = "Character limit exceeded!";
+                        setTimeout(function () {
+                            errorMessage.textContent = ""; // Clear the error message
+                        }, 5000);                        
+                    }
+                    else 
+                    {
+                        $('#reply').val(function (index, currentValue) {
+                            const newContent = currentValue + '\n' + linksHtml;
+                            if (newContent.length <= maxCharLimit) 
+                            {
+                                return newContent;
+                            } 
+                            else 
+                            {
+                                const errorMessage = document.getElementById("error");
+                                errorMessage.textContent = "Character limit exceeded!";                                
+                                setTimeout(function () {
+                                    errorMessage.textContent = ""; // Clear the error message
+                                }, 5000);
+                                return currentValue; // Do not exceed character limit
+                            }
+                        });
+                    }
+
+                    const remainingChars = maxCharLimit - textarea.value.length;
+                    charCount.textContent = remainingChars;                    
+                    $('#img-ids').val(imgIds);
                 }                
                 else 
                 {   
@@ -257,8 +288,23 @@ $(document).ready(function()
     $('#imageModal').on('hidden.bs.modal',function(e){
         $('#image-store')[0].reset();       
     });
-    
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    callTextCounter();
+});
+function callTextCounter()
+{
+    const textarea = document.getElementById("reply");
+    const charCount = document.getElementById("count");
+    if (textarea) 
+    {            
+        textarea.addEventListener("input", function () {
+            const remainingChars = 500 - textarea.value.length;
+            charCount.textContent = remainingChars;
+        });
+    }
+}
 </script>
 @endsection
 @endif

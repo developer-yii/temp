@@ -65,3 +65,7 @@ left:50%;
   color:#FF0000;
   font-weight: bold;
 }
+
+pre {
+    white-space: pre-wrap;
+}

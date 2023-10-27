@@ -122,6 +122,7 @@ class ImageController extends Controller
     public function imageAction(Request $request)
     {        
         $image = Image::where('short_link_token', $request->token)->first();
+        
         if($image)
         {       
             $filename = $image->image_path;
@@ -132,7 +133,7 @@ class ImageController extends Controller
                         
             if ($exists) 
             {     
-                return view('downloadimage', compact('image'));
+                return view('downloadimage', compact('image', 'imagePath'));
             }
             else
             {
@@ -151,27 +152,43 @@ class ImageController extends Controller
         $image = Image::find($request->id);
         if($image)
         {
-            $filename = $image->image_path;            
+            $filename = $image->image_path;                        
             $imagePath = asset('storage/uploaded_images/' . $filename); 
-            $filepath = 'public/uploaded_images/' . $filename;
+            
+            if (strpos($imagePath, 'public') == false && config('app.env') != 'local')
+            {
+                $imagePath = asset('public/storage/uploaded_images/' . $filename); 
+            }            
 
+            $filepath = 'public/uploaded_images/' . $filename;            
             $exists = Storage::disk('local')->exists($filepath);
                         
             if ($exists) 
             {                
                 if($image->password != "" || $image->password != null)
-                {                
-                    if($image->password == md5($request->password))
-                    {  
-                        $result = [
-                            'status' => true,
-                            'message' => 'File download successfully',
-                            'imagePath' => $imagePath,
-                            'imagename' => $image->image_name
-                        ];
+                {     
+                    if(isset($request->password))
+                    {
+                        if($image->password == md5($request->password))
+                        {  
+                            $result = [
+                                'status' => true,
+                                'message' => 'File download successfully',
+                                'imagePath' => $imagePath,
+                                'filename' => $filename,
+                                'imagename' => $image->image_name
+                            ];
+                        }
+                        else
+                        {   
+                            $result = [
+                                'status' => false,
+                                'message' => 'Please enter valid password',
+                            ];
+                        }
                     }
                     else
-                    {   
+                    {
                         $result = [
                             'status' => false,
                             'message' => 'File is password protected',
@@ -184,6 +201,7 @@ class ImageController extends Controller
                         'status' => true,
                         'message' => 'File Download successfully',
                         'imagePath' => $imagePath,
+                        'filename' => $filename,
                         'imagename' => $image->image_name
                     ];
                 }
