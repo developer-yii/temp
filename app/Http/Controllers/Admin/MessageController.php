@@ -42,7 +42,10 @@ class MessageController extends Controller
     {
         $id=$request->id;
         $token=Message::where('messages.id', $id)->first();
-       
+        if(!$token) 
+        {
+            return back();
+        }
         $model = Message::select('messages.*', 'users.email as user_email')
             ->leftJoin('users', 'messages.user_id', '=', 'users.id')
             ->where('conversation_token', function ($query) use ($id) {
