@@ -34,7 +34,8 @@
                                     <tr>                                        
                                         <th>User Id</th>                                        
                                         <th>User Email</th>                                        
-                                        <th>Action</th>
+                                        <th width="15%">User Approve?</th>                                        
+                                        <th><center>Action</center></th>
                                     </tr>
                                 </thead>
                             </table>

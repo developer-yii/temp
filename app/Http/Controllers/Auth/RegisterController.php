@@ -8,6 +8,12 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RegistrationEmail;
+use App\Mail\AccountApprovalEmail;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Http\Request;
+
 
 class RegisterController extends Controller
 {
@@ -63,9 +69,26 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        Mail::to($user->email)->send(new RegistrationEmail($user));
+
+        $admin_emails = User::where('role_type', 1)->pluck('email');
+        Mail::to($admin_emails)->send(new AccountApprovalEmail($user));
+        
+        return $user;
+        
     }
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        $user = $this->create($request->all());
+
+        return redirect()->route('login')->with('success', 'Your account has been successfully registered. The admin will review and approve your account, after which you will be able to log in.');
+    }
+
 }

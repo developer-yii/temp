@@ -36,12 +36,12 @@
             4. Copy the URL that will be generated for you and send it to the message recipient<br>
         </div>
         <div class="form-group">
-            <textarea name="note" id="note" class="form-control form-message" rows="8" maxlength="500" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
+            <textarea name="note" id="note" class="form-control form-message" rows="8" maxlength="10000" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
             <span class="error" id="error"></span> 
             <div id="char-count">
                 Characters remaining: 
-                <span id="count">500</span>
-                <span id="maximum">/ 500</span>
+                <span id="count">10000</span>
+                <span id="maximum">/ 10000</span>
             </div>
         </div>
 
@@ -259,7 +259,7 @@ $(document).ready(function() {
                 if(result.status == true)
                 {                
                     $this[0].reset();
-                    toastr.success(result.message);
+                    
                     $('#imageModal').modal('hide'); 
                     
                     var imgLinks = result.imageLinks;           
@@ -273,7 +273,7 @@ $(document).ready(function() {
 
                     const textarea = document.getElementById("note");
                     const charCount = document.getElementById("count");
-                    const maxCharLimit = 500;
+                    const maxCharLimit = 10000;
 
                     if (textarea.value.length + linksHtml.length > maxCharLimit) 
                     {                    
@@ -289,6 +289,7 @@ $(document).ready(function() {
                             const newContent = currentValue + '\n' + linksHtml;
                             if (newContent.length <= maxCharLimit) 
                             {
+                                toastr.success(result.message);
                                 return newContent;
                             } 
                             else 
@@ -347,7 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const textarea = document.getElementById("note");
     const charCount = document.getElementById("count");
     textarea.addEventListener("input", function () {
-        const remainingChars = 500 - textarea.value.length;
+        const remainingChars = 10000 - textarea.value.length;
         charCount.textContent = remainingChars;
     });
 });

@@ -21,8 +21,7 @@
                         </button>                      
                       </center>
                     </div>
-                    
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <center>
                             @php
                                 $fileInfo = pathinfo($imagePath);
@@ -30,10 +29,10 @@
                             @endphp
 
                             @if(empty($image->password) && !empty($imagePath) && in_array($fileInfo['extension'], $validExtensions))
-                                <img src="{{ $imagePath }}" height="128">
+                                <img src="{{ $imagePath }}" style="max-height: 200px; max-width: 100%;">
                             @endif
                         </center>
-                    </div>
+                    </div> -->
                     @if(!empty($image->password))
                     <div class="col-md-4 form-input">
                         <fieldset class="fieldset-border">
@@ -47,7 +46,30 @@
                     @endif
                   </div>             
                 </div>
+
+
+                <div class="container row col-md-12">
+                  <div class="row mb-1 col-md-10">
+                    <fieldset class="fieldset-border col-md-offset-1">
+                        <legend class="legend-border">Image Preview</legend>
+                        <div class="col-md-12 mb-1">
+                            <center>
+                                @php
+                                    $fileInfo = pathinfo($imagePath);
+                                    $validExtensions = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp'];
+                                @endphp
+
+                                @if(empty($image->password) && !empty($imagePath) && in_array($fileInfo['extension'], $validExtensions))
+                                    <img src="{{ $imagePath }}" style="max-height: 200px; max-width: 100%;">
+                                @endif
+                            </center>
+                        </div>
+                    </fieldset>  
+                  </div>             
+                </div>
             </fieldset>
+
+
         </form>
     @else
         <fieldset class="fieldset-border">

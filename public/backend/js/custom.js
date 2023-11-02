@@ -35,6 +35,7 @@ $(document).ready(function()
         columns : [
             { data: 'id', name: 'id' },
             { data: 'email', name: 'email' },                        
+            { data: 'approve', name: 'is_approve' },                        
             { data: 'action', name: 'action', orderable: false }            
         ],        
     });
@@ -50,7 +51,9 @@ $('body').on('click','.edit-user',function(){
         url: getuser+'?id='+id,
         type: 'GET',
         dataType: 'json',
-        success: function(result) {                    
+        success: function(result) {  
+            $('.error').html("");
+            $('#edit-form')[0].reset();                  
             $.each(result.data.user, function(key) {
                 if($('#edit-form').find('#'+key).length)
                 {
@@ -166,6 +169,26 @@ $('body').on('click', '.delete-user', function(e)
     });
 });
 
+$('body').on('change','.approval_status', function(event) {
+        var status = $(this).val();
+        var id = $(this).attr('data-id');
+
+        $.ajax({
+            url: userapproval,
+            type: 'POST',
+            dataType: 'json',
+            data: { 'id': id, 'status': status },
+            success: function(result) {
+                toastr.success(result.message);
+                $('#user_datatable').DataTable().ajax.reload();
+            }
+        });
+    });
+
+$('#edit-modal').on('hidden.bs.modal', function () {
+      $('.error').html("");
+      $('#edit-form')[0].reset();      
+  });
 //user module end
 
 //admin profile start

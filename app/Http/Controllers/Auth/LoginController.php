@@ -61,16 +61,26 @@ class LoginController extends Controller
         }
 
         $user = User::where('email', $request->email)->first();
-
-        if ($user && Hash::check($request->password, $user->password)) 
+        if($user->role_type == 2 && $user->is_approve == 0) 
         {
-            $redirectRoute = ($user->role_type == '1') ? 'admin.home' : 'home';
-            Auth::login($user);           
-            return redirect()->intended(route($redirectRoute));
+            return redirect('login')->withErrors(['approve' => 'Your account is not approved.'])->withInput();
         }
-
-        return redirect('login')->withErrors(['password' => 'The Password is wrong.'])->withInput();
+        else
+        {
+            if ($user && Hash::check($request->password, $user->password)) 
+            {
+                $redirectRoute = ($user->role_type == '1') ? 'admin.home' : 'home';
+                Auth::login($user);           
+                return redirect()->intended(route($redirectRoute));
+            }
+            return redirect('login')->withErrors(['password' => 'The Password is wrong.'])->withInput();
+        }
     }
+
+    // need 
+    // if role_type=1 then redirect route=admin.home 
+    // if role_type!=1 and is_approve=0 then need to display error message your account is not approved
+    // if role_type!=1 and is_approve=1 then need to redirect route= home
     public function logout(Request $request) 
     {
         Auth::logout();

@@ -52,10 +52,10 @@
                                  <div class="chat-avatar">
                                     <img src="{{ $baseUrl}}assets/images/blank.png" alt="user-image" class="rounded-circle">
                                  </div>
-                                 <div class="conversation-text">
-                                    <div class="ctext-wrap">
+                                 <div class="conversation-text conversation-text-W-100">
+                                    <div class="ctext-wrap message-format">
                                        <i style="font-size: 15px;">{{ $data->user_email}}</i>
-                                          <pre>{{ $data->message }}</pre>
+                                          <pre style="white-space: pre-wrap;">{{ $data->message }}</pre>
                                        <p style="color: #927c8f">{{ $data->created_at}}</p>
                                     </div>
                                  </div>

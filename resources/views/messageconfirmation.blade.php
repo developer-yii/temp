@@ -223,7 +223,7 @@ $(document).ready(function()
                     
                     const textarea = document.getElementById("reply");
                     const charCount = document.getElementById("count");
-                    const maxCharLimit = 500;
+                    const maxCharLimit = 10000;
 
                     if (textarea.value.length + linksHtml.length > maxCharLimit) 
                     {                    
@@ -301,7 +301,7 @@ function callTextCounter()
     if (textarea) 
     {            
         textarea.addEventListener("input", function () {
-            const remainingChars = 500 - textarea.value.length;
+            const remainingChars = 10000 - textarea.value.length;
             charCount.textContent = remainingChars;
         });
     }

@@ -16,24 +16,28 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::group(['middleware' => 'auth'], function () 
-{        
-    Route::get('/profile', 'HomeController@viewProfile')->name('profile.view');
-    Route::post('/profile/update', 'HomeController@updateProfile')->name('profile.update');
-    Route::match(['get', 'post'], '/', 'HomeController@index')->name('home');
-    Route::post('/messages', 'MessageController@store')->name('messages.store');
-    Route::match(['get', 'post'], '/messages/{token}', 'MessageController@delete')->name('message.delete');
+{   
+    // user  
+    Route::middleware('is_user')
+    ->group(function(){    
+        Route::get('/profile', 'HomeController@viewProfile')->name('profile.view');
+        Route::post('/profile/update', 'HomeController@updateProfile')->name('profile.update');
+        Route::match(['get', 'post'], '/', 'HomeController@index')->name('home');
+        Route::post('/messages', 'MessageController@store')->name('messages.store');
+        Route::match(['get', 'post'], '/messages/{token}', 'MessageController@delete')->name('message.delete');
 
-    Route::post('/image/store', 'ImageController@store')->name('image.store');
-    Route::get('/image_action/{token}', 'ImageController@imageAction')->name('image.action');
-    Route::get('/image/index', 'ImageController@list')->name('image.list');
-    Route::post('/image/delete','ImageController@delete')->name('image.delete');
-    Route::post('/image/download','ImageController@download')->name('image.download');
+        Route::post('/image/store', 'ImageController@store')->name('image.store');
+        Route::get('/image_action/{token}', 'ImageController@imageAction')->name('image.action');
+        Route::get('/image/index', 'ImageController@list')->name('image.list');
+        Route::post('/image/delete','ImageController@delete')->name('image.delete');
+        Route::post('/image/download','ImageController@download')->name('image.download');
 
 
-    Route::get('/{token}', 'MessageController@messageConfirm')->name('message.confirm');    
-    Route::get('/read/{token}', 'MessageController@messageRead')->name('message.read');      
-    Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
-    Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
+        Route::get('/{token}', 'MessageController@messageConfirm')->name('message.confirm');    
+        Route::get('/read/{token}', 'MessageController@messageRead')->name('message.read');      
+        Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
+        Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
+    });
 
     //Admin
     Route::namespace('Admin')
@@ -55,7 +59,8 @@ Route::group(['middleware' => 'auth'], function ()
         // Route::get('/user/edit','UserController@useredit')->name('user.edit');  
         Route::get('/user/detail','UserController@userdetail')->name('user.detail');
         Route::post('/user/update','UserController@userupdate')->name('user.update'); 
-        Route::post('/user/delete','UserController@userdelete')->name('user.delete'); 
+        Route::post('/user/delete','UserController@userdelete')->name('user.delete');
+        Route::post('/approve_user', 'UserController@approve_user')->name('user.approve_user');
     });
 });
 

@@ -6,6 +6,16 @@
         <div class="well">
             <b>Login</b>                        
         </div>
+        @if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif 
+        @error('approve')
+            <div class="alert alert-danger">
+                <strong>{{ $message }}</strong>
+            </div>
+        @enderror 
         <div class="row">
             <div class="col-md-8 mb-1 col-md-offset-2">
                 <label for="email" class="col-md-2 col-form-label text-md-end">Email</label>
@@ -15,7 +25,7 @@
                     <span class="error" id="email-error" role="alert">
                         <strong>{{ $message }}</strong>
                     </span> 
-                    @enderror                                           
+                    @enderror                             
                 </div>
             </div>
 

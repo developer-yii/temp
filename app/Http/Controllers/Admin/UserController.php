@@ -11,6 +11,8 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserApprovalMail;
 
 class UserController extends Controller
 {
@@ -22,11 +24,29 @@ class UserController extends Controller
             $data = User::where("id", "!=", Auth::user()->id);
             
             return DataTables::of($data)
-                                ->addColumn('action', function ($data) {
-                return '<a href="javascript:void(0);" data-toggle="modal" data-target="#edit-modal" id="edituser" class="btn btn-sm btn-primary mr-1 edit-user"  data-id="'.$data->id.'"><i class="mdi mdi-pencil"></i></a></a><a href="javascript:void(0);" class="btn btn-sm btn-primary mr-1 delete-user"  data-id="'.$data->id.'"><i class="mdi mdi-delete"></i></a>';
+                ->editColumn('approve', function($row) use($loginUser) {
+                
+                    $selected1 = '';
+                    $selected2 = '';                    
+
+                    if ($row->is_approve == 0) 
+                    {
+                        $selected1 = 'selected';
+                        $approve_status = '<select name="approval_status" class="form-control approval_status" data-id="'.$row->id.'"><option value="0" '.$selected1.'>Pending</option><option value="1">Approved</option></select>';
+                    } 
+                    elseif ($row->is_approve == 1) 
+                    {
+                        $selected2 = 'selected';
+                        $approve_status = '<center><span class="badge badge-success-lighten" style="padding:10px;">Approved</span></center>';                        
+                    }
+                    return $approve_status;
+                })
+
+                ->addColumn('action', function ($data) {
+                return '<center><a href="javascript:void(0);" data-toggle="modal" data-target="#edit-modal" id="edituser" class="btn btn-sm btn-primary mr-1 edit-user"  data-id="'.$data->id.'"><i class="mdi mdi-pencil"></i></a></a><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-user" data-id="'.$data->id.'"><i class="mdi mdi-delete"></i></a></center>';
             })           
            
-            ->rawColumns(['action'])
+            ->rawColumns(['approve','action'])
             ->toJson();              
         }
         return view('admin.userlist');              
@@ -93,6 +113,25 @@ class UserController extends Controller
         $user->delete();
         $msg = "Records Delete successfully";
         $result = ["status" => true, "message" => $msg];
+        return response()->json($result);
+    }
+    public function approve_user(Request $request)
+    {
+        $user = User::find($request->id);
+
+        if($user)
+        {
+            $user->is_approve = $request->status;            
+            $user->save();
+
+            Mail::to($user->email)->send(new UserApprovalMail($user));
+            $result = ['status' => true, 'message' => 'Status changed successfully', 'data' => []];                          
+            // return response()->json($result);
+        }
+        else
+        {
+            $result = ['status' => false, 'message' => 'Something went wrong'];
+        }        
         return response()->json($result);
     }
 }

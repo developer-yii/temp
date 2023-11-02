@@ -106,6 +106,8 @@
             var userdelete="{{ route('admin.user.delete') }}";
             var getuser = "{{ route('admin.user.detail') }}";
             var userupdate ="{{ route('admin.user.update') }}";
+            var userapproval = "{{ route('admin.user.approve_user') }}";
+            var profileupdate ="{{ route('admin.profile.update') }}";
             var profileupdate ="{{ route('admin.profile.update') }}";
         </script>
         

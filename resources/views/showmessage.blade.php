@@ -34,12 +34,12 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
             <input type="hidden" name="imgids" value="" id="img-ids">
             <input type="hidden" name="token" value="{{ $message->conversation_token }}"> 
             <div class="form-group">
-                <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="500" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
+                <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="10000" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
                 <span class="error" id="error"></span> 
                 <div id="char-count">
                     Characters remaining: 
-                    <span id="count">500</span>
-                    <span id="maximum">/ 500</span>
+                    <span id="count">10000</span>
+                    <span id="maximum">/ 10000</span>
                 </div>
             </div>
             <div class="spacer">

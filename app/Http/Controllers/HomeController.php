@@ -87,11 +87,11 @@ class HomeController extends Controller
             }
             if($user->save())
             {                    
-                $result = ['status' => true, 'message' => 'Data Save successfully.', 'data' => $user];
+                $result = ['status' => true, 'message' => 'Profile update successfully.', 'data' => $user];
             }
             else
             {
-                $result = ['status' => false, 'message' => 'User save fail!', 'data' => []];
+                $result = ['status' => false, 'message' => 'Profile update fail!', 'data' => []];
             }
             return response()->json($result);
         }
