@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Auth::routes();
+Route::get('/migrate-run-once', function () {
+    Artisan::call('migrate');
+    return 'Migrations have been run.';
+});
+
+Route::get('/cron-run-once', function () {
+    Artisan::call('messages:expire');
+    return 'Cron have been run.';
+});
 
 Route::group(['middleware' => 'auth'], function () 
 {   

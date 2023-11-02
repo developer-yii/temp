@@ -32,7 +32,7 @@ class UserController extends Controller
                     if ($row->is_approve == 0) 
                     {
                         $selected1 = 'selected';
-                        $approve_status = '<select name="approval_status" class="form-control approval_status" data-id="'.$row->id.'"><option value="0" '.$selected1.'>Pending</option><option value="1">Approved</option></select>';
+                        $approve_status = '<select name="approval_status" class="form-control approval_status" data-id="'.$row->id.'"><option value="0" '.$selected1.'>Pending</option><option value="1">Approve</option></select>';
                     } 
                     elseif ($row->is_approve == 1) 
                     {
