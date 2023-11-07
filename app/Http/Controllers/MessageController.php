@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\UserImage;
+use App\Models\Conversation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Session;
@@ -69,8 +70,12 @@ class MessageController extends Controller
         
         if ($message->save()) 
         {
-            $data = Message::find($message->id);
+            $conversation = New Conversation();
+            $conversation->conversation_token = $message->conversation_token;
+            $conversation->user_id = Auth::id();
+            $conversation->save();
 
+            $data = Message::find($message->id);
             $image_ids = explode(',', $data->image_ids);
             foreach ($image_ids as $image_id) 
             {
@@ -135,7 +140,23 @@ class MessageController extends Controller
                   
         if ($message) 
         {
-            return view('messageconfirmation')->with('message', $message);
+            $total_user = Conversation::where('conversation_token', $message->conversation_token)            
+                ->pluck('user_id')
+                ->toArray();
+
+            if(in_array(Auth::id(), $total_user))
+            {
+                return view('messageconfirmation')->with('message', $message);
+            }
+            else{
+                if(count($total_user) < 2){                    
+                    return view('messageconfirmation')->with('message', $message);
+                }
+                else
+                {
+                    return view('messageconfirmation')->with('error', 'The message URL is invalid.');
+                }
+            }
         } 
         else 
         {              
@@ -148,12 +169,17 @@ class MessageController extends Controller
     {   
         $currenttime=Carbon::now();
         $message = message::where('url', $token)
-                ->where('link_visit_count', '<', 2)
-                ->where('expiry', '>=', $currenttime)
-                ->first();        
-        
-            $message->link_visit_count++;
-            $message->save();
+            ->where('link_visit_count', '<', 2)
+            ->where('expiry', '>=', $currenttime)
+            ->first();        
+    
+        $message->link_visit_count++;
+        $message->save();
+
+        $conversation = New Conversation();
+        $conversation->conversation_token = $message->conversation_token;
+        $conversation->user_id = Auth::id();
+        $conversation->save();
         
         if ($message) 
         {   

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Message;
+use App\Models\Conversation;
 use Carbon\Carbon;
 
 class ExpireMessages extends Command
@@ -51,6 +52,7 @@ class ExpireMessages extends Command
                 ->get();
                 if($count_token->count()==1 && (isset($count_token[0]) && ($count_token[0]->link_visit_count>=2) || $count_token[0]->expiry<=$currentDateTime))
                 {
+                    $delete_conversation=Conversation::where('conversation_token', '=', $message->conversation_token)->delete();
                     $delete_all=Message::where('conversation_token', '=', $message->conversation_token)->delete();
                 }
                 $message->url = Null; // Set the URL field to an empty string          
