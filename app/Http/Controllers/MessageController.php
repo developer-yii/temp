@@ -283,8 +283,9 @@ class MessageController extends Controller
     {
       
         $delete = Message::where('conversation_token', $token)->delete();
-        if ($delete) 
+        if($delete) 
         {
+            $conversation = Conversation::where('conversation_token', $token)->delete();
             return redirect()->route('home')->with('success', 'Message deleted successfully.');
         }          
     }
