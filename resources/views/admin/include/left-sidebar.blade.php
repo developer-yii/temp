@@ -3,25 +3,27 @@
  @endphp
  
  <!-- ========== Left Sidebar Start ========== -->
-  <div class="left-side-menu">
+<div class="left-side-menu">
     
     <!-- LOGO -->
     <a href="" class="logo text-center logo-light">
         <span class="logo-lg">
-            <img src="{{$baseUrl}}assets/images/logo.png" alt="" height="16">
+            <img src="{{$baseUrl}}assets/images/superdick.png" alt="" width="150">
         </span>
         <span class="logo-sm">
-            <img src="{{$baseUrl}}assets/images/logo_sm.png" alt="" height="16">
+            <img src="{{$baseUrl}}assets/images/superdick.png" alt="" width="150">
         </span>
     </a>
 
     <!-- LOGO -->
     <a href="" class="logo text-center logo-dark">
         <span class="logo-lg">
-            <img src="{{$baseUrl}}assets/images/logo-dark.png" alt="" height="16">
+            <!-- <img src="{{$baseUrl}}assets/images/logo-dark.png" alt="" height="16"> -->
+            <img src="{{$baseUrl}}assets/images/superdick.png" alt="" width="150">
         </span>
         <span class="logo-sm">
-            <img src="{{$baseUrl}}assets/images/logo_sm_dark.png" alt="" height="16">
+            <!-- <img src="{{$baseUrl}}assets/images/logo_sm_dark.png" alt="" height="16"> -->
+            <img src="{{$baseUrl}}assets/images/superdick.png" alt="" width="150">
         </span>
     </a>
 
