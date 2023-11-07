@@ -144,18 +144,13 @@ class MessageController extends Controller
                 ->pluck('user_id')
                 ->toArray();
 
-            if(in_array(Auth::id(), $total_user))
+            if(in_array(Auth::id(), $total_user) || count($total_user) < 2)
             {
                 return view('messageconfirmation')->with('message', $message);
             }
-            else{
-                if(count($total_user) < 2){                    
-                    return view('messageconfirmation')->with('message', $message);
-                }
-                else
-                {
-                    return view('messageconfirmation')->with('error', 'The message URL is invalid.');
-                }
+            else
+            {
+                return view('messageconfirmation')->with('error', 'The message URL is invalid.');                
             }
         } 
         else 
