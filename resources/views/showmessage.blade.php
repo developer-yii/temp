@@ -6,7 +6,7 @@ $expiryTimestamp = strtotime($message->expiry);
 $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
 
 @endphp
-<div class="panel-body" id="messagereply">  
+<div class="panel-body" id="messagereply">
     <div class="alert alert-warning">
         <b>Attention!</b><br>
         <div style="text-align: justify;">
@@ -15,29 +15,32 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
             • The contents of this page will disappear in <span id="message_time2">{{ $expirydate }}</span>.
         </div>
     </div>
-       
+
         @foreach($data as $replydata)
-        @php                
-            $date=date('d-m-Y H:i' , strtotime($replydata->created_at)); 
-        @endphp     
+        @php
+            $date=date('d-m-Y H:i' , strtotime($replydata->created_at));
+        @endphp
         <div class="panel panel-default panel-message1">
             <div class="panel-body panel-message2">
                 <b>{{ $replydata->email }} -</b>  {{ $date }} <br>
                 <pre>{{ $replydata->message }}</pre>
+                <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-message="{{ $replydata->message }}">
+                    <i class="fa fa-sticky-note-o ml-1" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
         @endforeach
-        
+
 
         <form  method="post" id="reply-form" autocomplete="off" style="display:none;">
-            @csrf  
+            @csrf
             <input type="hidden" name="imgids" value="" id="img-ids">
-            <input type="hidden" name="token" value="{{ $message->conversation_token }}"> 
+            <input type="hidden" name="token" value="{{ $message->conversation_token }}">
             <div class="form-group">
                 <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="10000" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
-                <span class="error" id="error"></span> 
+                <span class="error" id="error"></span>
                 <div id="char-count">
-                    Characters remaining: 
+                    Characters remaining:
                     <span id="count">10000</span>
                     <span id="maximum">/ 10000</span>
                 </div>
@@ -71,18 +74,18 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
                             <option value="60d">2 months</option>
                         </optgroup>
                     </select>
-                    <span class="error"></span> 
-                </div> 
+                    <span class="error"></span>
+                </div>
             </div>
             <div class="spacer">
                 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#imageModal">
-                    <img src="{{ asset('images/upload.png') }}" width="16" height="16" border="0" align="absmiddle"> 
-                    <b>Upload files !</b> 
+                    <img src="{{ asset('images/upload.png') }}" width="16" height="16" border="0" align="absmiddle">
+                    <b>Upload files !</b>
                 </button>
             </div>
         </form>
     <div class="form-group">
-        <a name="Reply" class="btn btnreply btn-primary" id="reply-btn" onclick="showReplyTextarea()">Reply</a>        
+        <a name="Reply" class="btn btnreply btn-primary" id="reply-btn" onclick="showReplyTextarea()">Reply</a>
     </div>
     <div class="spacer-block">
         <div class="spacer">
@@ -90,12 +93,12 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
         </div>
         <div class="spacer">
             <a href="" class="btn btn-default" onclick="DeleteChat(event)">Delete This Chat</a>
-            <form id="delete-chat" action="{{ route('chat.delete', ['token' => $message->conversation_token ]) }}" method="POST" style="display: none;">            
+            <form id="delete-chat" action="{{ route('chat.delete', ['token' => $message->conversation_token ]) }}" method="POST" style="display: none;">
 
                 @csrf
             </form>
         </div>
-    </div>      
+    </div>
 </div>
 
 
@@ -107,13 +110,13 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
             • The message will self-destruct after being read or after the timer expires if the message hasn't been read in time.<br>
             • In case you need to delete the message you just wrote, use the corresponding button.<br>
             • The contents of this page will disappear in <span id="message_time"></span>.
-        </div>        
+        </div>
     </div>
 
-    <div class="well">               
+    <div class="well">
         <div class="input-group" id="clipboardjs-group" style=""><b>URL</b>
             <input type="text" class="form-control form-url-normal clipboardjs" name="noteurl1" id="noteurl1" data-clipboard-target="#noteurl1" autocomplete="off" readonly>
-            
+
             <span class="input-group-btn">
                 <button class="btn btn-default clipboardjs" type="button" id="copy-url-button" data-clipboard-target="#noteurl1" style="margin-top: 27px;">Copy</button>
             </span>
@@ -125,6 +128,6 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
         <form id="delete-form" action="" method="POST" style="display: none;">
             @csrf
         </form> -->
-    </div>                            
+    </div>
 </div>
 

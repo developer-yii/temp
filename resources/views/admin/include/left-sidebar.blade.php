@@ -1,10 +1,10 @@
  @php
-     $baseUrl = asset('backend')."/";     
+     $baseUrl = asset('backend')."/";
  @endphp
- 
+
  <!-- ========== Left Sidebar Start ========== -->
 <div class="left-side-menu">
-    
+
     <!-- LOGO -->
     <a href="" class="logo text-center logo-light">
         <span class="logo-lg">
@@ -38,18 +38,25 @@
                         <span>Dashboard </span>
                     </a>
                 </li>
-            
+
                 <li class="side-nav-item">
                     <a href="{{ route('admin.user.list')}}" class="side-nav-link">
                         <i class="uil-user"></i>
-                        <span> User </span>
+                        <span> Users </span>
                     </a>
                 </li>
-            
+
                 <li class="side-nav-item">
                     <a href="{{ route('admin.message')}}" class="side-nav-link">
                         <i class="uil-message"></i>
-                        <span> Message </span>
+                        <span> Messages </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item">
+                    <a href="{{ route('admin.note.list')}}" class="side-nav-link">
+                        <i class="uil-comment-alt-notes"></i>
+                        <span> Notes </span>
                     </a>
                 </li>
              @endif

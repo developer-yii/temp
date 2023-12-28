@@ -25,11 +25,11 @@ Route::get('/cron-run-once', function () {
     return 'Cron have been run.';
 });
 
-Route::group(['middleware' => 'auth'], function () 
-{   
-    // user  
+Route::group(['middleware' => 'auth'], function ()
+{
+    // user
     Route::middleware('is_user')
-    ->group(function(){    
+    ->group(function(){
         Route::get('/profile', 'HomeController@viewProfile')->name('profile.view');
         Route::post('/profile/update', 'HomeController@updateProfile')->name('profile.update');
         Route::match(['get', 'post'], '/', 'HomeController@index')->name('home');
@@ -43,10 +43,16 @@ Route::group(['middleware' => 'auth'], function ()
         Route::post('/image/download','ImageController@download')->name('image.download');
 
 
-        Route::get('/{token}', 'MessageController@messageConfirm')->name('message.confirm');    
-        Route::get('/read/{token}', 'MessageController@messageRead')->name('message.read');      
+        Route::get('/{token}', 'MessageController@messageConfirm')->name('message.confirm');
+        Route::get('/read/{token}', 'MessageController@messageRead')->name('message.read');
         Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
         Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
+
+        // my notes notes
+        Route::get('/notes/index', 'NotesController@list')->name('notes.list');
+        Route::get('/notes/add', 'NotesController@add')->name('notes.add');
+        Route::post('/detail','NotesController@detail')->name('notes.detail');
+        Route::post('/notes/delete', 'NotesController@delete')->name('notes.delete');
     });
 
     //Admin
@@ -54,23 +60,27 @@ Route::group(['middleware' => 'auth'], function ()
     ->middleware('is_admin')
     ->as('admin.')
     ->prefix('admin')
-    ->group(function(){    
-        Route::get('/index', 'AdminController@index')->name('home'); 
+    ->group(function(){
+        Route::get('/index', 'AdminController@index')->name('home');
         Route::get('/profile', 'AdminController@profile')->name('profile');
         Route::post('/profile/update','AdminController@profileupdate')->name('profile.update');
-        
+
         //message module
-        Route::get('/message','MessageController@message')->name('message');   
-        Route::get('/view-message', 'MessageController@viewChat')->name('view_chat'); 
+        Route::get('/message','MessageController@message')->name('message');
+        Route::get('/view-message', 'MessageController@viewChat')->name('view_chat');
 
         //user module
-        Route::get('/user/list','UserController@userlist')->name('user.list');   
-        Route::get('/user/view','UserController@userview')->name('user.view');   
-        // Route::get('/user/edit','UserController@useredit')->name('user.edit');  
+        Route::get('/user/list','UserController@userlist')->name('user.list');
+        Route::get('/user/view','UserController@userview')->name('user.view');
+        // Route::get('/user/edit','UserController@useredit')->name('user.edit');
         Route::get('/user/detail','UserController@userdetail')->name('user.detail');
-        Route::post('/user/update','UserController@userupdate')->name('user.update'); 
+        Route::post('/user/update','UserController@userupdate')->name('user.update');
         Route::post('/user/delete','UserController@userdelete')->name('user.delete');
         Route::post('/approve_user', 'UserController@approve_user')->name('user.approve_user');
+
+        //Note module
+        Route::get('/note/list','NoteController@notelist')->name('note.list');
+        Route::post('/note/delete','NoteController@notedelete')->name('note.delete');
     });
 });
 

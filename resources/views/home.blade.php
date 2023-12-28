@@ -188,7 +188,7 @@ $(document).ready(function() {
         e.preventDefault();
         var $this = $(this);
         var formData = $(this).serialize();
-        $('#count').text('500');
+        $('#count').text('10000');
         $('#copy-url-button').html('Copy');
         $.ajax({
             url: createurl,

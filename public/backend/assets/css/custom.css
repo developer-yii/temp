@@ -27,8 +27,8 @@ top:50%;
 left:50%;
 }
 
-.unread-noti 
-{    
+.unread-noti
+{
   background-color: #f3f5fb;
 }
 
@@ -70,11 +70,16 @@ pre {
     white-space: pre-wrap;
 }
 .message-format {
-    display: block !important;    
-    word-wrap: break-word !important;        
+    display: block !important;
+    word-wrap: break-word !important;
 }
 
 .conversation-text-W-100
 {
   width: 100% !important;
+}
+
+.mr-5
+{
+  margin-right:5px;
 }

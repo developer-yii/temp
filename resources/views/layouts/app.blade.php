@@ -2,23 +2,25 @@
 <!-- saved from url=(0016)https://temp.pm/ -->
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta name="application-name" content="Temp.PM">
-    
-    <meta name="description" content="Temporary Private Message service with encryption, self-destruction and many other security features.">    
+
+    <meta name="description" content="Temporary Private Message service with encryption, self-destruction and many other security features.">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Temp.PM - Temporary Private Message</title>
-    
+
     <link rel="shortcut icon" href="{{ asset('/')}}images/favicon.ico">
     <link rel="stylesheet" href="{{ asset('/')}}css/bootstrap.min.css" >
-    
+
     <link rel="stylesheet" href="{{ asset('/')}}css/style.css" >
     <link rel="stylesheet" href="{{ asset('/')}}css/toastr.css" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
     <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
 
     <!-- <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"> -->
@@ -30,7 +32,7 @@
     <link rel="stylesheet" href="{{ asset('/')}}backend/assets/css/custom.css" >
 </head>
 
-<body>      
+<body>
     <div class="container">
         <div class="panel panel-default panel-background">
             <div class="panel-heading">
@@ -46,14 +48,15 @@
                             <td style="width: 50%; border: 0px; text-align: right;">
                             @guest
                                 @if (Route::has('login'))
-                                    <a href="{{ route('login') }}" class="btn btn-default btn-xs">&nbsp;Login&nbsp;</a>&nbsp; 
+                                    <a href="{{ route('login') }}" class="btn btn-default btn-xs">&nbsp;Login&nbsp;</a>&nbsp;
                                 @endif
-                                @if (Route::has('register'))    
+                                @if (Route::has('register'))
                                     <a href="{{ route('register') }}" class="btn btn-default btn-xs">&nbsp;Register&nbsp;</a>&nbsp;
                                 @endif
                             @else
 
                                 <a href="{{ route('image.list') }}" class="btn btn-default btn-xs">My Images</a>
+                                <a href="{{ route('notes.list') }}" class="btn btn-default btn-xs">My Notes</a>
 
                                <a href="{{ route('profile.view') }}" class="btn btn-default btn-xs">&nbsp;{{ Auth::user()->email }}&nbsp;</a>
 
@@ -87,7 +90,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 
-<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>       
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 

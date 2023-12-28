@@ -1,5 +1,5 @@
 @php
-    $baseUrl = asset('backend')."/";    
+    $baseUrl = asset('backend')."/";
     $user=Auth::user();
 @endphp
 
@@ -49,7 +49,7 @@
             <div class="content-page">
                 <div class="content">
                     @include('admin.include.top-bar')
-                    
+
                     @yield('content')
 
                 </div>
@@ -102,15 +102,17 @@
         <script src="{{$baseUrl}}assets/js/sweetalert2.js?time()"></script>
         <script>
             var adminmessagelist = "{{ route('admin.message') }}";
-            var userlist = "{{ route('admin.user.list') }}";  
+            var userlist = "{{ route('admin.user.list') }}";
             var userdelete="{{ route('admin.user.delete') }}";
             var getuser = "{{ route('admin.user.detail') }}";
             var userupdate ="{{ route('admin.user.update') }}";
             var userapproval = "{{ route('admin.user.approve_user') }}";
             var profileupdate ="{{ route('admin.profile.update') }}";
             var profileupdate ="{{ route('admin.profile.update') }}";
+            var notelist = "{{ route('admin.note.list') }}";
+            var notedelete="{{ route('admin.note.delete') }}";
         </script>
-        
+
         @yield('js')
         <!-- end demo js-->
     </body>

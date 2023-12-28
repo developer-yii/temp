@@ -1,5 +1,5 @@
 @php
-    $userid = Auth::user()->id;    
+    $userid = Auth::user()->id;
     $baseUrl = asset('uploaded_images')."/";
 @endphp
 @extends('layouts.app')
@@ -8,17 +8,17 @@
 <div class="panel-body" id="messagereply">
     @if($image)
         <form action="" method="post" id="file-download">
-            <input type="hidden" value="{{ $image->id}}" name="id">      
+            <input type="hidden" value="{{ $image->id}}" name="id">
 
             <fieldset class="fieldset-border">
-                <legend class="legend-border">Download : {{ $image->image_name}}</legend>            
+                <legend class="legend-border">Download : {{ $image->image_name}}</legend>
                 <div class="container">
                   <div class="row mb-1">
                     <div class="col-md-6">
                       <center>
                         <button type="submit" name="btn btn-default" style="border : 0px;">
                             <img src="{{ asset('images/download.gif') }}" border="0">
-                        </button>                      
+                        </button>
                       </center>
                     </div>
                     <!-- <div class="col-md-6">
@@ -37,19 +37,19 @@
                     <div class="col-md-4 form-input">
                         <fieldset class="fieldset-border">
                             <legend class="legend-border">Password</legend>
-                            <div class="ml-1">                        
+                            <div class="ml-1">
                               <input type="password" name="password"><br>
                               <strong>Please enter your password, <br>this file is password protected.</strong>
                             </div>
-                        </fieldset>  
+                        </fieldset>
                     </div>
                     @endif
-                  </div>             
+                  </div>
                 </div>
 
 
                 <div class="container row col-md-12">
-                  <div class="row mb-1 col-md-10">
+                  <div class="row mb-1 col-md-11">
                     <fieldset class="fieldset-border col-md-offset-1">
                         <legend class="legend-border">Image Preview</legend>
                         <div class="col-md-12 mb-1">
@@ -60,16 +60,14 @@
                                 @endphp
 
                                 @if(empty($image->password) && !empty($imagePath) && in_array($fileInfo['extension'], $validExtensions))
-                                    <img src="{{ $imagePath }}" style="max-height: 200px; max-width: 100%;">
+                                    <img src="{{ $imagePath }}" style="max-height: auto; max-width: 100%;">
                                 @endif
                             </center>
                         </div>
-                    </fieldset>  
-                  </div>             
+                    </fieldset>
+                  </div>
                 </div>
             </fieldset>
-
-
         </form>
     @else
         <fieldset class="fieldset-border">
@@ -87,7 +85,7 @@
 
 <script>
 $(document).ready(function() {
-    var downloadurl="{{ route('image.download') }}";    
+    var downloadurl="{{ route('image.download') }}";
 
     $.ajaxSetup({
         headers : {
@@ -95,8 +93,8 @@ $(document).ready(function() {
         }
     });
 
-    $('#file-download').submit(function(e) 
-    {        
+    $('#file-download').submit(function(e)
+    {
         e.preventDefault();
         var formData = $(this).serialize();
         var $this = $(this);
@@ -105,33 +103,33 @@ $(document).ready(function() {
             url: downloadurl,
             type: "POST",
             data: formData,
-            success: function(response) 
+            success: function(response)
             {
-                if (response.imagePath) 
+                if (response.imagePath)
                 {
                     var link = document.createElement('a');
-                    link.href = response.imagePath;                    
+                    link.href = response.imagePath;
                     link.download = response.imagename;
                     link.target = '_blank';
                     link.style.display = 'none';
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    $this[0].reset();                 
+                    $this[0].reset();
                     toastr.success(response.message);
-                } 
-                else 
+                }
+                else
                 {
                     toastr.error(response.message);
                 }
             },
-            error: function(xhr, status, error) 
+            error: function(xhr, status, error)
             {
                 alert('Something went wrong!', 'error');
             }
         });
     });
-    
+
 });
 
 </script>
