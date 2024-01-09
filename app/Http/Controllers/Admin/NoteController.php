@@ -11,7 +11,6 @@ class NoteController extends Controller
 {
     public function notelist(Request $request)
     {
-
         if($request->ajax())
         {
             $data = Note::all();

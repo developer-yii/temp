@@ -68,6 +68,8 @@ left:50%;
 
 pre {
     white-space: pre-wrap;
+    background-color: #fff !important;
+    border: none !important;
 }
 .message-format {
     display: block !important;

@@ -20,7 +20,16 @@
             </div>
         </div>
     </div>
-
+    <style>
+        .table-responsive {
+            overflow: auto;
+        }
+        #note_datatable td {
+            max-width: 400px; /* Adjust the max-width as needed */
+            word-wrap: break-word;
+            white-space: normal;
+        }
+    </style>
     <span id="success"></span>
     <div class="row">
         <div class="col-12">
@@ -29,16 +38,18 @@
                     <h4 class="header-title">Note List</h4>
                     <div class="tab-content">
                         <div class="tab-pane show active" id="basic-datatable-preview">
-                            <table id="note_datatable" class="table w-100">
-                                <thead>
-                                    <tr>
-                                        <th width="10%">Id</th>
-                                        <th width="25%">Notes</th>
-                                        <th width="50%">Message</th>
-                                        <th width="15%"><center>Action</center></th>
-                                    </tr>
-                                </thead>
-                            </table>
+                            <div class="table-responsive">
+                                <table id="note_datatable" class="table w-100">
+                                    <thead>
+                                        <tr>
+                                            <th width="10%">Id</th>
+                                            <th width="40%">Notes</th>
+                                            <th width="40%">Message</th>
+                                            <th width="10%"><center>Action</center></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
                         </div> <!-- end preview-->
                     </div> <!-- end tab-content-->
                 </div> <!-- end card body-->

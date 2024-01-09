@@ -9,9 +9,27 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         ajax: notelist,
+        order: [0, 'desc'],
         columns: [
-            { data: 'note' },
-            { data: 'message', name: 'message' },
+            { data: 'id', name: 'id', visible: false },
+            {
+                data: 'note',
+                name: 'note',
+                render: function (data, type, full, meta) {
+                    // Replace newline characters with HTML line break tags
+                    var formattedData = data ? data.replace(/\n/g, '<br>') : '';
+                    return '<pre>' + formattedData + '</pre>';
+                }
+            },
+            {
+                data: 'message',
+                name: 'message',
+                render: function (data, type, full, meta) {
+                    // Replace newline characters with HTML line break tags
+                    var formattedData = data ? data.replace(/\n/g, '<br>') : '';
+                    return '<pre>' + formattedData + '</pre>';
+                }
+            },
             { data: 'action', name: 'action', orderable: false }
         ]
     });
@@ -85,6 +103,9 @@ $(document).ready(function () {
             success : function(data)
             {
                 $('#notes').val(data.note);
+                var formattedMessage = data.message ? '<pre>' + data.message.replace(/\n/g, '<br>') + '</pre>' : '';
+                $('#message').html(formattedMessage);
+                $('#messagelabel').attr('style', 'display:block');
                 $('#notesModal').find('button[type="submit"]').html("Update");
                 $('#notesModal').find('#exampleModalLabel').html("Edit Note");
             }
@@ -95,6 +116,8 @@ $(document).ready(function () {
         $('.error').html("");
         $('#message-notes')[0].reset();
         $('#note_id').val("");
+        $('#message').html("");
+        $('#messagelabel').attr('style', 'display:none');
         $('#notesModal').find('button[type="submit"]').html("Save");
         $('#notesModal').find('#exampleModalLabel').html("Add Note");
 

@@ -41,19 +41,42 @@ $(document).ready(function()
     });
 
     var messagetable = $('#note_datatable').DataTable({
+        // responsive: true,
+
         processing : true,
         serverSide : true,
         bStateSave: true,
         pageLength: 25,
+        // scrollX: true,
+        // scrollY: 400,
         ajax : {
             type : "GET",
             url : notelist,
         },
+        order: [0, 'desc'],
         columns : [
-            { data: 'id', name: 'id' },
-            { data: 'note', name: 'note' },
-            { data: 'message', name: 'message' },
-            { data: 'action', name: 'action', orderable: false }
+            { data: 'id', name: 'id'},
+            {
+                data: 'note',
+                name: 'note',
+                render: function (data, type, full, meta) {
+                    // Replace newline characters with HTML line break tags
+                    return data ? data.replace(/\n/g, '<br>') : '';
+                    // var formattedData = data ? data.replace(/\n/g, '<br>') : '';
+                    // return '<pre>' + formattedData + '</pre>';
+                }
+            },
+            {
+                data: 'message',
+                name: 'message',
+                render: function (data, type, full, meta) {
+                    // Replace newline characters with HTML line break tags
+                    return data ? data.replace(/\n/g, '<br>') : '';
+                    // var formattedData = data ? data.replace(/\n/g, '<br>') : '';
+                    // return '<pre>' + formattedData + '</pre>';
+                }
+            },
+            { data: 'action', name: 'action', orderable: false}
         ],
     });
 

@@ -164,7 +164,9 @@
                 $('#notesModal').on('show.bs.modal', function(event) {
                     var link = $(event.relatedTarget); // Link that triggered the modal
                     var message = link.data('message'); // Extract info from data-* attributes
-                    $('#message').text(message);
+                    var formattedMessage = message ? '<pre>' + message.replace(/\n/g, '<br>') + '</pre>' : '';
+
+                    $('#message').html(formattedMessage);
                     $('#messages').val(message);
                 });
 

@@ -16,6 +16,7 @@
                 <table id="data-table" class="table table-bordered data-table">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Notes</th>
                             <th>Message</th>
                             <th style="width:15%;">Action</th>
@@ -64,8 +65,10 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="col-md-2" id="messagelabel" style="display: none">
+                                    <label for="message">Message : </label>
+                                </div>
                                 <div class="col-md-6">
-                                    <input type="hidden" name="message" class="form-control" id="messages" readonly>
                                     <span id="message"></span>
                                 </div>
                             </div>

@@ -17,7 +17,6 @@ class NotesController extends Controller
             $authId = Auth::id();
             $data = Note::where('user_id', $authId)->get();
 
-
             return DataTables::of($data)
 
                 ->addColumn('action', function ($data) {
