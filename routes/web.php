@@ -54,6 +54,7 @@ Route::group(['middleware' => 'auth'], function ()
         Route::get('/notes/add', 'NotesController@add')->name('notes.add');
         Route::post('/detail','NotesController@detail')->name('notes.detail');
         Route::post('/notes/delete', 'NotesController@delete')->name('notes.delete');
+        Route::post('/notes/pin', 'NotesController@pin')->name('notes.pin');
     });
 
     //Admin

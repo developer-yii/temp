@@ -15,12 +15,25 @@ class NotesController extends Controller
     {
         if ($request->ajax()) {
             $authId = Auth::id();
-            $data = Note::where('user_id', $authId)->get();
+            $data = Note::where('user_id', $authId)
+                ->orderBy('pin_note', 'DESC')
+                ->orderBy('updated_at', 'DESC')
+                ->get();
 
             return DataTables::of($data)
 
                 ->addColumn('action', function ($data) {
-                    return '<a class="btn btn-sm btn-info mr-5 edit-note" data-id="' . $data->id . '" data-toggle="modal" data-target="#notesModal"><i class="fa fa-pencil"></i></a><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-note" data-id="' . $data->id . ' "title="Delete"><i class="fas fa-trash"></i></a>';
+                    $editButton = '<a class="btn btn-sm btn-info mr-5 edit-note" data-id="' . $data->id . '" data-toggle="modal" data-target="#notesModal"><i class="fa fa-pencil"></i></a>';
+                    $deleteButton = '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-5 delete-note" data-id="' . $data->id . '" title="Delete"><i class="fas fa-trash"></i></a>';
+
+                    // Determine button class based on pin state
+                    $pinIcon = $data->pin_note ? '<img src="' . asset('images/unpinned.png') . '" height="20px" width="20px">' : '<i class="fas fa-thumbtack"></i>';
+                    
+                    $pinTitle = $data->pin_note ? 'Unpin Note' : 'Pin Note';
+
+                    $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning mr-1 pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '">'.$pinIcon.'</a>';
+
+                    return $editButton . $deleteButton . $pinButton;
                 })
                 ->toJson();
         }
@@ -77,5 +90,27 @@ class NotesController extends Controller
     {
         $data = Note::find($request->id);
         return response()->json($data);
+    }
+
+    public function pin(Request $request)
+    {
+        
+        $note = Note::find($request->id);
+        if (!$note) {
+            return response()->json(['message' => 'Note not found'], 404);
+        }
+
+        // Toggle pin state
+        $note->pin_note = !$note->pin_note;
+        $note->save();
+
+        // Return a message based on the new pin state
+        if ($note->pin_note) {
+            $message = 'Note pinned';
+        } else {
+            $message = 'Note unpinned';
+        }
+
+        return response()->json(['message' => $message]);
     }
 }

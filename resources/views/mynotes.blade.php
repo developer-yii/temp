@@ -19,7 +19,7 @@
                             <th>ID</th>
                             <th>Notes</th>
                             <th>Message</th>
-                            <th style="width:15%;">Action</th>
+                            <th style="width:20%;">Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -28,7 +28,7 @@
     </div>
 @endsection
 @section('modal')
-    <div class="modal fade" id="notesModal" role="dialog">
+    <div class="modal fade" id="notesModal" role="dialog" tabindex="-1">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -91,6 +91,7 @@
         var notelist = "{{ route('notes.list') }}";
         var getnote = "{{ route('notes.detail') }}";
         var notedelete = "{{ route('notes.delete') }}";
+        var pinnote = "{{ route('notes.pin') }}";
     </script>
     <script src="{{ asset('js/mynotes.js') }}"></script>
 @endsection

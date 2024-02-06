@@ -11,7 +11,7 @@ $(document).ready(function () {
         ajax: notelist,
         order: [0, 'desc'],
         columns: [
-            { data: 'id', name: 'id', visible: false },
+            { data: 'pin_note', name: 'pin_note', visible: false },
             {
                 data: 'note',
                 name: 'note',
@@ -38,7 +38,7 @@ $(document).ready(function () {
         e.preventDefault();
 
         var id = $(this).attr('data-id');
-        if (confirm('Are you sure you want to delete this image?')) {
+        if (confirm('Are you sure you want to delete this note?')) {
             $.ajax({
                 url: notedelete + '?id=' + id,
                 type: 'POST',
@@ -48,7 +48,7 @@ $(document).ready(function () {
                     $('#data-table').DataTable().ajax.reload();
                 },
                 error: function (error) {
-                    toastr.error('An error occurred while deleting the image.');
+                    toastr.error('An error occurred while deleting the note.');
                 }
             });
         }
@@ -121,5 +121,25 @@ $(document).ready(function () {
         $('#notesModal').find('button[type="submit"]').html("Save");
         $('#notesModal').find('#exampleModalLabel').html("Add Note");
 
+    });
+
+    $('body').on('click', '.pin-note', function (e) {
+        e.preventDefault();
+
+        var id = $(this).attr('data-id');
+        
+            $.ajax({
+                url: pinnote + '?id=' + id,
+                type: 'POST',
+                dataType: 'json',
+                success: function (result) {
+                    toastr.success(result.message);
+                    $('#data-table').DataTable().ajax.reload();
+                },
+                error: function (error) {
+                    toastr.error('An error occurred while pin the note.');
+                }
+            });
+        
     });
 });
