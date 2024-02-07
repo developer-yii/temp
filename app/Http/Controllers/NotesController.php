@@ -25,13 +25,16 @@ class NotesController extends Controller
                 ->addColumn('action', function ($data) {
                     $editButton = '<a class="btn btn-sm btn-info mr-5 edit-note" data-id="' . $data->id . '" data-toggle="modal" data-target="#notesModal"><i class="fa fa-pencil"></i></a>';
                     $deleteButton = '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-5 delete-note" data-id="' . $data->id . '" title="Delete"><i class="fas fa-trash"></i></a>';
-
-                    // Determine button class based on pin state
-                    $pinIcon = $data->pin_note ? '<img src="' . asset('images/unpinned.png') . '" height="20px" width="20px">' : '<i class="fas fa-thumbtack"></i>';
                     
                     $pinTitle = $data->pin_note ? 'Unpin Note' : 'Pin Note';
-
-                    $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning mr-1 pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '">'.$pinIcon.'</a>';
+                    if($data->pin_note)
+                    {
+                        $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning mr-1 pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '" style="padding: 5px 8px;"><img src="' . asset('images/unpinned-note.png') . '" width="13px"></a>';
+                    }
+                    else
+                    {
+                        $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning mr-1 pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '"><i class="fas fa-thumbtack"></i></a>';
+                    }
 
                     return $editButton . $deleteButton . $pinButton;
                 })
