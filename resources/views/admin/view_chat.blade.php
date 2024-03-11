@@ -55,7 +55,7 @@
                                  <div class="conversation-text conversation-text-W-100">
                                     <div class="ctext-wrap message-format">
                                        <i style="font-size: 15px;">{{ $data->user->email}}</i>
-                                          <pre style="white-space: pre-wrap;">{{ $data->message }}</pre>
+                                          <pre style="white-space: pre-wrap; background-color: #f1f3fa !important;">{{ $data->message }}</pre>
                                        <p style="color: #927c8f">{{ $data->created_at}}</p>
                                     </div>
                                  </div>

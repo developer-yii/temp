@@ -68,13 +68,8 @@ left:50%;
 
 pre {
     white-space: pre-wrap;
-    /* background-color: #fff !important; */
-    font-family: Nunito, sans-serif !important;
+    background-color: #fff !important;
     border: none !important;
-    font-size: .9rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #6c757d;
 }
 .message-format {
     display: block !important;
