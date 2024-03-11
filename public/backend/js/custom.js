@@ -16,8 +16,8 @@ $(document).ready(function()
             url : adminmessagelist,
         },
         columns : [
-            { data: 'first_message_date', name: 'first_message_date' },
-            { data: 'user_emails', name: 'user_emails' },
+            { data: 'created_at', name: 'created_at' },
+            { data: 'user.email', name: 'user.email' },
             { data: 'conversation_token', name: 'conversation_token' },
             { data: 'action', name: 'action', orderable: false }
         ],
@@ -44,26 +44,22 @@ $(document).ready(function()
         // responsive: true,
 
         processing : true,
-        serverSide : true,
-        bStateSave: true,
+        // serverSide : true,
+        // bStateSave: true,
         pageLength: 25,
-        // scrollX: true,
-        // scrollY: 400,
         ajax : {
             type : "GET",
             url : notelist,
         },
         order: [0, 'desc'],
         columns : [
-            { data: 'id', name: 'id'},
+            { data: 'id', name: 'id', visible: false},
+            { data: 'user.email', name: 'user.email'},
             {
                 data: 'note',
                 name: 'note',
                 render: function (data, type, full, meta) {
-                    // Replace newline characters with HTML line break tags
                     return data ? data.replace(/\n/g, '<br>') : '';
-                    // var formattedData = data ? data.replace(/\n/g, '<br>') : '';
-                    // return '<pre>' + formattedData + '</pre>';
                 }
             },
             {

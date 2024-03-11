@@ -2,7 +2,7 @@
 
 @section('content')
 @if(session('success'))
-<div class="panel-body">                
+<div class="panel-body">
     <div class="alert alert-success">
         <b>{{ session('success') }}</b><br>
         • It has now been securely deleted, as you requested.<br>
@@ -11,20 +11,20 @@
     <div class="spacer">
         <a href="{{ route('home') }}" class="btn btn-default"> Write a New Message</a>
     </div>
-                            
+
 </div>
 @elseif(session('error'))
 <div class="panel-body">
     <div class="alert alert-danger">
         <b>Error!</b><br>
         {{ session('error') }}
-    </div>   
+    </div>
     <div class="spacer">
         <a href="{{ route('home')}}" class="btn btn-default"> Write a New Message</a>
-    </div>   
+    </div>
 </div>
 @else
-<div class="panel-body" id="createmessage">                                    
+<div class="panel-body" id="createmessage">
     <form action="" method="post" id="message-form" autocomplete="off">
         @csrf
         <input type="hidden" name="imgids" value="" id="img-ids">
@@ -37,9 +37,9 @@
         </div>
         <div class="form-group">
             <textarea name="note" id="note" class="form-control form-message" rows="8" maxlength="10000" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
-            <span class="error" id="error"></span> 
+            <span class="error" id="error"></span>
             <div id="char-count">
-                Characters remaining: 
+                Characters remaining:
                 <span id="count">10000</span>
                 <span id="maximum">/ 10000</span>
             </div>
@@ -75,17 +75,17 @@
                         <option value="60d">2 months</option>
                     </optgroup>
                 </select>
-                <span class="error"></span> 
+                <span class="error"></span>
             </div>
         </div>
 
         <div class="spacer">
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#imageModal"> 
-                <img src="{{ asset('images/upload.png') }}" width="16" height="16" border="0" align="absmiddle"> 
-                <b>Upload files !</b> 
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#imageModal">
+                <img src="{{ asset('images/upload.png') }}" width="16" height="16" border="0" align="absmiddle">
+                <b>Upload files !</b>
             </button>
-        </div>                              
-    </form>            
+        </div>
+    </form>
 </div>
 @endif
 <div class="panel-body" id="createurl" style="display: none;">
@@ -93,34 +93,34 @@
         <b>Message was created successfully!</b><br>
         <div style="text-align: justify;">
             • Copy the URL below and send it to the recipient.<br>
-            • The message will self-destruct after being read or after the timer expires if the message hasn't been read in time.<br>
+            • The message will self-destruct after the timer expires if the message hasn't been read in time.<br>
             • In case you need to delete the message you just wrote, use the corresponding button.<br>
             • The contents of this page will disappear in <span id="message_time"></span>.
-        </div>        
+        </div>
     </div>
 
-    <div class="well">               
+    <div class="well">
         <div class="input-group" id="clipboardjs-group" style=""><b>URL</b>
             <input type="text" class="form-control form-url-normal clipboardjs" name="noteurl1" id="noteurl1" data-clipboard-target="#noteurl1" autocomplete="off" readonly>
-            
+
             <span class="input-group-btn">
                 <button class="btn btn-default clipboardjs" type="button" id="copy-url-button" data-clipboard-target="#noteurl1" style="margin-top: 27px;">Copy</button>
             </span>
         </div>
     </div>
     <div class="spacer">
-        <a href="" class="btn btn-default"> Write Another Message</a>
+        <a href="" class="btn btn-default"> Create New Chat</a>
         <!-- <a href="#" class="btn btn-default" onclick="confirmDelete(event)">Delete This Message</a>
         <form id="delete-form" action="" method="POST" style="display: none;">
             @csrf
         </form> -->
-    </div>                            
+    </div>
 </div>
 @endsection
 @section('modal')
     <div class="modal fade" id="imageModal" role="dialog">
         <div class="modal-dialog">
-        
+
           <!-- Modal content-->
             <div class="modal-content">
                 <!-- Modal Header -->
@@ -134,9 +134,9 @@
                             <div class="col-md-6">
                               <button type="button" id="btn-close" class="close" data-dismiss="modal">&times;</button>
                             </div>
-                        </div>                    
+                        </div>
                       </div>
-                      
+
                       <!-- Modal Body -->
                       <div class="modal-body">
                         <div class="container">
@@ -159,7 +159,7 @@
                           </div>
                         </div>
                       </div>
-                  
+
                       <!-- Modal Footer -->
                       <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
@@ -183,8 +183,8 @@ $(document).ready(function() {
         }
     });
 
-    $('#message-form').submit(function(e) 
-    {        
+    $('#message-form').submit(function(e)
+    {
         e.preventDefault();
         var $this = $(this);
         var formData = $(this).serialize();
@@ -194,42 +194,42 @@ $(document).ready(function() {
             url: createurl,
             type: "POST",
             data: formData,
-            beforeSend: function() 
+            beforeSend: function()
             {
                 $($this).find('button[type="submit"]').prop('disabled', true);
             },
-            success: function(response) 
+            success: function(response)
             {
                 $($this).find('button[type="submit"]').prop('disabled',false);
-                if (response.status == true) 
+                if (response.status == true)
                 {
                     $('#message-form')[0].reset();
                     $('.error').html("");
                     $('#createurl').show();
                     $('#message_time').html(response.ttl);
-                    var generatedurl="{{ asset('/') }}" + response.message.url;
+                    var generatedurl="{{ asset('/') }}" + response.token;
                     //var token=response.message.conversation_token;
-                    $('#noteurl1').val(generatedurl);     
+                    // $('#note').val(response.note);
+                    $('#noteurl1').val(generatedurl);
 
                     var deleteAction = "{{ route('message.delete', ['token' => 'TOKEN_PLACEHOLDER']) }}";
                     deleteAction = deleteAction.replace('TOKEN_PLACEHOLDER', response.message.url);
-                    $('#delete-form').attr('action', deleteAction); 
-                } 
+                    $('#delete-form').attr('action', deleteAction);
+                }
                 else
-                {                    
+                {
                     first_input = "";
                     $('.error').html("");
-                    $.each(response.errors, function(key) 
+                    $.each(response.errors, function(key)
                     {
                         if(first_input=="") first_input=key;
-                        
-                            $('#'+key).closest('.form-group').find('.error').html(response.errors[key]);
-                        
-                    });
 
+                            $('#'+key).closest('.form-group').find('.error').html(response.errors[key]);
+
+                    });
                 }
             },
-            error: function(xhr, status, error) 
+            error: function(xhr, status, error)
             {
                 $($this).find('button[type="submit"]').prop('disabled', false);
                 alert('Something went wrong!', 'error');
@@ -237,9 +237,9 @@ $(document).ready(function() {
         });
     });
 
-    $('#image-store').submit(function(e) 
-    { 
-        e.preventDefault();        
+    $('#image-store').submit(function(e)
+    {
+        e.preventDefault();
         var dataString = new FormData($('#image-store')[0]);
         var $this = $(this);
 
@@ -249,56 +249,56 @@ $(document).ready(function() {
             data: dataString,
             processData: false,
             contentType: false,
-            beforeSend: function() 
+            beforeSend: function()
             {
                 $($this).find('button[type="submit"]').prop('disabled', true);
             },
-            success: function(result) 
+            success: function(result)
             {
                 $($this).find('button[type="submit"]').prop('disabled',false);
                 if(result.status == true)
-                {                
+                {
                     $this[0].reset();
-                    
-                    $('#imageModal').modal('hide'); 
-                    
-                    var imgLinks = result.imageLinks;           
-                    var imgIds = result.imageIds;           
+
+                    $('#imageModal').modal('hide');
+
+                    var imgLinks = result.imageLinks;
+                    var imgIds = result.imageIds;
 
                     var linksHtml = '';
-                    $.each(imgLinks, function(index, link) 
+                    $.each(imgLinks, function(index, link)
                     {
                         linksHtml += link + '\n';
-                    });  
+                    });
 
                     const textarea = document.getElementById("note");
                     const charCount = document.getElementById("count");
                     const maxCharLimit = 10000;
 
-                    if (textarea.value.length + linksHtml.length > maxCharLimit) 
-                    {                    
+                    if (textarea.value.length + linksHtml.length > maxCharLimit)
+                    {
                         const errorMessage = document.getElementById("error");
                         errorMessage.textContent = "Character limit exceeded!";
                         setTimeout(function () {
                             errorMessage.textContent = ""; // Clear the error message
                         }, 5000);
                     }
-                    else 
+                    else
                     {
                         $('#note').val(function (index, currentValue) {
                             const newContent = currentValue + '\n' + linksHtml;
-                            if (newContent.length <= maxCharLimit) 
+                            if (newContent.length <= maxCharLimit)
                             {
                                 toastr.success(result.message);
                                 return newContent;
-                            } 
-                            else 
+                            }
+                            else
                             {
                                 const errorMessage = document.getElementById("error");
                                 errorMessage.textContent = "Character limit exceeded!";
                                 setTimeout(function () {
                                     errorMessage.textContent = ""; // Clear the error message
-                                }, 5000);                                
+                                }, 5000);
                                 return currentValue; // Do not exceed character limit
                             }
                         });
@@ -309,38 +309,38 @@ $(document).ready(function() {
 
                     $('#img-ids').val(imgIds);
 
-                }                
-                else 
-                {                     
+                }
+                else
+                {
                     first_input = "";
                     $('.error').html("");
-                    $.each(result.errors, function(key) {                        
+                    $.each(result.errors, function(key) {
                         if(first_input=="") first_input=key;
-                        if (key.includes(".")) 
+                        if (key.includes("."))
                         {
                             let main_key = key.split('.')[0];
                             $('#'+main_key).closest('.form-input').find('.error').html(result.errors[key]);
                         }
                         else
                         {
-                            $('#'+key).closest('.form-input').find('.error').html(result.errors[key]);    
+                            $('#'+key).closest('.form-input').find('.error').html(result.errors[key]);
                         }
-                        
+
                     });
                     $('#image-store').find("#"+first_input).focus();
                 }
             },
-            error: function(error) 
+            error: function(error)
             {
                 $($this).find('button[type="submit"]').prop('disabled', false);
                 alert('Something went wrong!', 'error');
             }
         });
-        
+
     });
 
     $('#imageModal').on('hidden.bs.modal',function(e){
-        $('#image-store')[0].reset();       
+        $('#image-store')[0].reset();
     });
 
 });

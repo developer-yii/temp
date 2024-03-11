@@ -13,7 +13,7 @@ class NoteController extends Controller
     {
         if($request->ajax())
         {
-            $data = Note::all();
+            $data = Note::with('user')->get();
 
             return DataTables::of($data)
                 ->addColumn('action', function ($data) {

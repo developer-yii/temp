@@ -43,8 +43,9 @@
                                     <thead>
                                         <tr>
                                             <th width="10%">Id</th>
-                                            <th width="40%">Notes</th>
-                                            <th width="40%">Message</th>
+                                            <th width="10%">Email</th>
+                                            <th width="35%">Notes</th>
+                                            <th width="35%">Message</th>
                                             <th width="10%"><center>Action</center></th>
                                         </tr>
                                     </thead>

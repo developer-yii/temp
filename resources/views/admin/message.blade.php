@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>
-    
+
     <span id="success"></span>
     <div class="row">
         <div class="col-12">
@@ -31,10 +31,10 @@
                         <div class="tab-pane show active" id="basic-datatable-preview">
                             <table id="message_datatable" class="table dt-responsive nowrap w-100">
                                 <thead>
-                                    <tr>                                        
-                                        <th>date</th>                                        
+                                    <tr>
+                                        <th>date</th>
                                         <th>User Email</th>
-                                        <th>Token</th>
+                                        <th>Token/Url</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>

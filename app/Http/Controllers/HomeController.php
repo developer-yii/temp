@@ -42,13 +42,13 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         if ($user)
-        {      
-            return view('profile', compact('user'));           
-        } 
-        else 
+        {
+            return view('profile', compact('user'));
+        }
+        else
         {
             return redirect()->route('login');
-        }        
+        }
     }
     public function updateProfile(Request $request)
     {
@@ -56,37 +56,37 @@ class HomeController extends Controller
         $validatedData = Validator::make($request->all(),[
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => [
-            function ($attribute, $value, $fail) use ($request) 
+            function ($attribute, $value, $fail) use ($request)
             {
-                if (!empty($value)) 
+                if (!empty($value))
                 {
-                    if (strlen($value) < 8) 
+                    if (strlen($value) < 8)
                     {
                         $fail('The password must be at least 8 characters.');
                     }
-                    elseif ($value !== $request->input('password_confirmation')) 
+                    elseif ($value !== $request->input('password_confirmation'))
                     {
                         $fail('The password confirmation does not match.');
                     }
                 }
             },
-        ],            
+        ],
         ]);
 
-        if ($validatedData->fails()) 
+        if ($validatedData->fails())
         {
-            $result = ['status' => false,'errors' => $validatedData->errors()];            
+            $result = ['status' => false,'errors' => $validatedData->errors()];
             return response()->json($result);
         }
         else
         {
-            $user->email = $request->email; 
+            $user->email = $request->email;
             if(!empty($request->password))
             {
                 $user->password = Hash::make($request->password);
             }
             if($user->save())
-            {                    
+            {
                 $result = ['status' => true, 'message' => 'Profile update successfully.', 'data' => $user];
             }
             else
@@ -95,6 +95,5 @@ class HomeController extends Controller
             }
             return response()->json($result);
         }
-        return response()->json($result);
     }
 }

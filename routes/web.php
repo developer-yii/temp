@@ -44,8 +44,8 @@ Route::group(['middleware' => 'auth'], function ()
         Route::post('/image/download','ImageController@download')->name('image.download');
 
 
-        Route::get('/{token}', 'MessageController@messageConfirm')->name('message.confirm');
-        Route::get('/read/{token}', 'MessageController@messageRead')->name('message.read');
+        Route::get('/fetch-data/view', 'MessageController@fetchData')->name('message.fetchData');
+        Route::get('/{token}', 'MessageController@messageRead')->name('message.read1');
         Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
         Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
 

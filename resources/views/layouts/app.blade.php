@@ -78,7 +78,7 @@
     <div class="container">
         <div class="row bottom2" style="margin-left: -12px; margin-right: -12px; margin-top: -15px; margin-bottom: -15px;">
             <div class="col-xs-6" style="text-align: left;">
-                © Temp - 2023
+                © {{ ENV('APP_NAME') }} - <script>document.write(new Date().getFullYear())</script>
             </div>
             <div class="col-xs-6" style="text-align: right;">
                 BTC: 1temp5Y5VzJevLpRedW8zZFrMWuadL3UR

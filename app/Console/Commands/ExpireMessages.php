@@ -41,23 +41,12 @@ class ExpireMessages extends Command
     public function handle()
     {
         $currentDateTime = Carbon::now();
-        $expiredMessages = Message::where('expiry', '<=', $currentDateTime)
-        ->orWhere('link_visit_count', '>=', 2)
-        ->get();
-        
-        foreach ($expiredMessages as $message) 
-        {            
-            $count_token=Message::where('conversation_token', '=', $message->conversation_token)
-                ->whereNotNull('url')
-                ->get();
-                if($count_token->count()==1 && (isset($count_token[0]) && ($count_token[0]->link_visit_count>=2) || $count_token[0]->expiry<=$currentDateTime))
-                {
-                    $delete_conversation=Conversation::where('conversation_token', '=', $message->conversation_token)->delete();
-                    $delete_all=Message::where('conversation_token', '=', $message->conversation_token)->delete();
-                }
-                $message->url = Null; // Set the URL field to an empty string          
-                $message->save(); 
+        $expiredConversations = Conversation::where('expiry', '<=', $currentDateTime)
+            ->get();
+
+        foreach ($expiredConversations as $conversation)
+        {
+            $conversation->delete();
         }
-        //$this->info("delete success");
     }
 }

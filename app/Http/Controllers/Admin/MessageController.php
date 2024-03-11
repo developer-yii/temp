@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
@@ -16,15 +17,15 @@ class MessageController extends Controller
     public function message(Request $request)
     {
         if($request->ajax())
-        {            
-           
-            $data = DB::table('messages')
-                ->join('users', 'messages.user_id', '=', 'users.id')
-                ->select('messages.id','messages.conversation_token')
-                ->selectRaw('MIN(messages.created_at) as first_message_date')
-                ->selectRaw('GROUP_CONCAT(DISTINCT users.email SEPARATOR ", ") as user_emails')
-                ->groupBy('messages.conversation_token')                
-                ->get();                        
+        {
+            $data = Conversation::with('user')->get();
+            // $data = DB::table('messages')
+            //     ->join('users', 'messages.user_id', '=', 'users.id')
+            //     ->select('messages.id','messages.conversation_token')
+            //     ->selectRaw('MIN(messages.created_at) as first_message_date')
+            //     ->selectRaw('GROUP_CONCAT(DISTINCT users.email SEPARATOR ", ") as user_emails')
+            //     ->groupBy('messages.conversation_token')
+            //     ->get();
 
             return DataTables::of($data)
                  ->addColumn('action', function ($data) {
@@ -32,40 +33,25 @@ class MessageController extends Controller
             })
 
             ->rawColumns(['action', 'status'])
-                ->toJson();   
+                ->toJson();
 
-        }            
-        
-        return view('admin.message');        
+        }
+
+        return view('admin.message');
     }
     public function viewchat(Request $request)
     {
         $id=$request->id;
-        $token=Message::where('messages.id', $id)->first();
-        if(!$token) 
-        {
-            return back();
-        }
-        $model = Message::select('messages.*', 'users.email as user_email')
-            ->leftJoin('users', 'messages.user_id', '=', 'users.id')
-            ->where('conversation_token', function ($query) use ($id) {
-                $query->select('conversation_token')                      
-                      ->from('messages')
-                      ->where('id', $id)
-                      ->limit(1);
-            })
-            ->get();     
-        
-        
-        if (!$model) 
+        $messages=Message::with('user')->where('conversation_id', $id)->get();
+        if (!$messages)
         {
             return back();
         }
 
-        $uniqueUserEmails = $model->where('conversation_token', $token->conversation_token)->pluck('user_email')->unique()->toArray();
+        $uniqueUserEmails = $messages->pluck('user.email')->unique()->toArray();
 
-        $uniqueUserEmailsArray = implode(', ', $uniqueUserEmails);        
-        
-        return view("admin.view_chat", ['model' => $model, 'uniqueUserEmails' => $uniqueUserEmailsArray]);        
+        $uniqueUserEmailsArray = implode(', ', $uniqueUserEmails);
+
+        return view("admin.view_chat", ['messages' => $messages, 'uniqueUserEmails' => $uniqueUserEmailsArray]);
     }
 }

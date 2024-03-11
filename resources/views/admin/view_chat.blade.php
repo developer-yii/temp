@@ -21,7 +21,7 @@
             </div>
         </div>
     </div>
-    
+
     <span id="success"></span>
     <div class="row">
         <div class="col-12">
@@ -38,8 +38,8 @@
                                     </div>
                                   </div>
                                </div>
-                                                         
-                            </div>              
+
+                            </div>
                          </div>
                       </div>
                       <div class="col-xl-12 col-lg-12 order-lg-2 order-xl-1">
@@ -47,22 +47,22 @@
                            <div class="card-body">
 
                             <ul class="conversation-list" data-simplebar style="max-height: 537px">
-                              @foreach($model as $data)
+                              @foreach($messages as $data)
                               <li class="clearfix" >
                                  <div class="chat-avatar">
                                     <img src="{{ $baseUrl}}assets/images/blank.png" alt="user-image" class="rounded-circle">
                                  </div>
                                  <div class="conversation-text conversation-text-W-100">
                                     <div class="ctext-wrap message-format">
-                                       <i style="font-size: 15px;">{{ $data->user_email}}</i>
+                                       <i style="font-size: 15px;">{{ $data->user->email}}</i>
                                           <pre style="white-space: pre-wrap;">{{ $data->message }}</pre>
                                        <p style="color: #927c8f">{{ $data->created_at}}</p>
                                     </div>
                                  </div>
                               </li>
-                              @endforeach                 
-                            </ul>  
-                             
+                              @endforeach
+                            </ul>
+
                             </div>
                             <!-- end card-body -->
                          </div>

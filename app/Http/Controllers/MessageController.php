@@ -29,60 +29,55 @@ class MessageController extends Controller
             return response()->json($response);
         }
 
-        $conversation_token = Str::random(10);
-        while (Message::where('conversation_token', $conversation_token)->exists()) {
-            $conversation_token = Str::random(10);
+        $conversation_token = Str::random(30);
+        while (Conversation::where('conversation_token', $conversation_token)->exists()) {
+            $conversation_token = Str::random(30);
         }
 
-        $url = Str::random(30);
-        while (Message::where('url', $url)->exists()) {
-            $url = Str::random(30);
-        }
+        $conversation = new Conversation();
+        $conversation->conversation_token = $conversation_token;
+        $conversation->user_id = Auth::id();
+        $conversation->expiry = self::calculateExpiryDate($request->ttl);
 
-        $message = new Message();
-        $message->user_id = Auth::id();
-        $message->conversation_token = $conversation_token;
-        $message->url = $url;
-        $message->message = $request['note'];
-        $message->image_ids = $request['imgids'];
-        $message->expiry = self::calculateExpiryDate($request['ttl']);
-        $message->created_at = Carbon::now();
+        if($conversation->save())
+        {
+            $message = new Message();
+            $message->user_id = Auth::id();
+            $message->conversation_id = $conversation->id;
+            $message->message = $request->note;
+            $message->image_ids = $request->imgids;
+            $message->created_at = Carbon::now();
 
-        $selectedValue = $_POST["ttl"];
-        $options = array(
-            "15m" => "15 minutes",
-            "30m" => "30 minutes",
-            "45m" => "45 minutes",
-            "1h" => "1 hour",
-            "6h" => "6 hours",
-            "12h" => "12 hours",
-            "1d" => "1 day",
-            "3d" => "3 days",
-            "7d" => "7 days",
-            "30d" => "1 month",
-            "60d" => "2 months",
-        );
+            $selectedValue = $request->ttl;
+            $options = array(
+                "15m" => "15 minutes",
+                "30m" => "30 minutes",
+                "45m" => "45 minutes",
+                "1h" => "1 hour",
+                "6h" => "6 hours",
+                "12h" => "12 hours",
+                "1d" => "1 day",
+                "3d" => "3 days",
+                "7d" => "7 days",
+                "30d" => "1 month",
+                "60d" => "2 months",
+            );
 
-        $ttl = $options[$selectedValue];
+            $ttl = $options[$selectedValue];
+            if ($message->save()) {
 
+                $data = Message::find($message->id);
+                $image_ids = explode(',', $data->image_ids);
+                foreach ($image_ids as $image_id) {
+                    $user_image = new UserImage();
+                    $user_image->user_id = Auth::id();
+                    $user_image->image_id = $image_id;
+                    $user_image->save();
+                }
 
-        if ($message->save()) {
-            $conversation = new Conversation();
-            $conversation->conversation_token = $message->conversation_token;
-            $conversation->user_id = Auth::id();
-            $conversation->save();
-
-            $data = Message::find($message->id);
-            $image_ids = explode(',', $data->image_ids);
-            foreach ($image_ids as $image_id) {
-                $user_image = new UserImage();
-                $user_image->user_id = Auth::id();
-                $user_image->image_id = $image_id;
-                $user_image->save();
+                $response = ['status' => true, 'token' => $conversation_token, 'note' => $request->note, 'ttl' => $ttl];
+                return response()->json($response);
             }
-
-            $response = ['status' => true, 'message' => $message, 'ttl' => $ttl];
-            return response()->json($response);
         }
     }
 
@@ -95,7 +90,7 @@ class MessageController extends Controller
             $message->delete();
             return redirect()->route('home')->with('success', 'Message deleted successfully.');
         } else {
-            return redirect()->route('home')->with('error', 'The message has either been read/expired/deleted or this URL is invalid.');
+            return redirect()->route('home')->with('error', 'The message has either been expired/deleted or this URL is invalid.');
         }
     }
 
@@ -123,62 +118,83 @@ class MessageController extends Controller
         return $expiryDate;
     }
 
-    public function messageConfirm(Request $request, $token)
+    public function reply(Request $request)
     {
+        $validatedData = Validator::make($request->all(), [
+            'reply' => 'required|string|max:33554432',
+        ]);
 
-        $currenttime = Carbon::now();
-        $message = message::where('url', $token)
-            ->where('link_visit_count', '<', 2)
-            ->where('expiry', '>=', $currenttime)
-            ->first();
+        if ($validatedData->fails()) {
+            $response = ['status' => false, 'errors' => $validatedData->errors()];
+            return response()->json($response);
+        }
 
-        if ($message) {
-            $total_user = Conversation::where('conversation_token', $message->conversation_token)
-                ->pluck('user_id')
-                ->toArray();
+        $token = $request['token'];
+        $conversation = Conversation::where('conversation_token', $token)->first();
+        if(!$conversation)
+        {
+            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or this URL is invalid.');
+        }
+        $conversation_id = $conversation->id;
 
-            if (in_array(Auth::id(), $total_user) || count($total_user) < 2) {
-                return view('messageconfirmation')->with('message', $message);
-            } else {
-                return view('messageconfirmation')->with('error', 'The message URL is invalid.');
+        $message = new Message();
+        $message->user_id = Auth::id();
+        $message->conversation_id = $conversation_id;
+        $message->message = $request['reply'];
+        $message->image_ids = $request['imgids'];
+        $message->created_at = Carbon::now();
+
+        if ($message->save()) {
+            $data = Message::with('user')->find($message->id);
+            $data->created_at=date('d-m-Y H:i' , strtotime($data->created_at));
+            $image_ids = explode(',', $data->image_ids);
+            foreach ($image_ids as $image_id) {
+                $user_image = new UserImage();
+                $user_image->user_id = Auth::id();
+                $user_image->image_id = $image_id;
+                $user_image->save();
             }
-        } else {
-            return view('messageconfirmation')->with('error', 'The message has either been read/expired/deleted or this URL is invalid.');
+
+            $response = ['status' => true, 'data' => $data];
+            return response()->json($response);
+        }
+    }
+    public function deleteChat($token)
+    {
+        $conversation = Conversation::where('conversation_token', $token)->first();
+
+        if (!$conversation) {
+            return redirect()->route('home')->with('error', 'Conversation not found.');
+        }
+        try {
+            $conversation->delete();
+            return redirect()->route('home')->with('success', 'Conversation deleted successfully.');
+        } catch (\Exception $e) {
+
+            return redirect()->route('home')->with('error', 'Error deleting conversation.');
         }
     }
 
     public function messageRead(Request $request, $token)
     {
         $currenttime = Carbon::now();
-        $message = message::where('url', $token)
-            ->where('link_visit_count', '<', 2)
+        $conversation = Conversation::where('conversation_token', $token)
             ->where('expiry', '>=', $currenttime)
             ->first();
 
-        $message->link_visit_count++;
-        $message->save();
+        if ($conversation) {
 
-        $conversation = new Conversation();
-        $conversation->conversation_token = $message->conversation_token;
-        $conversation->user_id = Auth::id();
-        $conversation->save();
-
-        if ($message) {
-            $c_token = $message->conversation_token;
-            $data = message::where('conversation_token', $c_token)
-                ->where('messages.id', '<=', $message->id)
+            $c_token = $conversation->id;
+            $data = message::where('conversation_id', $c_token)
                 ->join('users', 'users.id', '=', 'messages.user_id')
                 ->select('messages.*', 'users.email')
                 ->get();
-
             $getimg = UserImage::where('user_id', Auth::id())->pluck('image_id')->toArray();
 
             foreach ($data as $msgdata) {
                 $data1 = Message::find($msgdata->id);
 
                 $image_ids = explode(',', $data1->image_ids);
-
-
                 foreach ($image_ids as $image_id) {
                     if (!in_array($image_id, $getimg)) {
                         $user_image = new UserImage();
@@ -189,79 +205,60 @@ class MessageController extends Controller
                 }
             }
 
-            $message_html = view('showmessage', compact('message', 'data'))->render();
-            return response()->json(['message_html' => $message_html], 200);
+            $total_user = Message::where('conversation_id', $conversation->id)
+                ->pluck('user_id')
+                ->toArray();
+
+            if (in_array(Auth::id(), $total_user) || count($total_user) < 2) {
+                return view('messageconfirmation', compact('conversation', 'data'));
+            } else {
+                return view('messageconfirmation')->with('error', 'The message URL is invalid.');
+            }
         } else {
-            return view('messageconfirmation')->with('error', 'The message has either been read/expired/deleted or this URL is invalid.');
+            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or this URL is invalid.');
         }
     }
-    public function reply(Request $request)
+
+    public function fetchData(Request $request)
     {
-        $validatedData = Validator::make($request->all(), [
-            'reply' => 'required|string|max:33554432',
-            'ttl' => 'required|string',
-        ]);
+        $currenttime = Carbon::now();
+        $conversation = Conversation::where('conversation_token', $request->token)
+            ->where('expiry', '>=', $currenttime)
+            ->first();
 
-        if ($validatedData->fails()) {
-            $response = ['status' => false, 'errors' => $validatedData->errors()];
-            return response()->json($response);
-        }
+        if($conversation)
+        {
+            $c_token = $conversation->id;
+            $query = message::with('user')
+                ->where('conversation_id', $c_token)
+                ->join('users', 'users.id', '=', 'messages.user_id')
+                ->select('messages.id','messages.user_id', 'messages.conversation_id','messages.message', 'users.email');
 
-        $selectedValue = $_POST["ttl"];
-        $options = array(
-            "15m" => "15 minutes",
-            "30m" => "30 minutes",
-            "45m" => "45 minutes",
-            "1h" => "1 hour",
-            "6h" => "6 hours",
-            "12h" => "12 hours",
-            "1d" => "1 day",
-            "3d" => "3 days",
-            "7d" => "7 days",
-            "30d" => "1 month",
-            "60d" => "2 months",
-        );
+            if ($request->lastid) {
+                $query = $query->where('messages.id', '>', $request->lastid);
+            }
+            $message = $query->get();
 
-        $ttl = $options[$selectedValue];
-
-        $conversation_token = $request['token'];
-
-        $url = Str::random(30);
-        while (Message::where('url', $url)->exists()) {
-            $url = Str::random(30);
-        }
-
-        $message = new Message();
-        $message->user_id = Auth::id();
-        $message->conversation_token = $conversation_token;
-        $message->url = $url;
-        $message->message = $request['reply'];
-        $message->image_ids = $request['imgids'];
-        $message->expiry = self::calculateExpiryDate($request['ttl']);
-        $message->created_at = Carbon::now();
-
-        if ($message->save()) {
-            $data = Message::find($message->id);
-
-            $image_ids = explode(',', $data->image_ids);
-            foreach ($image_ids as $image_id) {
-                $user_image = new UserImage();
-                $user_image->user_id = Auth::id();
-                $user_image->image_id = $image_id;
-                $user_image->save();
+            foreach ($message as $value)
+            {
+                $created_at = Carbon::parse($value->created_at)->format('d-m-Y H:i');
+                $value->created_at = $created_at;
             }
 
-            $response = ['status' => true, 'message' => $message, 'ttl' => $ttl];
-            return response()->json($response);
+            if ($message->count())
+            {
+                $result = ['status' => true, 'data'=>$message];
+            }
+            else
+            {
+                $result = ['status' => true, 'data'=>''];
+            }
         }
-    }
-    public function deleteChat($token)
-    {
+        else
+        {
+            $result = ['status' => false, 'data'=>''];
+        }
+        return response()->json($result);
 
-        $delete = Message::where('conversation_token', $token)->delete();
-        if ($delete) {
-            $conversation = Conversation::where('conversation_token', $token)->delete();
-            return redirect()->route('home')->with('success', 'Message deleted successfully.');
-        }
     }
 }

@@ -2,7 +2,7 @@
 @php
 $auth_id=Auth::user()->id;
 
-$expiryTimestamp = strtotime($message->expiry);
+$expiryTimestamp = strtotime($conversation->expiry);
 $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
 
 @endphp
@@ -10,7 +10,6 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
     <div class="alert alert-warning">
         <b>Attention!</b><br>
         <div style="text-align: justify;">
-            • This message has now been securely deleted. You can't open the URL again or refresh this page!<br>
             • If you need to save the message contents somewhere, please make sure you use appropriate encryption.<br>
             • The contents of this page will disappear in <span id="message_time2">{{ $expirydate }}</span>.
         </div>
@@ -35,7 +34,7 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
         <form  method="post" id="reply-form" autocomplete="off" style="display:none;">
             @csrf
             <input type="hidden" name="imgids" value="" id="img-ids">
-            <input type="hidden" name="token" value="{{ $message->conversation_token }}">
+            <input type="hidden" name="token" value="{{ $conversation->conversation_token }}">
             <div class="form-group">
                 <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="10000" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
                 <span class="error" id="error"></span>
@@ -89,11 +88,11 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
     </div>
     <div class="spacer-block">
         <div class="spacer">
-            <a href="{{ route('home')}}" class="btn btn-default"> Write a New Message</a>
+            <a href="{{ route('home')}}" class="btn btn-default"> Create a New Message</a>
         </div>
         <div class="spacer">
             <a href="" class="btn btn-default" onclick="DeleteChat(event)">Delete This Chat</a>
-            <form id="delete-chat" action="{{ route('chat.delete', ['token' => $message->conversation_token ]) }}" method="POST" style="display: none;">
+            <form id="delete-chat" action="{{ route('chat.delete', ['token' => $conversation->conversation_token ]) }}" method="POST" style="display: none;">
 
                 @csrf
             </form>

@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    @php
-        $auth_id = Auth::user()->id;
-    @endphp
     @if (isset($error))
         <div class="panel-body">
             <div class="alert alert-danger">
@@ -14,31 +11,85 @@
                 <a href="{{ route('home') }}" class="btn btn-default"> Write a New Message</a>
             </div>
         </div>
-    @endif
-    @if (isset($message))
-        <div class="panel-body" id="confirmation">
+    @else
+        @php
+            $auth_id=Auth::user()->id;
+
+            $expiryTimestamp = strtotime($conversation->expiry);
+            $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
+        @endphp
+        <div class="panel-body" id="messagereply">
             <div class="alert alert-warning">
-                <b>Confirmation</b><br>
-                Click on the button below to read the message.
+                <b>Attention!</b><br>
+                <div style="text-align: justify;">
+                    • If you need to save the message contents somewhere, please make sure you use appropriate encryption.<br>
+                    • The contents of this page will disappear in <span id="message_time2">{{ $expirydate }}</span>.
+                </div>
+            </div>
+            <div class="panel-body" id="message-list">
+                @php $lastmessageid = ''; @endphp
+                @foreach($data as $replydata)
+                    @php
+                        $date=date('d-m-Y H:i' , strtotime($replydata->created_at));
+                        $lastmessageid=$replydata->id;
+                    @endphp
+                    <div class="panel panel-default panel-message1">
+                        <div class="panel-body panel-message2">
+                            <b>{{ $replydata->email }} -</b>  {{ $date }} <br>
+                            <pre>{{ $replydata->message }}</pre>
+                            <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-message="{{ $replydata->message }}">
+                                <i class="fa fa-sticky-note-o ml-1" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
-            <div class="spacer">
-                <form id="confirmation-form" action="{{ route('message.confirm', ['token' => $message->url]) }}"
-                    method="post">
-                    @csrf
-                    <input type="hidden" name="confirm" value="yes">
-                    <button type="submit" rel="nofollow" class="btn btn-default"> Continue</a>
-                </form>
+            <form  method="post" id="reply-form" autocomplete="off" style="display:none;">
+                @csrf
+                <input type="hidden" name="imgids" value="" id="img-ids">
+                <input type="hidden" name="token" value="{{ $conversation->conversation_token }}" id="token">
+                <input type="hidden" name="last_message_id" value="{{$lastmessageid}}" id="last_message_id">
+                <div class="form-group">
+                    <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="10000" autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
+                    <span class="error" id="error"></span>
+                    <div id="char-count">
+                        Characters remaining:
+                        <span id="count">10000</span>
+                        <span id="maximum">/ 10000</span>
+                    </div>
+                </div>
+                <div class="spacer form-group">
+                    <button type="button" name="sendreply" class="btn btn-default" id="sendreply">Send Message</a>
+                </div>
+                <div class="spacer">
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#imageModal">
+                        <img src="{{ asset('images/upload.png') }}" width="16" height="16" border="0" align="absmiddle">
+                        <b>Upload files !</b>
+                    </button>
+                </div>
+            </form>
+            <div class="form-group">
+                <a name="Reply" class="btn btnreply btn-primary" id="reply-btn" onclick="showReplyTextarea()">Reply</a>
+            </div>
+            <div class="spacer-block">
+                <div class="spacer">
+                    <a href="{{ route('home')}}" class="btn btn-default"> Create a New Chat</a>
+                </div>
+                <div class="spacer">
+                    <a href="" class="btn btn-default" onclick="DeleteChat(event)">Delete This Chat</a>
+                    <form id="delete-chat" action="{{ route('chat.delete', ['token' => $conversation->conversation_token ]) }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </div>
             </div>
         </div>
+
     @endif
-    <div id="message-box">
-    </div>
 @endsection
 @section('modal')
     <div class="modal fade" id="imageModal" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <!-- Modal Header -->
@@ -92,7 +143,6 @@
 
     <div class="modal fade" id="notesModal" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <!-- Modal Header -->
@@ -147,9 +197,54 @@
     </div>
 @endsection
 
-@if (isset($message))
+@if (isset($conversation))
     @section('script')
         <script>
+            var fetchData="{{ route('message.fetchData') }}";
+            var replyurl = "{{ route('messages.reply') }}";
+            var createimage = "{{ route('image.store') }}";
+
+            function fetchMessages() {
+                var token = $('#token').val();
+                var lastid = $('#last_message_id').val();
+
+                if (token !== undefined && lastid !== undefined) {
+                    $.ajax({
+                        url: "{{ route('message.fetchData') }}",
+                        data: { 'token': token, 'lastid': lastid },
+                        type: 'GET',
+                        success: function(result) {
+                            if (result.status == true) {
+                                if (result.data.length > 0) {
+                                    $.each(result.data, function(key, value) {
+                                        if (value.user_id != value.auth_id) {
+                                            $("#last_message_id").val(value.id);
+                                            var userEmail = value.user.email;
+                                            var messageHtml = `
+                                                <div class="panel panel-default panel-message1">
+                                                    <div class="panel-body panel-message2">
+                                                        <b>${userEmail} -</b> ${value.created_at} <br>
+                                                        <pre>${value.message}</pre>
+                                                        <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-message="${value.message}">
+                                                            <i class="fa fa-sticky-note-o ml-1" aria-hidden="true"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            `;
+
+                                            $('#message-list').append(messageHtml);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            setInterval(fetchMessages, 10000);
+
+
             function showReplyTextarea() {
                 var replyform = document.getElementById('reply-form');
                 replyform.style.display = 'block';
@@ -212,30 +307,7 @@
                     });
                 });
 
-                $('#confirmation-form').submit(function(e) {
-                    var getHtmlurl = "{{ route('message.read', ['token' => $message->url]) }}";
-                    e.preventDefault();
-                    var formData = $(this).serialize();
 
-                    $.ajax({
-                        url: getHtmlurl,
-                        type: "get",
-                        data: formData,
-                        success: function(response) {
-                            $('#confirmation').hide();
-                            $('#message-box').html(response.message_html);
-                            /*var deleteCon = "{{ route('chat.delete', ['token' => 'CHAT_TOKEN']) }}";
-                                deleteCon = deleteCon.replace('CHAT_TOKEN', response.message.conversation_token);
-                                $('#delete-chat').attr('action', deleteCon); */
-
-                        },
-                        error: function(xhr, status, error) {
-                            alert('Something went wrong!', 'error');
-                        }
-                    });
-                });
-
-                var replyurl = "{{ route('messages.reply') }}";
                 $('body').on('click', '#sendreply', function(e) {
                     e.preventDefault();
                     var $this = $(this);
@@ -254,17 +326,30 @@
                             if (response.status == true) {
                                 $('#reply-form')[0].reset();
                                 $('.error').html("");
-                                $('#createurl').show();
-                                $('#message_time').html(response.ttl);
-                                var generatedurl = "{{ asset('/') }}" + response.message.url;
-                                //var token=response.message.conversation_token;
-                                $('#noteurl1').val(generatedurl);
 
-                                var deleteAction =
-                                    "{{ route('message.delete', ['token' => 'TOKEN_PLACEHOLDER']) }}";
-                                deleteAction = deleteAction.replace('TOKEN_PLACEHOLDER', response
-                                    .message.url);
-                                $('#delete-form').attr('action', deleteAction);
+                                fetchMessages();
+
+                                // var userEmail = response.data.user.email;
+                                // var messageHtml = `
+                                //     <div class="panel panel-default panel-message1">
+                                //         <div class="panel-body panel-message2">
+                                //             <b>${userEmail} -</b>  ${response.data.created_at} <br>
+                                //             <pre>${response.data.message}</pre>
+                                //             <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-message="${response.data.message}">
+                                //                 <i class="fa fa-sticky-note-o ml-1" aria-hidden="true"></i>
+                                //             </a>
+                                //         </div>
+                                //     </div>
+                                // `;
+
+                                $('#message-list').append(messageHtml);
+
+
+                                // var deleteAction =
+                                //     "{{ route('message.delete', ['token' => 'TOKEN_PLACEHOLDER']) }}";
+                                // deleteAction = deleteAction.replace('TOKEN_PLACEHOLDER', response
+                                //     .message.url);
+                                // $('#delete-form').attr('action', deleteAction);
 
                             } else {
                                 first_input = "";
@@ -285,7 +370,7 @@
                     });
                 });
 
-                var createimage = "{{ route('image.store') }}";
+
                 $('#image-store').submit(function(e) {
                     e.preventDefault();
                     var dataString = new FormData($('#image-store')[0]);
