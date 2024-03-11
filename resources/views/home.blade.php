@@ -212,9 +212,9 @@ $(document).ready(function() {
                     // $('#note').val(response.note);
                     $('#noteurl1').val(generatedurl);
 
-                    var deleteAction = "{{ route('message.delete', ['token' => 'TOKEN_PLACEHOLDER']) }}";
-                    deleteAction = deleteAction.replace('TOKEN_PLACEHOLDER', response.message.url);
-                    $('#delete-form').attr('action', deleteAction);
+                    // var deleteAction = "{{ route('message.delete', ['token' => 'TOKEN_PLACEHOLDER']) }}";
+                    // deleteAction = deleteAction.replace('TOKEN_PLACEHOLDER', response.message.url);
+                    // $('#delete-form').attr('action', deleteAction);
                 }
                 else
                 {

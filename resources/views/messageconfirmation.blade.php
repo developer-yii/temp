@@ -256,10 +256,16 @@
 
             $(document).ready(function() {
 
-                $('#notesModal').on('show.bs.modal', function(event) {
-                    var link = $(event.relatedTarget); // Link that triggered the modal
-                    var message = link.data('message'); // Extract info from data-* attributes
-                    var formattedMessage = message ? '<pre>' + message.replace(/\n/g, '<br>') + '</pre>' : '';
+                $('#notesModal').on('show.bs.modal', function(event)
+                {
+                    var link = $(event.relatedTarget);
+                    var message = link.data('message');
+
+                    var formattedMessage = '';
+                    if (message) {
+                        var messageStr = typeof message === 'string' ? message : String(message);
+                        formattedMessage = '<pre>' + messageStr.replace(/\n/g, '<br>') + '</pre>';
+                    }
 
                     $('#message').html(formattedMessage);
                     $('#messages').val(message);
@@ -328,22 +334,6 @@
                                 $('.error').html("");
 
                                 fetchMessages();
-
-                                // var userEmail = response.data.user.email;
-                                // var messageHtml = `
-                                //     <div class="panel panel-default panel-message1">
-                                //         <div class="panel-body panel-message2">
-                                //             <b>${userEmail} -</b>  ${response.data.created_at} <br>
-                                //             <pre>${response.data.message}</pre>
-                                //             <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-message="${response.data.message}">
-                                //                 <i class="fa fa-sticky-note-o ml-1" aria-hidden="true"></i>
-                                //             </a>
-                                //         </div>
-                                //     </div>
-                                // `;
-
-                                $('#message-list').append(messageHtml);
-
 
                                 // var deleteAction =
                                 //     "{{ route('message.delete', ['token' => 'TOKEN_PLACEHOLDER']) }}";
