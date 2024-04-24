@@ -530,6 +530,9 @@
                                 $this[0].reset();
                                 toastr.success(response.message);
                                 $('#validityModal').modal('hide');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 3000);
                             } else {
                                 if (response.message){
                                     toastr.error(response.message);
