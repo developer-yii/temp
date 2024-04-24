@@ -47,7 +47,10 @@ Route::group(['middleware' => 'auth'], function ()
         Route::get('/fetch-data/view', 'MessageController@fetchData')->name('message.fetchData');
         Route::get('/{token}', 'MessageController@messageRead')->name('message.read1');
         Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
+        Route::post('delete/message', 'MessageController@deleteMessage')->name('message.delete');
         Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
+        Route::post('extends-validity', 'MessageController@extendsValidity')->name('chat.extends-validity');
+
 
         // my notes notes
         Route::get('/notes/index', 'NotesController@list')->name('notes.list');
@@ -79,6 +82,7 @@ Route::group(['middleware' => 'auth'], function ()
         Route::post('/user/update','UserController@userupdate')->name('user.update');
         Route::post('/user/delete','UserController@userdelete')->name('user.delete');
         Route::post('/approve_user', 'UserController@approve_user')->name('user.approve_user');
+        Route::post('/delete-multiple-users', 'UserController@deleteMultipleUsers')->name('multiple-user.delete');
 
         //Note module
         Route::get('/note/list','NoteController@notelist')->name('note.list');

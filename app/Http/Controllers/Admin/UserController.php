@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Auth;
 use App\Models\Message;
 use App\Models\User;
 use Yajra\DataTables\Facades\DataTables;
@@ -13,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserApprovalMail;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -130,6 +130,15 @@ class UserController extends Controller
         {
             $result = ['status' => false, 'message' => 'Something went wrong'];
         }
+        return response()->json($result);
+    }
+
+    public function deleteMultipleUsers(Request $request)
+    {
+        $ids = $request->input('ids');
+        User::whereIn('id', $ids)->delete();
+        $msg = "Records Delete successfully";
+        $result = ["status" => true, "message" => $msg];
         return response()->json($result);
     }
 }

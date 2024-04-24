@@ -23,7 +23,7 @@ $(document).ready(function()
         ],
     });
 
-    var messagetable = $('#user_datatable').DataTable({
+    var usertable = $('#user_datatable').DataTable({
         processing : true,
         serverSide : true,
         bStateSave: true,
@@ -33,6 +33,13 @@ $(document).ready(function()
             url : userlist,
         },
         columns : [
+            {
+                data: 'id', name: 'id', render: function (data, type, row, meta) {
+                    return '<input type="checkbox" class="user-checkbox" value="' + data + '">';
+                },
+                orderable: false,
+
+            },
             { data: 'id', name: 'id' },
             { data: 'email', name: 'email' },
             { data: 'approve', name: 'is_approve' },
@@ -40,7 +47,7 @@ $(document).ready(function()
         ],
     });
 
-    var messagetable = $('#note_datatable').DataTable({
+    var notetable = $('#note_datatable').DataTable({
         // responsive: true,
 
         processing : true,
@@ -206,20 +213,66 @@ $('body').on('click', '.delete-user', function(e)
 });
 
 $('body').on('change','.approval_status', function(event) {
-        var status = $(this).val();
-        var id = $(this).attr('data-id');
+    var status = $(this).val();
+    var id = $(this).attr('data-id');
 
-        $.ajax({
-            url: userapproval,
-            type: 'POST',
-            dataType: 'json',
-            data: { 'id': id, 'status': status },
-            success: function(result) {
-                toastr.success(result.message);
-                $('#user_datatable').DataTable().ajax.reload();
-            }
-        });
+    $.ajax({
+        url: userapproval,
+        type: 'POST',
+        dataType: 'json',
+        data: { 'id': id, 'status': status },
+        success: function(result) {
+            toastr.success(result.message);
+            $('#user_datatable').DataTable().ajax.reload();
+        }
     });
+});
+
+$('#delete-selected').on('click', function () {
+    // Collect IDs of selected rows
+    var ids = [];
+    $('.user-checkbox:checked').each(function () {
+        ids.push($(this).val());
+    });
+
+    // If there are no selected rows, return
+    if (ids.length === 0) {
+        toastr.error('No user selected');
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure want to delete selected record?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ok, got it!',
+        cancelButtonText: 'Nope, cancel it.'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // User confirmed the action, proceed with the deletion
+            $.ajax({
+                url: deleteMultipleUsersUrl,
+                data: { ids: ids },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    toastr.success(result.message);
+                    $('#user_datatable').DataTable().ajax.reload();
+                },
+                error: function(error) {
+                    toastr.error('An error occurred while deleting the user.');
+                }
+            });
+        } else {
+            // User cancelled the action, do nothing
+            toastr.info('Deletion cancelled.');
+        }
+    });
+
+});
+
 
 $('#edit-modal').on('hidden.bs.modal', function () {
       $('.error').html("");

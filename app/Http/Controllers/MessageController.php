@@ -133,7 +133,7 @@ class MessageController extends Controller
         $conversation = Conversation::where('conversation_token', $token)->first();
         if(!$conversation)
         {
-            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or this URL is invalid.');
+            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or You are not authorized to access this conversation.');
         }
         $conversation_id = $conversation->id;
 
@@ -159,6 +159,30 @@ class MessageController extends Controller
             return response()->json($response);
         }
     }
+
+    public function deleteMessage(Request $request)
+    {
+        $authUserId = Auth::user()->id;
+        $message = Message::where('id', $request->id)
+                    ->where('user_id', $authUserId)->first();
+        if (!$message) {
+            $result = ['status' => false, 'message' => 'You do not have access to delete this message.'];
+            return response()->json($result);
+        }
+
+        try {
+            $message->delete();
+            $result = ['status' => true, 'message' => 'Message deleted successfully!'];
+            return response()->json($result);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                "message" => "An error occurred while trying to delete the message.",
+                "error" => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function deleteChat($token)
     {
         $conversation = Conversation::where('conversation_token', $token)->first();
@@ -183,7 +207,6 @@ class MessageController extends Controller
             ->first();
 
         if ($conversation) {
-
             $c_token = $conversation->id;
             $data = message::where('conversation_id', $c_token)
                 ->join('users', 'users.id', '=', 'messages.user_id')
@@ -206,16 +229,17 @@ class MessageController extends Controller
             }
 
             $total_user = Message::where('conversation_id', $conversation->id)
+                ->distinct()
                 ->pluck('user_id')
                 ->toArray();
 
             if (in_array(Auth::id(), $total_user) || count($total_user) < 2) {
                 return view('messageconfirmation', compact('conversation', 'data'));
             } else {
-                return view('messageconfirmation')->with('error', 'The message URL is invalid.');
+                return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
             }
         } else {
-            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or this URL is invalid.');
+            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or You are not authorized to access this conversation');
         }
     }
 
@@ -260,5 +284,51 @@ class MessageController extends Controller
         }
         return response()->json($result);
 
+    }
+
+    public function extendsValidity(Request $request)
+    {
+        $token = $request->token;
+        $conversation = Conversation::where('conversation_token', $token)->first();
+        if(!$conversation)
+        {
+            $result = ['status' => false, 'message' => 'Conversation not found', 'data' => null];
+            return response()->json($result);
+        }
+
+        $validatedData = Validator::make($request->all(), [
+            'extend_days' => 'required',
+        ]);
+
+        if ($validatedData->fails()) {
+            $response = ['status' => false, 'errors' => $validatedData->errors()];
+            return response()->json($response);
+        }
+        else
+        {
+            $extendsTime = $conversation->no_of_extends;
+            if($extendsTime >= 2)
+            {
+                $result = ['status' => false, 'message' => 'This Converastion Validity already two times extended', 'data' => null];
+                return response()->json($result);
+            }
+            else
+            {
+                $conversation->no_of_extends += 1;
+                $extendDays = $request->extend_days;
+                $expiryDate = new \DateTime($conversation->expiry);
+                $interval = new \DateInterval('P' . $extendDays . 'D'); // P stands for period, D stands for days
+                $expiryDate->add($interval);
+                $conversation->expiry = $expiryDate->format('Y-m-d H:i:s');
+
+                if ($conversation->save()) {
+                    $result = ['status' => true, 'message' => 'Your Conversation Validity Updated Successfully', 'data' => null];
+                    return response()->json($result);
+                } else {
+                    $result = ['status' => false, 'message' => 'Failed to update Conversation Validity', 'data' => null];
+                    return response()->json($result);
+                }
+            }
+        }
     }
 }

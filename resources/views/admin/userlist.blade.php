@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>
-    
+
     <span id="success"></span>
     <div class="row">
         <div class="col-12">
@@ -31,14 +31,19 @@
                         <div class="tab-pane show active" id="basic-datatable-preview">
                             <table id="user_datatable" class="table dt-responsive nowrap w-100">
                                 <thead>
-                                    <tr>                                        
-                                        <th>User Id</th>                                        
-                                        <th>User Email</th>                                        
-                                        <th width="15%">User Approve?</th>                                        
+                                    <tr>
+                                        <td colspan="5"><button id="delete-selected" class="btn btn-danger">Delete Selected</button></td>
+                                    </tr>
+                                    <tr>
+                                        <th><input type="checkbox" id="select-all"></th>
+                                        <th>User Id</th>
+                                        <th>User Email</th>
+                                        <th width="15%">User Approve?</th>
                                         <th><center>Action</center></th>
                                     </tr>
                                 </thead>
                             </table>
+
                         </div> <!-- end preview-->
                     </div> <!-- end tab-content-->
                 </div> <!-- end card body-->
@@ -62,7 +67,7 @@
                      <form method="POST" action="{{ route('admin.user.update') }}" class="pl-3 pr-3 edit-form"  id="edit-form">
                         @csrf
                         <input type="hidden" name="id" id="update-id">
-                        
+
                         <div class="form-group">
                            <label for="email">Email<span class="text-danger">*</span></label>
                            <div class="form-input">
@@ -74,10 +79,10 @@
                         <div class="form-group">
                            <label for="role_type">Role<span class="text-danger">*</span></label>
                            <div class="form-input">
-                                <select name="role_type" id="role_type" class="form-control">                                   
+                                <select name="role_type" id="role_type" class="form-control">
                                         <option value="1" > Admin </option>
-                                        <option value="2" > User </option>                                    
-                                </select>     
+                                        <option value="2" > User </option>
+                                </select>
                                 <span class="error text-danger"></span>
                            </div>
                         </div>
@@ -87,8 +92,8 @@
                             <div class="form-input">
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" autocomplete="password" autofocus>
                                 <span class="error text-danger"></span>
-                           </div>                        
-                            
+                           </div>
+
                         </div>
 
                         <div class="form-group">
@@ -98,7 +103,7 @@
                                 <span class="error text-danger"></span>
                            </div>
                         </div>
-                      
+
                         <div class="form-group text-center">
                             <button class="btn btn-primary" type="submit">Update</button>
                             <button class="btn btn-danger" type="button" id="btn-cancel">Cancel</button>
@@ -112,5 +117,8 @@
     </div><!-- /.modal -->
 @endsection
 @section('js')
+<script>
+    var deleteMultipleUsersUrl = "{{ route('admin.multiple-user.delete') }}";
+</script>
 <script src="{{$baseUrl}}js/custom.js"></script>
 @endsection

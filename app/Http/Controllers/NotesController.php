@@ -25,7 +25,7 @@ class NotesController extends Controller
                 ->addColumn('action', function ($data) {
                     $editButton = '<a class="btn btn-sm btn-info mr-5 edit-note" data-id="' . $data->id . '" data-toggle="modal" data-target="#notesModal"><i class="fa fa-pencil"></i></a>';
                     $deleteButton = '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-5 delete-note" data-id="' . $data->id . '" title="Delete"><i class="fas fa-trash"></i></a>';
-                    
+
                     $pinTitle = $data->pin_note ? 'Unpin Note' : 'Pin Note';
                     if($data->pin_note)
                     {
@@ -97,7 +97,7 @@ class NotesController extends Controller
 
     public function pin(Request $request)
     {
-        
+
         $note = Note::find($request->id);
         if (!$note) {
             return response()->json(['message' => 'Note not found'], 404);
