@@ -41,7 +41,11 @@
                                 <table id="note_datatable" class="table w-100">
                                     <thead>
                                         <tr>
+                                            <td colspan="5"><button id="delete-selected-notes" class="btn btn-danger">Delete Selected</button></td>
+                                        </tr>
+                                        <tr>
                                             <th width="10%">Id</th>
+                                            <th><input type="checkbox" id="select-all-notes"></th>
                                             <th width="10%">Email</th>
                                             <th width="35%">Notes</th>
                                             <th width="35%">Message</th>
@@ -61,5 +65,8 @@
 @endsection
 
 @section('js')
+<script>
+    var deleteMultipleNotesUrl = "{{ route('admin.multiple-notes.delete') }}";
+</script>
 <script src="{{$baseUrl}}js/custom.js"></script>
 @endsection

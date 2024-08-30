@@ -36,4 +36,18 @@ class NoteController extends Controller
         $result = ["status" => true, "message" => $msg];
         return response()->json($result);
     }
+
+    public function deleteMultipleNotes(Request $request)
+    {
+        $ids = $request->input('ids');
+        $notes = Note::whereIn('id', $ids)->get();
+
+        foreach ($notes as $note) {
+            $note->delete();
+        }
+
+        $msg = "Notes Delete successfully";
+        $result = ["status" => true, "message" => $msg];
+        return response()->json($result);
+    }
 }

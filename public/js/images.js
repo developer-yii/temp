@@ -63,9 +63,8 @@ $(document).ready(function(){
         dummy.select();
         document.execCommand("copy");
         document.body.removeChild(dummy);
-        toastr.success('Data copied!');
+        toastr.success('Url copied!');
     }
-
 
     $('body').on('click', '.delete-image', function(e) {
         e.preventDefault();
@@ -87,6 +86,4 @@ $(document).ready(function(){
             });
         }
     });
-
-
 });

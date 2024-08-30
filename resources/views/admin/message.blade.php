@@ -51,9 +51,9 @@
     <!-- end row-->
 </div>
 @endsection
+@section('js')
 <script>
     var deleteMultipleMessageUrl = "{{ route('admin.multiple-message.delete') }}";
 </script>
-@section('js')
 <script src="{{$baseUrl}}js/custom.js"></script>
 @endsection

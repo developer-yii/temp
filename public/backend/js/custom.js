@@ -71,6 +71,15 @@ $(document).ready(function()
         order: [0, 'desc'],
         columns : [
             { data: 'id', name: 'id', visible: false},
+            {
+                data: 'id',
+                name: 'id',
+                render: function (data, type, row, meta) {
+                    return '<input type="checkbox" class="note-checkbox" value="' + data + '">';
+                },
+                orderable: false,
+
+            },
             { data: 'user.email', name: 'user.email'},
             {
                 data: 'note',
@@ -319,7 +328,6 @@ $('#delete-selected').on('click', function () {
 
 });
 
-
 $('#edit-modal').on('hidden.bs.modal', function () {
       $('.error').html("");
       $('#edit-form')[0].reset();
@@ -412,6 +420,7 @@ $('body').on('click', '.delete-conversation', function(e)
 });
 
 // message module end
+
 //admin profile start
 $(document).on('submit','.edit-profile-form', function(e)
 {
@@ -504,6 +513,54 @@ $('body').on('click', '.delete-note', function(e)
             });
         } else {
             // Note cancelled the action, do nothing
+            toastr.info('Deletion cancelled.');
+        }
+    });
+});
+
+$('#select-all-notes').on('click', function() {
+    var isChecked = $(this).prop('checked');
+    $('.note-checkbox').prop('checked', isChecked);
+});
+$('#delete-selected-notes').on('click', function () {
+    // Collect IDs of selected rows
+    var ids = [];
+    $('.note-checkbox:checked').each(function () {
+        ids.push($(this).val());
+    });
+
+    // If there are no selected rows, return
+    if (ids.length === 0) {
+        toastr.error('No notes selected');
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure want to delete selected notes?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ok, got it!',
+        cancelButtonText: 'Nope, cancel it.'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // User confirmed the action, proceed with the deletion
+            $.ajax({
+                url: deleteMultipleNotesUrl,
+                data: { ids: ids },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    toastr.success(result.message);
+                    $('#note_datatable').DataTable().ajax.reload();
+                },
+                error: function(error) {
+                    toastr.error('An error occurred while deleting the notes.');
+                }
+            });
+        } else {
+            // User cancelled the action, do nothing
             toastr.info('Deletion cancelled.');
         }
     });

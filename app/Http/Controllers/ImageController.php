@@ -93,7 +93,8 @@ class ImageController extends Controller
                     return $createdAt->format('d-m-Y h:i A');
                 })
                 ->addColumn('action', function ($data) {
-                    $copyUrl = asset('image_action/' . $data->short_link_token);
+                    // $copyUrl = asset('image_action/' . $data->short_link_token);
+                    $copyUrl = route('image.action', ['token' => $data->short_link_token]) ;
                     return '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-5 delete-image" data-id="' . $data->id . ' "title="Delete"><i class="fas fa-trash"></i></a><a href="javascript:void(0);" class="btn btn-sm btn-info mr-1 copy-url" data-url="' . $copyUrl . ' "title="Copy Url"><i class="fas fa-copy"></i></a>';
                 })
                 ->addColumn('image', function ($row) {

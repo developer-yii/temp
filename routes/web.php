@@ -89,6 +89,7 @@ Route::group(['middleware' => 'auth'], function ()
         //Note module
         Route::get('/note/list','NoteController@notelist')->name('note.list');
         Route::post('/note/delete','NoteController@notedelete')->name('note.delete');
+        Route::post('/delete-multiple-notes', 'NoteController@deleteMultipleNotes')->name('multiple-notes.delete');
     });
 });
 
