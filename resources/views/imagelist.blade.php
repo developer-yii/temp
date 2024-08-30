@@ -29,6 +29,7 @@
 <script>
     var imagelist = "{{ route('image.list') }}";
     var imagedelete = "{{ route('image.delete') }}";
+    var basePwdProtectedUrl = "{{ route('image.action', ['token' => '__TOKEN__']) }}";
 </script>
 <script src="{{ asset('js/images.js') }}"></script>
 

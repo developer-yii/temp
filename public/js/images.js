@@ -36,7 +36,8 @@ $(document).ready(function(){
                                 '</a>';
                         }
                     }else{
-                        var pwdProtectedUrl = '/image_action/' + row.short_link_token;
+                        // var pwdProtectedUrl = '/image_action/' + row.short_link_token;
+                        var pwdProtectedUrl = basePwdProtectedUrl.replace('__TOKEN__', row.short_link_token);
                         return '<a href="' + pwdProtectedUrl + '" target="_blank" class="btn btn-primary btn-sm">' +
                                 'View File' +
                                 '</a>';
