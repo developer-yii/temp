@@ -17,22 +17,21 @@ $(document).ready(function(){
                 }
             },
             {
-                data: 'image_path',  // Assuming this is where the path is stored
+                data: 'image',  // Assuming this is where the path is stored
                 render: function(data, type, row, meta) {
                     var imageTitle = row.file_name || 'File';
                     var fileExtension = data.split('.').pop().toLowerCase();  // Extract file extension
-                    var fileUrl = '/storage/uploaded_images/' + data.replace('public/', '');  // Adjust path if needed
 
                     // Check file type and render accordingly
                     if(row.password == null){
                         if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'jfif'].includes(fileExtension)) {
                             // Render thumbnail for image files
-                            return '<a href="' + fileUrl + '" data-lightbox="image-set" data-title="' + imageTitle + '">' +
-                                '<img src="' + fileUrl + '" class="img-thumbnail" width="100" alt="' + imageTitle + '" />' +
+                            return '<a href="' + data + '" data-lightbox="image-set" data-title="' + imageTitle + '">' +
+                                '<img src="' + data + '" class="img-thumbnail" width="100" alt="' + imageTitle + '" />' +
                                 '</a>';
                         } else {
                             // Render "View File" button for non-image files
-                            return '<a href="' + fileUrl + '" target="_blank" class="btn btn-primary btn-sm">' +
+                            return '<a href="' + data + '" target="_blank" class="btn btn-primary btn-sm">' +
                                 'View File' +
                                 '</a>';
                         }

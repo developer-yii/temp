@@ -30,9 +30,9 @@ class NotesController extends Controller
                     $deleteButton = '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-5 delete-note" data-id="' . $data->id . '" title="Delete"><i class="fas fa-trash"></i></a>';
 
                     $pinTitle = $data->pin_note ? 'Unpin Note' : 'Pin Note';
-                    if($data->pin_note){
+                    if ($data->pin_note) {
                         $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '" style="padding: 5px 8px;"><img src="' . asset('images/unpinned-note.png') . '" width="13px"></a>';
-                    }else{
+                    } else {
                         $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '"><i class="fas fa-thumbtack"></i></a>';
                     }
 
