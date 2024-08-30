@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Models\UserImage;
 use App\Models\Conversation;
+use App\Models\Image;
 use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -45,7 +46,7 @@ class MessageController extends Controller
             $message->user_id = Auth::id();
             $message->conversation_id = $conversation->id;
             $message->message = $request->note;
-            $message->image_ids = $request->imgids;
+            // $message->image_ids = $request->imgids;
             $message->created_at = Carbon::now();
 
             $selectedValue = $request->ttl;
@@ -67,21 +68,27 @@ class MessageController extends Controller
             if ($message->save()) {
 
                 $data = Message::find($message->id);
-                $image_ids = explode(',', $data->image_ids);
+                $image_ids = explode(',', $request->imgids);
+                $message_images = [];
                 foreach ($image_ids as $image_id) {
-                    $user_image = new UserImage();
-                    $user_image->user_id = Auth::id();
-                    $user_image->image_id = $image_id;
-                    $user_image->save();
+                    $shortLinkToken = Image::where('id', $image_id)->value('short_link_token');
+                    if ($shortLinkToken && strpos($request->note, $shortLinkToken) !== false) {
+                        $user_image = new UserImage();
+                        $user_image->user_id = Auth::id();
+                        $user_image->image_id = $image_id;
+                        $user_image->save();
+                        $message_images[] = $image_id;
+                    }
                 }
 
+                $message_images_ids = implode(',', $message_images);
+                $message->image_ids = $message_images_ids;
+                $message->save();
                 $response = ['status' => true, 'token' => $conversation_token, 'note' => $request->note, 'ttl' => $ttl];
                 return response()->json($response);
             }
         }
     }
-
-
 
     public function delete($token)
     {
@@ -141,19 +148,31 @@ class MessageController extends Controller
         $message->user_id = Auth::id();
         $message->conversation_id = $conversation_id;
         $message->message = $request['reply'];
-        $message->image_ids = $request['imgids'];
+        // $message->image_ids = $request['imgids'];
         $message->created_at = Carbon::now();
 
         if ($message->save()) {
             $data = Message::with('user')->find($message->id);
             $data->created_at=date('d-m-Y H:i' , strtotime($data->created_at));
-            $image_ids = explode(',', $data->image_ids);
-            foreach ($image_ids as $image_id) {
-                $user_image = new UserImage();
-                $user_image->user_id = Auth::id();
-                $user_image->image_id = $image_id;
-                $user_image->save();
+            if($request['imgids']){
+                $image_ids = explode(',', $request['imgids']);
+                $message_images = [];
+                foreach ($image_ids as $image_id) {
+                    $shortLinkToken = Image::where('id', $image_id)->value('short_link_token');
+                    if ($shortLinkToken && strpos($request->reply, $shortLinkToken) !== false) {
+                        $user_image = new UserImage();
+                        $user_image->user_id = Auth::id();
+                        $user_image->image_id = $image_id;
+                        $user_image->save();
+                        $message_images[] = $image_id;
+                    }
+                }
+
+                $message_images_ids = implode(',', $message_images);
+                $message->image_ids = $message_images_ids;
+                $message->save();
             }
+
 
             $response = ['status' => true, 'data' => $data];
             return response()->json($response);
@@ -212,18 +231,24 @@ class MessageController extends Controller
                 ->join('users', 'users.id', '=', 'messages.user_id')
                 ->select('messages.*', 'users.email')
                 ->get();
+
             $getimg = UserImage::where('user_id', Auth::id())->pluck('image_id')->toArray();
 
             foreach ($data as $msgdata) {
                 $data1 = Message::find($msgdata->id);
 
-                $image_ids = explode(',', $data1->image_ids);
-                foreach ($image_ids as $image_id) {
-                    if (!in_array($image_id, $getimg)) {
-                        $user_image = new UserImage();
-                        $user_image->user_id = Auth::id();
-                        $user_image->image_id = $image_id;
-                        $user_image->save();
+                if($data1->image_ids){
+                    $image_ids = explode(',', $data1->image_ids);
+                    foreach ($image_ids as $image_id) {
+                        $image_exists = Image::where('id', $image_id)->exists();
+                        if($image_exists){
+                            if (!in_array($image_id, $getimg)) {
+                                $user_image = new UserImage();
+                                $user_image->user_id = Auth::id();
+                                $user_image->image_id = $image_id;
+                                $user_image->save();
+                            }
+                        }
                     }
                 }
             }
@@ -250,8 +275,7 @@ class MessageController extends Controller
             ->where('expiry', '>=', $currenttime)
             ->first();
 
-        if($conversation)
-        {
+        if($conversation){
             $c_token = $conversation->id;
             $query = message::with('user')
                 ->where('conversation_id', $c_token)
@@ -263,27 +287,20 @@ class MessageController extends Controller
             }
             $message = $query->get();
 
-            foreach ($message as $value)
-            {
+            foreach ($message as $value){
                 $created_at = Carbon::parse($value->created_at)->format('d-m-Y H:i');
                 $value->created_at = $created_at;
             }
 
-            if ($message->count())
-            {
+            if ($message->count()){
                 $result = ['status' => true, 'data'=>$message];
-            }
-            else
-            {
+            }else{
                 $result = ['status' => true, 'data'=>''];
             }
-        }
-        else
-        {
+        }else{
             $result = ['status' => false, 'data'=>''];
         }
         return response()->json($result);
-
     }
 
     public function extendsValidity(Request $request)

@@ -14,8 +14,15 @@
 
     <link rel="shortcut icon" href="{{ asset('/')}}images/favicon.ico">
     <link rel="stylesheet" href="{{ asset('/')}}css/bootstrap.min.css" >
-
-    <link rel="stylesheet" href="{{ asset('/')}}css/style.css" >
+    @php
+        $route_name = Route::currentRouteName();
+        if($route_name == "notes.list" || $route_name == "image.list"){
+            $main_css = "style_new";
+        }else{
+            $main_css = "style";
+        }
+    @endphp
+    <link rel="stylesheet" href="{{ asset('/')}}css/{{$main_css}}.css" >
     <link rel="stylesheet" href="{{ asset('/')}}css/toastr.css" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -28,6 +35,7 @@
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" /> -->
     <!-- <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"> -->
     <!-- <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/css/lightbox.min.css">
 
     <link rel="stylesheet" href="{{ asset('/')}}backend/assets/css/custom.css" >
 </head>
@@ -93,6 +101,13 @@
 <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+        <script>
+            lightbox.option({
+                'resizeDuration': 200,
+                'wrapAround': true,
+            });
+        </script>
 
 <script src="{{ asset('/')}}js/custom.js?{{time()}}" ></script>
 <script src="{{ asset('/')}}js/toastr.js?{{time()}}"></script>

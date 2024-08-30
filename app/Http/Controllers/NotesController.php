@@ -15,25 +15,25 @@ class NotesController extends Controller
     {
         if ($request->ajax()) {
             $authId = Auth::id();
-            $data = Note::where('user_id', $authId)
+            $data = Note::with('sender')->where('user_id', $authId)
                 ->orderBy('pin_note', 'DESC')
                 ->orderBy('updated_at', 'DESC')
                 ->get();
 
-            return DataTables::of($data)
 
+            return DataTables::of($data)
+                ->addColumn('sender_email', function ($data) {
+                    return $data->sender->email ?? '';
+                })
                 ->addColumn('action', function ($data) {
                     $editButton = '<a class="btn btn-sm btn-info mr-5 edit-note" data-id="' . $data->id . '" data-toggle="modal" data-target="#notesModal"><i class="fa fa-pencil"></i></a>';
                     $deleteButton = '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-5 delete-note" data-id="' . $data->id . '" title="Delete"><i class="fas fa-trash"></i></a>';
 
                     $pinTitle = $data->pin_note ? 'Unpin Note' : 'Pin Note';
-                    if($data->pin_note)
-                    {
-                        $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning mr-1 pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '" style="padding: 5px 8px;"><img src="' . asset('images/unpinned-note.png') . '" width="13px"></a>';
-                    }
-                    else
-                    {
-                        $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning mr-1 pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '"><i class="fas fa-thumbtack"></i></a>';
+                    if($data->pin_note){
+                        $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '" style="padding: 5px 8px;"><img src="' . asset('images/unpinned-note.png') . '" width="13px"></a>';
+                    }else{
+                        $pinButton = '<a href="javascript:void(0);" class="btn btn-sm btn-warning pin-note" data-id="' . $data->id . '" title="' . $pinTitle . '"><i class="fas fa-thumbtack"></i></a>';
                     }
 
                     return $editButton . $deleteButton . $pinButton;
@@ -67,9 +67,10 @@ class NotesController extends Controller
             $notes = new Note();
             $succssmsg = 'Note added successfully.';
             $notes->user_id = Auth::id();
-            $notes->message = $request->message;
+            $notes->sender_id = $request->sender_id;
         }
         $notes->note = $request->notes;
+        $notes->message = $request->message;
         if ($notes->save()) {
             $response = ['status' => true, 'message' => $succssmsg, 'data' => []];
         } else {

@@ -43,7 +43,7 @@ class UserController extends Controller
                 })
 
                 ->addColumn('action', function ($data) {
-                return '<center><a href="javascript:void(0);" data-toggle="modal" data-target="#edit-modal" id="edituser" class="btn btn-sm btn-primary mr-1 edit-user"  data-id="'.$data->id.'"><i class="mdi mdi-pencil"></i></a></a><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-user" data-id="'.$data->id.'"><i class="mdi mdi-delete"></i></a></center>';
+                return '<center><a href="javascript:void(0);" data-toggle="modal" data-target="#edit-modal" id="edituser" class="btn btn-sm btn-primary mr-1 edit-user" data-id="'.$data->id.'" title="Edit"><i class="mdi mdi-pencil"></i></a></a><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-user" data-id="'.$data->id.'" title="Delete"><i class="mdi mdi-delete"></i></a></center>';
             })
 
             ->rawColumns(['approve','action'])
@@ -109,7 +109,6 @@ class UserController extends Controller
     public function userdelete(Request $request)
     {
         $user = User::find($request->id);
-        //$user->deleted_at = null;
         $user->delete();
         $msg = "Records Delete successfully";
         $result = ["status" => true, "message" => $msg];
@@ -118,16 +117,13 @@ class UserController extends Controller
     public function approve_user(Request $request)
     {
         $user = User::find($request->id);
-        if($user)
-        {
+        if($user){
             $user->is_approve = $request->status;
             $user->save();
 
             Mail::to($user->email)->send(new UserApprovalMail($user));
             $result = ['status' => true, 'message' => 'Status changed successfully', 'data' => []];
-        }
-        else
-        {
+        }else{
             $result = ['status' => false, 'message' => 'Something went wrong'];
         }
         return response()->json($result);
@@ -136,7 +132,12 @@ class UserController extends Controller
     public function deleteMultipleUsers(Request $request)
     {
         $ids = $request->input('ids');
-        User::whereIn('id', $ids)->delete();
+        $users = User::whereIn('id', $ids)->get();
+
+        foreach ($users as $user) {
+            $user->delete();
+        }
+
         $msg = "Records Delete successfully";
         $result = ["status" => true, "message" => $msg];
         return response()->json($result);

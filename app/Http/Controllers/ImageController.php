@@ -12,75 +12,71 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class ImageController extends Controller
 {
     public function store(Request $request)
     {
-        
-        $validatedData = Validator::make($request->all(),[
+        $validatedData = Validator::make($request->all(), [
+            'file_name' => 'required|max:255',
             'files' => 'required',
             'files.*' => 'max:10240',
         ], [
-                
-                'files.*.max' => 'The files may not be greater than 10 MB.',
-                'files.required' => 'File is required',
-            ]);
-       
-        if ($validatedData->fails()) 
-        {
-            $result = ['status' => false,'errors' => $validatedData->errors()];
+            'files.*.max' => 'The files may not be greater than 10 MB.',
+            'files.required' => 'File is required',
+        ]);
+
+        if ($validatedData->fails()) {
+            $result = ['status' => false, 'errors' => $validatedData->errors()];
             return response()->json($result);
         }
 
         //insert new file
-        $dir = "public/uploaded_images/"; 
+        $dir = "public/uploaded_images/";
         $userid = Auth::user()->id;
 
         $imageLinks = [];
         $imageIds = [];
-         
-        foreach ($request->file('files') as $image) 
-        {
+
+        foreach ($request->file('files') as $image) {
             $token = Str::random(10);
-            while (Image::where('short_link_token', $token)->exists()) 
-            {
+            while (Image::where('short_link_token', $token)->exists()) {
                 $token = Str::random(10);
             }
 
-            $image_name = $image->getClientOriginalName();            
+            $image_name = $image->getClientOriginalName();
             $unique_image_name = time() . '_' . $image->getClientOriginalName();
-            $filePath = $dir.$unique_image_name;            
-            Storage::disk("local")->put($filePath,\File::get($image));
+            $filePath = $dir . $unique_image_name;
+            Storage::disk("local")->put($filePath, File::get($image));
             $image = new Image();
+            $image->file_name = $request->file_name;
             $image->image_name = $image_name;
-            $image->image_path = $unique_image_name;        
+            $image->image_path = $unique_image_name;
             $image->user_id = $userid;
             $image->short_link_token = $token;
-            if(isset($request->password))
-            {                
+            if (isset($request->password)) {
                 $image->password = md5($request->password);
             }
-            $image->save();          
+            $image->save();
 
             $imageLink = route('image.action', ['token' => $token]);
             $imageLinks[] = $imageLink;
             $imageIds[] = $image->id;
         }
-        
-       $result = [
+
+        $result = [
             'status' => true,
             'message' => "Image uploaded successfully.",
             'imageLinks' => $imageLinks,
-            'imageIds' => $imageIds,             
+            'imageIds' => $imageIds,
         ];
-          
-        return response()->json($result);        
+
+        return response()->json($result);
     }
     public function list(Request $request)
     {
-        if($request->ajax())
-        {
+        if ($request->ajax()) {
             $authId = Auth::id();
             $userCreateImages = Image::where('user_id', $authId);
 
@@ -92,90 +88,79 @@ class ImageController extends Controller
             $data = $userCreateImages->union($userAssignImages)->get();
 
             return DataTables::of($data)
-                
                 ->addColumn('created_at_formatted', function ($userImage) {
                     $createdAt = new \DateTime($userImage->created_at);
                     return $createdAt->format('d-m-Y h:i A');
                 })
                 ->addColumn('action', function ($data) {
-                    return '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-image" data-id="'.$data->id.' "title="Delete"><i class="fas fa-trash"></i></a>';
-                }) 
+                    $copyUrl = asset('image_action/' . $data->short_link_token);
+                    return '<a href="javascript:void(0);" class="btn btn-sm btn-danger mr-5 delete-image" data-id="' . $data->id . ' "title="Delete"><i class="fas fa-trash"></i></a><a href="javascript:void(0);" class="btn btn-sm btn-info mr-1 copy-url" data-url="' . $copyUrl . ' "title="Copy Url"><i class="fas fa-copy"></i></a>';
+                })
+                ->addColumn('image', function ($row) {
+                    return $row->getImageUrl();
+                })
                 ->toJson();
-        }            
+        }
         return view('imagelist');
     }
     public function delete(Request $request)
-    {        
+    {
         $image = Image::find($request->id);
-        if (!$image) 
-        {
+        if (!$image) {
             return response()->json(['message' => 'Image not found'], 404);
         }
 
-        Storage::delete('public/uploaded_images/'.$image->image_path);        
-        $image->userImages()->delete();        
+        Storage::delete('public/uploaded_images/' . $image->image_path);
+        $image->userImages()->delete();
         $image->delete();
 
         return response()->json(['message' => 'Image deleted successfully']);
     }
 
     public function imageAction(Request $request)
-    {        
+    {
         $image = Image::where('short_link_token', $request->token)->first();
 
-        if($image)
-        {       
+        if ($image) {
             $filename = $image->image_path;
-            $imagePath = Storage::url('uploaded_images/' . $filename); 
-            $filePath = 'public/uploaded_images/' . $filename;  
+            $imagePath = Storage::url('uploaded_images/' . $filename);
+            $filePath = 'public/uploaded_images/' . $filename;
 
-            if (strpos($imagePath, 'public') == false && config('app.env') != 'local')
-            {
-                $imagePath = asset('public/storage/uploaded_images/' . $filename); 
-            }           
-            
+            if (strpos($imagePath, 'public') == false && config('app.env') != 'local') {
+                $imagePath = asset('public/storage/uploaded_images/' . $filename);
+            }
+
             $exists = Storage::disk('local')->exists($filePath);
-                        
-            if ($exists) 
-            {     
+
+            if ($exists) {
                 return view('downloadimage', compact('image', 'imagePath'));
-            }
-            else
-            {
+            } else {
                 $image = "";
-                return view('downloadimage', compact('image'));   
+                return view('downloadimage', compact('image'));
             }
-        }   
-        else
-        {
+        } else {
             return view('downloadimage', ['image' => null]);
-        }  
+        }
     }
 
     public function download(Request $request)
-    { 
+    {
         $image = Image::find($request->id);
-        if($image)
-        {
-            $filename = $image->image_path;                        
-            $imagePath = asset('storage/uploaded_images/' . $filename); 
-            
-            if (strpos($imagePath, 'public') == false && config('app.env') != 'local')
-            {
-                $imagePath = asset('public/storage/uploaded_images/' . $filename); 
-            }            
+        if ($image) {
+            $filename = $image->image_path;
+            $imagePath = asset('storage/uploaded_images/' . $filename);
 
-            $filepath = 'public/uploaded_images/' . $filename;            
+            if (strpos($imagePath, 'public') == false && config('app.env') != 'local') {
+                $imagePath = asset('public/storage/uploaded_images/' . $filename);
+            }
+
+            $filepath = 'public/uploaded_images/' . $filename;
             $exists = Storage::disk('local')->exists($filepath);
-                        
-            if ($exists) 
-            {                
-                if($image->password != "" || $image->password != null)
-                {     
-                    if(isset($request->password))
-                    {
-                        if($image->password == md5($request->password))
-                        {  
+
+            if ($exists) {
+                if ($image->password != "" || $image->password != null) {
+                    if (isset($request->password)) {
+                        if ($image->password == md5($request->password)) {
                             $result = [
                                 'status' => true,
                                 'message' => 'File download successfully',
@@ -183,25 +168,19 @@ class ImageController extends Controller
                                 'filename' => $filename,
                                 'imagename' => $image->image_name
                             ];
-                        }
-                        else
-                        {   
+                        } else {
                             $result = [
                                 'status' => false,
                                 'message' => 'Please enter valid password',
                             ];
                         }
-                    }
-                    else
-                    {
+                    } else {
                         $result = [
                             'status' => false,
                             'message' => 'File is password protected',
                         ];
                     }
-                }
-                else
-                {   
+                } else {
                     $result = [
                         'status' => true,
                         'message' => 'File Download successfully',
@@ -211,25 +190,19 @@ class ImageController extends Controller
                     ];
                 }
                 return response()->json($result);
-            } 
-            else 
-            {
+            } else {
                 $result = [
                     'status' => false,
                     'message' => 'File does not exist',
                 ];
                 return response()->json($result);
             }
-        }
-        else
-        {
+        } else {
             $result = [
-                    'status' => false,
-                    'message' => 'File does not exist',
-                ];
-                return response()->json($result);
+                'status' => false,
+                'message' => 'File does not exist',
+            ];
+            return response()->json($result);
         }
-            
     }
-          
 }

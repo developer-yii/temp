@@ -54,7 +54,7 @@ Route::group(['middleware' => 'auth'], function ()
 
         // my notes notes
         Route::get('/notes/index', 'NotesController@list')->name('notes.list');
-        Route::get('/notes/add', 'NotesController@add')->name('notes.add');
+        Route::post('/notes/add', 'NotesController@add')->name('notes.add');
         Route::post('/detail','NotesController@detail')->name('notes.detail');
         Route::post('/notes/delete', 'NotesController@delete')->name('notes.delete');
         Route::post('/notes/pin', 'NotesController@pin')->name('notes.pin');
@@ -73,6 +73,8 @@ Route::group(['middleware' => 'auth'], function ()
         //message module
         Route::get('/message','MessageController@message')->name('message');
         Route::get('/view-message', 'MessageController@viewChat')->name('view_chat');
+        Route::post('/conversation/delete','MessageController@conversationDelete')->name('conversation.delete');
+        Route::post('/delete-multiple-message', 'MessageController@deleteMultipleMessages')->name('multiple-message.delete');
 
         //user module
         Route::get('/user/list','UserController@userlist')->name('user.list');

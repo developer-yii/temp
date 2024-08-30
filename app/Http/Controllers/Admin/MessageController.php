@@ -29,16 +29,16 @@ class MessageController extends Controller
 
             return DataTables::of($data)
                  ->addColumn('action', function ($data) {
-                return '<a href="'.route('admin.view_chat', 'id='.$data->id).'" class="btn btn-sm btn-primary"  data-id="'.$data->id.'"><i class="mdi mdi-eye"></i></a>';
+                return '<a href="'.route('admin.view_chat', 'id='.$data->id).'" class="btn btn-sm btn-primary mr-1" data-id="'.$data->id.'" title="View Conversation"><i class="mdi mdi-eye"></i></a><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-conversation" data-id="'.$data->id.'" title="Delete Conversation"><i class="mdi mdi-delete"></i></a>';
             })
 
             ->rawColumns(['action', 'status'])
                 ->toJson();
-
         }
 
         return view('admin.message');
     }
+
     public function viewchat(Request $request)
     {
         $id=$request->id;
@@ -53,5 +53,27 @@ class MessageController extends Controller
         $uniqueUserEmailsArray = implode(', ', $uniqueUserEmails);
 
         return view("admin.view_chat", ['messages' => $messages, 'uniqueUserEmails' => $uniqueUserEmailsArray]);
+    }
+
+    public function conversationDelete(Request $request)
+    {
+        $user = Conversation::find($request->id);
+        $user->delete();
+        $msg = "Conversation Delete successfully";
+        $result = ["status" => true, "message" => $msg];
+        return response()->json($result);
+    }
+    public function deleteMultipleMessages(Request $request)
+    {
+        $ids = $request->input('ids');
+        $conversations = Conversation::whereIn('id', $ids)->get();
+
+        foreach ($conversations as $conversation) {
+            $conversation->delete();
+        }
+
+        $msg = "Records Delete successfully";
+        $result = ["status" => true, "message" => $msg];
+        return response()->json($result);
     }
 }

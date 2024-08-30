@@ -26,13 +26,16 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Message List</h4>
                     <div class="tab-content">
                         <div class="tab-pane show active" id="basic-datatable-preview">
                             <table id="message_datatable" class="table dt-responsive nowrap w-100">
                                 <thead>
                                     <tr>
-                                        <th>date</th>
+                                        <td colspan="5"><button id="delete-selected-messages" class="btn btn-danger">Delete Selected</button></td>
+                                    </tr>
+                                    <tr>
+                                        <th><input type="checkbox" id="select-all-message"></th>
+                                        <th>Date</th>
                                         <th>User Email</th>
                                         <th>Token/Url</th>
                                         <th>Action</th>
@@ -48,6 +51,9 @@
     <!-- end row-->
 </div>
 @endsection
+<script>
+    var deleteMultipleMessageUrl = "{{ route('admin.multiple-message.delete') }}";
+</script>
 @section('js')
 <script src="{{$baseUrl}}js/custom.js"></script>
 @endsection

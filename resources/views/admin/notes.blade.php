@@ -35,7 +35,6 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Note List</h4>
                     <div class="tab-content">
                         <div class="tab-pane show active" id="basic-datatable-preview">
                             <div class="table-responsive">

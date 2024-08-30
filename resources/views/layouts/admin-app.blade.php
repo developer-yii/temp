@@ -111,6 +111,7 @@
             var profileupdate ="{{ route('admin.profile.update') }}";
             var notelist = "{{ route('admin.note.list') }}";
             var notedelete="{{ route('admin.note.delete') }}";
+            var deleteConversationUrl="{{ route('admin.conversation.delete') }}";
         </script>
 
         @yield('js')

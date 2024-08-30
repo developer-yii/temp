@@ -16,6 +16,13 @@ $(document).ready(function()
             url : adminmessagelist,
         },
         columns : [
+            {
+                data: 'id', name: 'id', render: function (data, type, row, meta) {
+                    return '<input type="checkbox" class="message-checkbox" value="' + data + '">';
+                },
+                orderable: false,
+
+            },
             { data: 'created_at', name: 'created_at' },
             { data: 'user.email', name: 'user.email' },
             { data: 'conversation_token', name: 'conversation_token' },
@@ -34,7 +41,9 @@ $(document).ready(function()
         },
         columns : [
             {
-                data: 'id', name: 'id', render: function (data, type, row, meta) {
+                data: 'id',
+                name: 'id',
+                render: function (data, type, row, meta) {
                     return '<input type="checkbox" class="user-checkbox" value="' + data + '">';
                 },
                 orderable: false,
@@ -42,6 +51,7 @@ $(document).ready(function()
             },
             { data: 'id', name: 'id' },
             { data: 'email', name: 'email' },
+            { data: 'created_at', name: 'created_at' },
             { data: 'approve', name: 'is_approve' },
             { data: 'action', name: 'action', orderable: false }
         ],
@@ -65,24 +75,56 @@ $(document).ready(function()
             {
                 data: 'note',
                 name: 'note',
+                // render: function (data, type, full, meta) {
+                //     return data ? data.replace(/\n/g, '<br>') : '';
+                // }
                 render: function (data, type, full, meta) {
-                    return data ? data.replace(/\n/g, '<br>') : '';
+                    return renderContentWithReadMoreAndLess(data, 'note-' + full.id);
                 }
             },
             {
                 data: 'message',
                 name: 'message',
+                // render: function (data, type, full, meta) {
+                //     return data ? data.replace(/\n/g, '<br>') : '';
+                // }
                 render: function (data, type, full, meta) {
-                    // Replace newline characters with HTML line break tags
-                    return data ? data.replace(/\n/g, '<br>') : '';
-                    // var formattedData = data ? data.replace(/\n/g, '<br>') : '';
-                    // return '<pre>' + formattedData + '</pre>';
+                    return renderContentWithReadMoreAndLess(data, 'message-' + full.id, full.sender_email);
                 }
             },
             { data: 'action', name: 'action', orderable: false}
         ],
     });
 
+    function renderContentWithReadMoreAndLess(content, elementId, senderName = null) {
+        var shortText = content ? content.replace(/\n/g, '<br>').substring(0, 100) : '';
+        var fullText = content ? content.replace(/\n/g, '<br>') : '';
+        var sentBy = senderName ? '<div style="text-align: right; font-style: italic; margin-top: 5px; color:blue;">Sent By: ' + senderName + '</div>' : '';
+
+        if (content && content.length > 100) {
+            return '<span class="short-text" id="' + elementId + '-short">' + shortText + '... ' +
+                   '<a href="#" class="read-more" data-id="' + elementId + '">Read More</a>' + sentBy + '</span>' +
+                   '<span class="full-text" id="' + elementId + '" style="display:none;">' + fullText +
+                   ' <a href="#" class="read-less" data-id="' + elementId + '">Read Less</a>' + sentBy + '</span>';
+        }
+        return fullText;  // Return full content if less than 100 characters
+    }
+});
+
+$('body').on('click', '.read-more', function (e) {
+    e.preventDefault();  // Prevent the default link click behavior
+
+    var elementId = $(this).data('id');  // Get the ID of the element to display
+    $('#' + elementId + '-short').hide();  // Hide the short text with "Read More"
+    $('#' + elementId).show();  // Show the full text with "Read Less"
+});
+
+$('body').on('click', '.read-less', function (e) {
+    e.preventDefault();  // Prevent the default link click behavior
+
+    var elementId = $(this).data('id');  // Get the ID of the element to hide
+    $('#' + elementId).hide();  // Hide the full text with "Read Less"
+    $('#' + elementId + '-short').show();  // Show the short text with "Read More"
 });
 
 //user module start
@@ -175,6 +217,10 @@ $('#btn-cancel').on('click', function()
     $('#edit-modal').modal('hide');
 });
 
+$('#select-all').on('click', function() {
+    var isChecked = $(this).prop('checked');
+    $('.user-checkbox').prop('checked', isChecked);
+});
 
 $('body').on('click', '.delete-user', function(e)
 {
@@ -280,6 +326,92 @@ $('#edit-modal').on('hidden.bs.modal', function () {
   });
 //user module end
 
+// message module start
+$('#select-all-message').on('click', function() {
+    var isChecked = $(this).prop('checked');
+    $('.message-checkbox').prop('checked', isChecked);
+});
+$('#delete-selected-messages').on('click', function () {
+    // Collect IDs of selected rows
+    var ids = [];
+    $('.message-checkbox:checked').each(function () {
+        ids.push($(this).val());
+    });
+
+    // If there are no selected rows, return
+    if (ids.length === 0) {
+        toastr.error('No Message selected');
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure want to delete selected Conversations?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ok, got it!',
+        cancelButtonText: 'Nope, cancel it.'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // User confirmed the action, proceed with the deletion
+            $.ajax({
+                url: deleteMultipleMessageUrl,
+                data: { ids: ids },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    toastr.success(result.message);
+                    $('#message_datatable').DataTable().ajax.reload();
+                },
+                error: function(error) {
+                    toastr.error('An error occurred while deleting conversations.');
+                }
+            });
+        } else {
+            // User cancelled the action, do nothing
+            toastr.info('Deletion cancelled.');
+        }
+    });
+
+});
+$('body').on('click', '.delete-conversation', function(e)
+{
+    e.preventDefault();
+    var id = $(this).attr('data-id');
+
+    // Show SweetAlert confirmation dialog
+    Swal.fire({
+        title: 'Are you sure want to delete the conversation?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ok, got it!',
+        cancelButtonText: 'Nope, cancel it.'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // User confirmed the action, proceed with the deletion
+            $.ajax({
+                url: deleteConversationUrl + '?id=' + id,
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    toastr.success(result.message);
+                    $('#message_datatable').DataTable().ajax.reload();
+                },
+                error: function(error) {
+                    toastr.error('An error occurred while deleting the conversation.');
+                }
+            });
+        } else {
+            // User cancelled the action, do nothing
+            toastr.info('Deletion cancelled.');
+        }
+    });
+});
+
+// message module end
 //admin profile start
 $(document).on('submit','.edit-profile-form', function(e)
 {

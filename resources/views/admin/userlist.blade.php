@@ -26,7 +26,6 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">User List</h4>
                     <div class="tab-content">
                         <div class="tab-pane show active" id="basic-datatable-preview">
                             <table id="user_datatable" class="table dt-responsive nowrap w-100">
@@ -38,6 +37,7 @@
                                         <th><input type="checkbox" id="select-all"></th>
                                         <th>User Id</th>
                                         <th>User Email</th>
+                                        <th>Register Date</th>
                                         <th width="15%">User Approve?</th>
                                         <th><center>Action</center></th>
                                     </tr>

@@ -13,11 +13,14 @@ class NoteController extends Controller
     {
         if($request->ajax())
         {
-            $data = Note::with('user')->get();
+            $data = Note::with('user', 'sender');
 
             return DataTables::of($data)
+                ->addColumn('sender_email', function ($data) {
+                    return $data->sender->email ?? '';
+                })
                 ->addColumn('action', function ($data) {
-                return '<center><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-note" data-id="'.$data->id.'"><i class="mdi mdi-delete"></i></a></center>';
+                return '<center><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-note" data-id="'.$data->id.'"><i class="mdi mdi-delete" title="Delete"></i></a></center>';
             })
 
             ->rawColumns(['action'])

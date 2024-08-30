@@ -85,3 +85,21 @@ pre {
 {
   margin-right:5px;
 }
+
+.mandatory{
+  color: red;
+  font-weight: bold;
+}
+
+.data-table td {
+  text-align: justify;  /* Justify text within the cell */
+  word-wrap: break-word;  /* Allow breaking words to fit the cell width */
+  white-space: normal;  /* Allow text to wrap normally */
+  max-width: 400px;  /* Optional: limit max width for better layout */
+}
+
+/* Optional: add padding and styling to enhance readability */
+.data-table td .file-name {
+  display: block;  /* Make sure it spans the entire width */
+  padding: 5px;  /* Add some padding for visual spacing */
+}

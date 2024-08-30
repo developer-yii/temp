@@ -44,11 +44,10 @@
                         <div class="panel-body panel-message2">
                             <b>{{ $replydata->email }} - </b> {{ $date }} <br>
                             <pre>{{ $replydata->message }}</pre>
-                            <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal"
-                                data-message="{{ $replydata->message }}"><i class="fa fa-sticky-note-o ml-1"
+                            <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="{{ $replydata->user_id }}" data-message="{{ $replydata->message }}" title="Note"><i class="fa fa-sticky-note-o ml-1"
                                     aria-hidden="true" style="cursor: pointer;"></i></a>
                             @if ($replydata->user_id == $auth_id)
-                                <a class="delete-message" data-message-id="{{ $replydata->id }}">
+                                <a class="delete-message" data-message-id="{{ $replydata->id }}" title="Delete">
                                     <i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;"></i>
                                 </a>
                             @endif
@@ -134,17 +133,26 @@
                     <!-- Modal Body -->
                     <div class="modal-body">
                         <div class="container">
-                            <div class="row mb-1">
+                            <div class="row">
                                 <div class="col-md-3">
-                                    <label for="choose-file">Choose File<span class="error">*</span>:</label>
+                                    <label for="file_name">File Name : <span class="mandatory">*</span></label>
                                 </div>
-                                <div class="col-md-5 form-input">
-                                    <input type="file" id="files" name="files[]" class="form-control" multiple>
+                                <div class="col-md-5 form-group">
+                                    <input type="text" id="file_name" name="file_name" class="form-control">
                                     <span class="error"></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-3">
+                                    <label for="choose-file">Choose File<span class="error">*</span>:</label>
+                                </div>
+                                <div class="col-md-5 form-input form-group">
+                                    <input type="file" id="files" name="files[]" class="form-control" multiple>
+                                    <span class="error"></span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 form-group">
                                     <label for="password">File(s) Password :</label>
                                 </div>
                                 <div class="col-md-5">
@@ -164,8 +172,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="notesModal" role="dialog">
-        <div class="modal-dialog">
+    <div class="modal fade" id="notesModal" role="dialog" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                 <!-- Modal Header -->
@@ -187,11 +195,12 @@
                     <!-- Modal Body -->
                     <div class="modal-body">
                         <div class="container">
+                            <input type="hidden" name="sender_id" id="sender_id">
                             <div class="row mb-1">
                                 <div class="col-md-2">
-                                    <label for="choose-file">Notes : <span class="error">*</span></label>
+                                    <label for="choose-file">Notes : <span class="mandatory">*</span></label>
                                 </div>
-                                <div class="col-md-6 form-input">
+                                <div class="col-md-10 form-input">
                                     <textarea type="text" id="notes" name="notes" rows="5" class="form-control"
                                         placeholder="Enter Your Notes"></textarea>
                                     <span class="error"></span>
@@ -201,9 +210,9 @@
                                 <div class="col-md-2">
                                     <label for="message">Message : </label>
                                 </div>
-                                <div class="col-md-6">
-                                    <input type="hidden" name="message" class="form-control" id="messages" readonly>
-                                    <span id="message"></span>
+                                <div class="col-md-10">
+                                    <textarea name="message" class="form-control" id="messages" rows="10"></textarea>
+                                    {{-- <span id="message"></span> --}}
                                 </div>
                             </div>
                         </div>
@@ -303,7 +312,6 @@
                             } else {
                                 toastr.error(result.message);
                             }
-
                         },
                         error: function(error) {
                             toastr.error('An error occurred while deleting the user.');
@@ -360,8 +368,8 @@
                                                     <div class="panel-body panel-message2">
                                                         <b>${userEmail} -</b> ${value.created_at} <br>
                                                         <pre>${value.message}</pre>
-                                                        <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-message="${value.message}"><i class="fa fa-sticky-note-o ml-1" aria-hidden="true" style="cursor: pointer;"></i></a>
-                                                        <a class="delete-message" data-message-id="${value.id}"><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;"></i>
+                                                        <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="${value.user_id}" data-message="${value.message}" title="Note"><i class="fa fa-sticky-note-o ml-1" aria-hidden="true" style="cursor: pointer;"></i></a>
+                                                        <a class="delete-message" data-message-id="${value.id}" title="Delete"><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;"></i>
                                                         </a>
                                                     </div>
                                                 </div>
@@ -388,13 +396,13 @@
                 callTextCounter();
             }
 
-
             $(document).ready(function() {
 
                 // Note model start
                 $('#notesModal').on('show.bs.modal', function(event) {
                     var link = $(event.relatedTarget);
                     var message = link.data('message');
+                    var sender_id = link.data('sender-id');
 
                     var formattedMessage = '';
                     if (message) {
@@ -402,14 +410,17 @@
                         formattedMessage = '<pre>' + messageStr.replace(/\n/g, '<br>') + '</pre>';
                     }
 
-                    $('#message').html(formattedMessage);
+                    // $('#message').html(formattedMessage);
                     $('#messages').val(message);
+                    $('#sender_id').val(sender_id);
                 });
 
                 $('#notesModal').on('hidden.bs.modal', function() {
                     $('.error').html("");
-                    $('#message').empty();
-                    $('#messages').val(message);
+                    // $('#message').empty();
+                    // $('#messages').val(message);
+                    $('#messages').val();
+                    $('#sender_id').val();
                 });
 
                 var notesUrl = "{{ route('notes.add') }}";
@@ -422,7 +433,7 @@
 
                     $.ajax({
                         url: notesUrl,
-                        type: "get",
+                        type: "post",
                         data: formData,
                         success: function(response) {
 
@@ -456,6 +467,100 @@
                 });
                 // Note model end
 
+                var uploadedImgIds = [];
+                $('#image-store').submit(function(e) {
+                    e.preventDefault();
+                    var dataString = new FormData($('#image-store')[0]);
+                    var $this = $(this);
+
+                    $.ajax({
+                        type: 'POST',
+                        url: createimage,
+                        data: dataString,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function() {
+                            $($this).find('button[type="submit"]').prop('disabled', true);
+                        },
+                        success: function(result) {
+                            $('.error').html("");
+                            $($this).find('button[type="submit"]').prop('disabled', false);
+                            if (result.status == true) {
+                                $this[0].reset();
+                                toastr.success(result.message);
+                                $('#imageModal').modal('hide');
+
+                                var imgLinks = result.imageLinks;
+                                var imgIds = result.imageIds;
+                                uploadedImgIds = uploadedImgIds.concat(imgIds);
+
+                                var linksHtml = '';
+                                $.each(imgLinks, function(index, link) {
+                                    linksHtml += link + '\n';
+                                });
+
+                                const textarea = document.getElementById("reply");
+                                const charCount = document.getElementById("count");
+                                const maxCharLimit = 10000;
+
+                                if (textarea.value.length + linksHtml.length > maxCharLimit) {
+                                    const errorMessage = document.getElementById("error");
+                                    errorMessage.textContent = "Character limit exceeded!";
+                                    setTimeout(function() {
+                                        errorMessage.textContent = ""; // Clear the error message
+                                    }, 5000);
+                                } else {
+                                    $('#reply').val(function(index, currentValue) {
+                                        const newContent = currentValue + '\n' + linksHtml;
+                                        if (newContent.length <= maxCharLimit) {
+                                            return newContent;
+                                        } else {
+                                            const errorMessage = document.getElementById(
+                                                "error");
+                                            errorMessage.textContent =
+                                                "Character limit exceeded!";
+                                            setTimeout(function() {
+                                                errorMessage.textContent = ""; // Clear the error message
+                                            }, 5000);
+                                            return currentValue; // Do not exceed character limit
+                                        }
+                                    });
+                                }
+
+                                const remainingChars = maxCharLimit - textarea.value.length;
+                                charCount.textContent = remainingChars;
+                                // $('#img-ids').val(imgIds);
+                                $('#img-ids').val(uploadedImgIds.join(','));
+                            } else {
+                                first_input = "";
+                                $('.error').html("");
+                                $.each(result.errors, function(key) {
+                                    if (first_input == "") first_input = key;
+                                    if (key.includes(".")) {
+                                        let main_key = key.split('.')[0];
+                                        $('#' + main_key).closest('.form-input').find(
+                                            '.error').html(result.errors[key]);
+                                    } else {
+                                        $('#' + key).closest('.form-group').find('.error')
+                                            .html(result.errors[key]);
+                                    }
+
+                                });
+                                $('#image-store').find("#" + first_input).focus();
+                            }
+                        },
+                        error: function(error) {
+                            $($this).find('button[type="submit"]').prop('disabled', false);
+                            alert('Something went wrong!', 'error');
+                        }
+                    });
+
+                });
+
+                $('#imageModal').on('hidden.bs.modal', function(e) {
+                    $('#image-store')[0].reset();
+                });
+
                 $('body').on('click', '#sendreply', function(e) {
                     e.preventDefault();
                     var $this = $(this);
@@ -473,6 +578,8 @@
                             $($this).find('button[type="submit"]').prop('disabled', false);
                             if (response.status == true) {
                                 $('#reply-form')[0].reset();
+                                $('#img-ids').val("");
+                                uploadedImgIds = [];
                                 $('.error').html("");
 
                                 fetchMessages();
@@ -565,98 +672,6 @@
                 });
                 // extends Validity end
 
-                $('#image-store').submit(function(e) {
-                    e.preventDefault();
-                    var dataString = new FormData($('#image-store')[0]);
-                    var $this = $(this);
-
-                    $.ajax({
-                        type: 'POST',
-                        url: createimage,
-                        data: dataString,
-                        processData: false,
-                        contentType: false,
-                        beforeSend: function() {
-                            $($this).find('button[type="submit"]').prop('disabled', true);
-                        },
-                        success: function(result) {
-                            $('.error').html("");
-                            $($this).find('button[type="submit"]').prop('disabled', false);
-                            if (result.status == true) {
-                                $this[0].reset();
-                                toastr.success(result.message);
-                                $('#imageModal').modal('hide');
-
-                                var imgLinks = result.imageLinks;
-                                var imgIds = result.imageIds;
-
-                                var linksHtml = '';
-                                $.each(imgLinks, function(index, link) {
-                                    linksHtml += link + '\n';
-                                });
-
-                                const textarea = document.getElementById("reply");
-                                const charCount = document.getElementById("count");
-                                const maxCharLimit = 10000;
-
-                                if (textarea.value.length + linksHtml.length > maxCharLimit) {
-                                    const errorMessage = document.getElementById("error");
-                                    errorMessage.textContent = "Character limit exceeded!";
-                                    setTimeout(function() {
-                                        errorMessage.textContent =
-                                            ""; // Clear the error message
-                                    }, 5000);
-                                } else {
-                                    $('#reply').val(function(index, currentValue) {
-                                        const newContent = currentValue + '\n' + linksHtml;
-                                        if (newContent.length <= maxCharLimit) {
-                                            return newContent;
-                                        } else {
-                                            const errorMessage = document.getElementById(
-                                                "error");
-                                            errorMessage.textContent =
-                                                "Character limit exceeded!";
-                                            setTimeout(function() {
-                                                errorMessage.textContent =
-                                                    ""; // Clear the error message
-                                            }, 5000);
-                                            return currentValue; // Do not exceed character limit
-                                        }
-                                    });
-                                }
-
-                                const remainingChars = maxCharLimit - textarea.value.length;
-                                charCount.textContent = remainingChars;
-                                $('#img-ids').val(imgIds);
-                            } else {
-                                first_input = "";
-                                $('.error').html("");
-                                $.each(result.errors, function(key) {
-                                    if (first_input == "") first_input = key;
-                                    if (key.includes(".")) {
-                                        let main_key = key.split('.')[0];
-                                        $('#' + main_key).closest('.form-input').find(
-                                            '.error').html(result.errors[key]);
-                                    } else {
-                                        $('#' + key).closest('.form-input').find('.error')
-                                            .html(result.errors[key]);
-                                    }
-
-                                });
-                                $('#image-store').find("#" + first_input).focus();
-                            }
-                        },
-                        error: function(error) {
-                            $($this).find('button[type="submit"]').prop('disabled', false);
-                            alert('Something went wrong!', 'error');
-                        }
-                    });
-
-                });
-
-                $('#imageModal').on('hidden.bs.modal', function(e) {
-                    $('#image-store')[0].reset();
-                });
             });
 
             document.addEventListener("DOMContentLoaded", function() {

@@ -17,9 +17,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Notes</th>
-                            <th>Message</th>
-                            <th style="width:20%;">Action</th>
+                            <th style="width:40%;">Notes</th>
+                            <th style="width:40%;">Message</th>
+                            <th style="width:12%;">Action</th>
                         </tr>
                     </thead>
                 </table>
@@ -29,7 +29,7 @@
 @endsection
 @section('modal')
     <div class="modal fade" id="notesModal" role="dialog" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <!-- Modal content-->
             <div class="modal-content">
                 <!-- Modal Header -->
@@ -56,20 +56,28 @@
                             </div>
                             <div class="row mb-1">
                                 <div class="col-md-2">
-                                    <label for="choose-file">Notes : <span class="error">*</span></label>
+                                    <label for="choose-file">Notes : <span class="mandatory">*</span></label>
                                 </div>
-                                <div class="col-md-6 form-input">
+                                <div class="col-md-7 form-input">
                                     <textarea type="text" id="notes" name="notes" rows="5" class="form-control"
                                         placeholder="Enter Your Notes"></textarea>
                                     <span class="error"></span>
                                 </div>
                             </div>
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-md-2" id="messagelabel" style="display: none">
                                     <label for="message">Message : </label>
                                 </div>
                                 <div class="col-md-6">
                                     <span id="message"></span>
+                                </div>
+                            </div> --}}
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label for="message">Message : </label>
+                                </div>
+                                <div class="col-md-7">
+                                    <textarea name="message" class="form-control" id="messages" rows="10" placeholder="Enter Your Message"></textarea>
                                 </div>
                             </div>
                         </div>

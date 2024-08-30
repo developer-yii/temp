@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Image extends Model
 {
@@ -16,11 +17,10 @@ class Image extends Model
     {
         if($this->image_path)
         {
-            if(\Storage::disk('local')->exists("public/uploaded_images/" . $this->image_path)) 
+            if(Storage::disk('local')->exists("public/uploaded_images/" . $this->image_path))
             {
                 return asset('storage/uploaded_images')."/".$this->image_path;
             }
         }
-        
     }
 }

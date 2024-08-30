@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -38,9 +39,24 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->format('d/m/Y') : '';
+    }
+
     public function messages()
     {
         return $this->hasMany(Message::class, 'user_id', 'id');
+    }
+
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class, 'user_id', 'id');
+    }
+
+    public function userImages()
+    {
+        return $this->hasMany(UserImage::class, 'user_id', 'id');
     }
 
     protected static function boot()
@@ -48,8 +64,9 @@ class User extends Authenticatable
         parent::boot();
 
         static::deleting(function ($user) {
-            // Efficiently delete all related messages in one query
             $user->messages()->delete();
+            $user->conversations()->delete();
+            $user->userImages()->delete();
         });
     }
 }
