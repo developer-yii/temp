@@ -126,9 +126,9 @@ class ImageController extends Controller
             $imagePath = Storage::url('uploaded_images/' . $filename);
             $filePath = 'public/uploaded_images/' . $filename;
 
-            if (strpos($imagePath, 'public') == false && config('app.env') != 'local') {
-                $imagePath = asset('public/storage/uploaded_images/' . $filename);
-            }
+            // if (strpos($imagePath, 'public') == false && config('app.env') != 'local') {
+            //     $imagePath = asset('public/storage/uploaded_images/' . $filename);
+            // }
 
             $exists = Storage::disk('local')->exists($filePath);
 
