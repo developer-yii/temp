@@ -13,7 +13,7 @@ $(document).ready(function(){
             {
                 data: 'file_name',
                 render: function(data, type, row, meta) {
-                    return '<div class="file-name">' + data + '</div>';
+                    return data ? '<div class="file-name">' + data + '</div>': " ";
                 }
             },
             {

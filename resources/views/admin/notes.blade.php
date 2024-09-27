@@ -41,7 +41,7 @@
                                 <table id="note_datatable" class="table w-100">
                                     <thead>
                                         <tr>
-                                            <td colspan="5"><button id="delete-selected-notes" class="btn btn-danger">Delete Selected</button></td>
+                                            <td colspan="6"><button id="delete-selected-notes" class="btn btn-danger">Delete Selected</button></td>
                                         </tr>
                                         <tr>
                                             <th width="10%">Id</th>

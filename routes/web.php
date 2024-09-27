@@ -21,6 +21,11 @@ Route::get('/migrate-run-once', function () {
     return 'Migrations have been run.';
 });
 
+Route::get('/storage-link', function () {
+    Artisan::call('storage:link');
+    return 'Storage link has been created.';
+});
+
 Route::get('/cron-run-once', function () {
     Artisan::call('messages:expire');
     return 'Cron have been run.';

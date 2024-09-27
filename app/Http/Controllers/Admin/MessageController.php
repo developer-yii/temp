@@ -18,7 +18,7 @@ class MessageController extends Controller
     {
         if($request->ajax())
         {
-            $data = Conversation::with('user')->get();
+            $data = Conversation::with('user')->orderBy('created_at', 'desc');
             // $data = DB::table('messages')
             //     ->join('users', 'messages.user_id', '=', 'users.id')
             //     ->select('messages.id','messages.conversation_token')

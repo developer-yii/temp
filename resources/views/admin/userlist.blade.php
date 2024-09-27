@@ -31,7 +31,7 @@
                             <table id="user_datatable" class="table dt-responsive nowrap w-100">
                                 <thead>
                                     <tr>
-                                        <td colspan="5"><button id="delete-selected" class="btn btn-danger">Delete Selected</button></td>
+                                        <td colspan="6"><button id="delete-selected" class="btn btn-danger">Delete Selected</button></td>
                                     </tr>
                                     <tr>
                                         <th><input type="checkbox" id="select-all"></th>

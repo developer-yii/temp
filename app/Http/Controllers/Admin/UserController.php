@@ -21,7 +21,7 @@ class UserController extends Controller
         $loginUser = Auth::user();
         if($request->ajax())
         {
-            $data = User::where("id", "!=", Auth::user()->id);
+            $data = User::where("id", "!=", Auth::user()->id)->orderBy('id', 'desc');
 
             return DataTables::of($data)
                 ->editColumn('approve', function($row) use($loginUser) {
