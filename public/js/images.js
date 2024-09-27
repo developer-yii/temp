@@ -11,6 +11,15 @@ $(document).ready(function(){
         ajax: imagelist,
         columns: [
             {
+                data: 'id',
+                name: 'id',
+                render: function (data, type, row, meta) {
+                    return '<input type="checkbox" class="image-checkbox" value="' + data + '">';
+                },
+                orderable: false,
+
+            },
+            {
                 data: 'file_name',
                 render: function(data, type, row, meta) {
                     return data ? '<div class="file-name">' + data + '</div>': " ";
@@ -49,6 +58,56 @@ $(document).ready(function(){
             {data: 'action', name: 'action', orderable: false }
         ],
         order: [[2, 'desc']]
+    });
+
+    $('#select-all-images').on('click', function() {
+        var isChecked = $(this).prop('checked');
+        $('.image-checkbox').prop('checked', isChecked);
+    });
+
+    $('#delete-selected-images').on('click', function () {
+        // Collect IDs of selected rows
+        var ids = [];
+        $('.image-checkbox:checked').each(function () {
+            ids.push($(this).val());
+        });
+
+        // If there are no selected rows, return
+        if (ids.length === 0) {
+            toastr.error('No image or file selected');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Are you sure want to delete selected record?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ok, got it!',
+            cancelButtonText: 'Nope, cancel it.'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User confirmed the action, proceed with the deletion
+                $.ajax({
+                    url: deleteMultipleImageUrl,
+                    data: { ids: ids },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(result) {
+                        toastr.success(result.message);
+                        $('#data-table').DataTable().ajax.reload();
+                    },
+                    error: function(error) {
+                        toastr.error('An error occurred while deleting the images or files.');
+                    }
+                });
+            } else {
+                // User cancelled the action, do nothing
+                toastr.info('Deletion cancelled.');
+            }
+        });
+
     });
 
     $(document).on('click', '.copy-url', function () {

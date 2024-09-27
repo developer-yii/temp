@@ -17,14 +17,19 @@ class Image extends Model
     {
         if($this->image_path)
         {
+            // if(Storage::disk('local')->exists("public/uploaded_images/" . $this->image_path))
+            // {
+            //     $imagePath = Storage::url('uploaded_images/' . $this->image_path);
+            //     if (strpos($imagePath, 'public') == false && config('app.env') != 'local') {
+            //         $imagePath = asset('public/storage/uploaded_images/' . $this->image_path);
+            //     }
+            //     return $imagePath;
+            // }
             if(Storage::disk('local')->exists("public/uploaded_images/" . $this->image_path))
             {
-                $imagePath = Storage::url('uploaded_images/' . $this->image_path);
-                if (strpos($imagePath, 'public') == false && config('app.env') != 'local') {
-                    $imagePath = asset('public/storage/uploaded_images/' . $this->image_path);
-                }
-                return $imagePath;
+                return asset('storage/uploaded_images')."/".$this->image_path;
             }
+
         }
     }
 }

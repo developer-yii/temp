@@ -380,6 +380,13 @@
                                     });
                                 }
                             }
+                        },
+                        error: function(xhr) {
+                            // Handle 403 Forbidden response for blocked users
+                            if (xhr.status === 403 && xhr.responseJSON.blocked) {
+                                // alert(xhr.responseJSON.message);  // Show error message
+                                window.location.href = '/login';  // Redirect to login page
+                            }
                         }
                     });
                 }

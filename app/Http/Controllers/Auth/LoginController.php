@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
@@ -54,34 +54,33 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
-        if ($this->hasTooManyLoginAttempts($request)) 
-        {
+        if ($this->hasTooManyLoginAttempts($request)){
             $this->fireLockoutEvent($request);
             return $this->sendLockoutResponse($request);
         }
 
         $user = User::where('email', $request->email)->first();
-        if($user->role_type == 2 && $user->is_approve == 0) 
-        {
+        if($user->role_type == 2 && $user->is_approve == 0){
             return redirect('login')->withErrors(['approve' => 'Your account is not approved.'])->withInput();
-        }
-        else
-        {
-            if ($user && Hash::check($request->password, $user->password)) 
-            {
+        }else{
+            if($user->is_block == 1){
+                return redirect('login')->withErrors(['approve' => 'Your account is blocked'])->withInput();
+            }
+
+            if ($user && Hash::check($request->password, $user->password)){
                 $redirectRoute = ($user->role_type == '1') ? 'admin.home' : 'home';
-                Auth::login($user);           
+                Auth::login($user);
                 return redirect()->intended(route($redirectRoute));
             }
             return redirect('login')->withErrors(['password' => 'The Password is wrong.'])->withInput();
         }
     }
 
-    // need 
-    // if role_type=1 then redirect route=admin.home 
+    // need
+    // if role_type=1 then redirect route=admin.home
     // if role_type!=1 and is_approve=0 then need to display error message your account is not approved
     // if role_type!=1 and is_approve=1 then need to redirect route= home
-    public function logout(Request $request) 
+    public function logout(Request $request)
     {
         Auth::logout();
         Session::forget('url.intended');

@@ -1,3 +1,7 @@
+@php
+    $baseUrlBackend = asset('backend')."/";
+@endphp
+
 <!DOCTYPE html>
 <!-- saved from url=(0016)https://temp.pm/ -->
 <html>
@@ -102,6 +106,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/js/lightbox.min.js"></script>
+<script src="{{$baseUrlBackend}}assets/js/sweetalert2.js?time()"></script>
         <script>
             lightbox.option({
                 'resizeDuration': 200,

@@ -53,6 +53,21 @@ $(document).ready(function()
             { data: 'email', name: 'email' },
             { data: 'created_at', name: 'created_at' },
             { data: 'approve', name: 'is_approve' },
+            // { data: 'blockStatus', name: 'blockStatus' },
+            {
+                data: null,
+                name: 'is_block',
+                render: function (data, type, full, meta) {
+                    let switchId = `switch_${data.id}`;
+                    let html = `<div>
+                                    <input type="checkbox" class="block-user" id="${switchId}" ${data.is_block ? 'checked' : ''} data-switch="success" data-id="${data.id}"/>
+                                    <label for="${switchId}" data-on-label="Yes" data-off-label="No" class="mb-0 d-block"></label>
+                                </div>`;
+                    return html;
+                },
+                orderable: false,
+                searchable: false,
+            },
             { data: 'action', name: 'action', orderable: false }
         ],
     });
@@ -119,6 +134,33 @@ $(document).ready(function()
         return fullText;  // Return full content if less than 100 characters
     }
 });
+
+$(document).on('change', '.block-user', function() {
+    let isChecked = $(this).is(':checked');  // Get the new status (checked or not)
+    let id = $(this).data('id');  // Get the data-id of the checkbox
+
+    // Make an AJAX request to update the status in the database
+    $.ajax({
+        url: bolckUserUrl,  // Replace with your server endpoint
+        method: 'POST',
+        data: {
+            id: id,
+            is_block: isChecked ? 1 : 0,  // Send the new status
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.status) {
+                toastr.success(response.message);
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            alert('An error occurred: ' + error);
+        }
+    });
+});
+
 
 $('body').on('click', '.read-more', function (e) {
     e.preventDefault();  // Prevent the default link click behavior

@@ -118,6 +118,22 @@ class ImageController extends Controller
         return response()->json(['message' => 'Image deleted successfully']);
     }
 
+    public function deleteMultipleImages(Request $request)
+    {
+        $ids = $request->input('ids');
+        $images = Image::whereIn('id', $ids)->get();
+
+        foreach ($images as $image) {
+            Storage::delete('public/uploaded_images/' . $image->image_path);
+            $image->userImages()->delete();
+            $image->delete();
+        }
+
+        $msg = "Images abd Files Delete successfully";
+        $result = ["status" => true, "message" => $msg];
+        return response()->json($result);
+    }
+
     public function imageAction(Request $request)
     {
         $image = Image::where('short_link_token', $request->token)->first();

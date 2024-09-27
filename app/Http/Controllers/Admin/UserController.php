@@ -24,6 +24,14 @@ class UserController extends Controller
             $data = User::where("id", "!=", Auth::user()->id)->orderBy('id', 'desc');
 
             return DataTables::of($data)
+                ->editColumn('blockStatus', function($row) use($loginUser) {
+                    if ($row->is_block == 0){
+                        $approve_status = '<div><input type="checkbox" id="switch03" data-switch="success"/><label for="switch03" data-on-label="Yes" data-off-label="No" class="mb-0 d-block"></label></div>';
+                    }elseif ($row->is_block == 1){
+                        $approve_status = '<div><input type="checkbox" id="switch01" checked data-switch="success"/><label for="switch01" data-on-label="Yes" data-off-label="No" class="mb-0 d-block"></label></div>';
+                    }
+                    return $approve_status;
+                })
                 ->editColumn('approve', function($row) use($loginUser) {
 
                     $selected1 = '';
@@ -46,7 +54,7 @@ class UserController extends Controller
                 return '<center><a href="javascript:void(0);" data-toggle="modal" data-target="#edit-modal" id="edituser" class="btn btn-sm btn-primary mr-1 edit-user" data-id="'.$data->id.'" title="Edit"><i class="mdi mdi-pencil"></i></a></a><a href="javascript:void(0);" class="btn btn-sm btn-danger mr-1 delete-user" data-id="'.$data->id.'" title="Delete"><i class="mdi mdi-delete"></i></a></center>';
             })
 
-            ->rawColumns(['approve','action'])
+            ->rawColumns(['approve','action', 'blockStatus'])
             ->toJson();
         }
         return view('admin.userlist');
@@ -142,4 +150,19 @@ class UserController extends Controller
         $result = ["status" => true, "message" => $msg];
         return response()->json($result);
     }
+
+    public function userStatusUpdate(Request $request)
+    {
+        $id = $request->id;
+        $status = $request->is_block;
+        $message = $status ? "block" : "unblock";
+        $user = User::where('id', $id)->update(['is_block' => $status]);
+        if ($user) {
+            $result = ['status' => true, 'message' => 'User '.$message.' successfully.'];
+        } else {
+            $result = ['status' => false, 'message' => 'Invalid request.'];
+        }
+        return response()->json($result);
+    }
+
 }

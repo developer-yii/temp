@@ -11,7 +11,7 @@
             <input type="hidden" value="{{ $image->id}}" name="id">
 
             <fieldset class="fieldset-border">
-                <legend class="legend-border">Download : {{ $image->image_name}}</legend>
+                <legend class="legend-border">Download : {{ $image->file_name}}</legend>
                 <div class="container">
                   <div class="row mb-1">
                     <div class="col-md-6">

@@ -14,6 +14,10 @@
             <table id="data-table" class="table table-bordered data-table">
                 <thead>
                     <tr>
+                        <td colspan="6"><button id="delete-selected-images" class="btn btn-danger">Delete Selected</button></td>
+                    </tr>
+                    <tr>
+                        <th><input type="checkbox" id="select-all-images"></th>
                         <th>File Name</th>
                         <th>File</th>
                         <th>Created Date</th>
@@ -30,6 +34,7 @@
     var imagelist = "{{ route('image.list') }}";
     var imagedelete = "{{ route('image.delete') }}";
     var basePwdProtectedUrl = "{{ route('image.action', ['token' => '__TOKEN__']) }}";
+    var deleteMultipleImageUrl = "{{ route('multiple-image.delete') }}";
 </script>
 <script src="{{ asset('js/images.js') }}"></script>
 

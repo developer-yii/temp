@@ -39,6 +39,7 @@
                                         <th>User Email</th>
                                         <th>Register Date</th>
                                         <th width="15%">User Approve?</th>
+                                        <th width="5%">Is Block?</th>
                                         <th><center>Action</center></th>
                                     </tr>
                                 </thead>
@@ -118,6 +119,7 @@
 @section('js')
 <script>
     var deleteMultipleUsersUrl = "{{ route('admin.multiple-user.delete') }}";
+    var bolckUserUrl = "{{ route('admin.user-status-update') }}";
 </script>
 <script src="{{$baseUrl}}js/custom.js"></script>
 @endsection

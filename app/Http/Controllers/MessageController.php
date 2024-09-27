@@ -270,6 +270,10 @@ class MessageController extends Controller
 
     public function fetchData(Request $request)
     {
+        if(!$request->ajax()) {
+            return response()->json(['status' => 404, 'message' => 'Something Went Wrong.', 'data' => []]);
+        }
+
         $currenttime = Carbon::now();
         $conversation = Conversation::where('conversation_token', $request->token)
             ->where('expiry', '>=', $currenttime)
