@@ -287,6 +287,7 @@
             var replyurl = "{{ route('messages.reply') }}";
             var deleteUrl = "{{ route('message.delete') }}";
             var createimage = "{{ route('image.store') }}";
+            var loginUrl = "{{ route('login') }}";
 
             $('body').on('click', '.delete-message', function() {
                 var id = $(this).attr('data-message-id');
@@ -382,10 +383,9 @@
                             }
                         },
                         error: function(xhr) {
-                            // Handle 403 Forbidden response for blocked users
                             if (xhr.status === 403 && xhr.responseJSON.blocked) {
                                 // alert(xhr.responseJSON.message);  // Show error message
-                                window.location.href = '/login';  // Redirect to login page
+                                window.location.href = loginUrl;  // Redirect to login page
                             }
                         }
                     });
@@ -393,7 +393,6 @@
             }
 
             setInterval(fetchMessages, 10000);
-
 
             function showReplyTextarea() {
                 var replyform = document.getElementById('reply-form');

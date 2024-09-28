@@ -129,7 +129,7 @@ class ImageController extends Controller
             $image->delete();
         }
 
-        $msg = "Images abd Files Delete successfully";
+        $msg = "Images and Files deleted successfully";
         $result = ["status" => true, "message" => $msg];
         return response()->json($result);
     }
