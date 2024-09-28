@@ -232,26 +232,7 @@ class MessageController extends Controller
                 ->select('messages.*', 'users.email')
                 ->get();
 
-            $getimg = UserImage::where('user_id', Auth::id())->pluck('image_id')->toArray();
-
-            foreach ($data as $msgdata) {
-                $data1 = Message::find($msgdata->id);
-
-                if($data1->image_ids){
-                    $image_ids = explode(',', $data1->image_ids);
-                    foreach ($image_ids as $image_id) {
-                        $image_exists = Image::where('id', $image_id)->exists();
-                        if($image_exists){
-                            if (!in_array($image_id, $getimg)) {
-                                $user_image = new UserImage();
-                                $user_image->user_id = Auth::id();
-                                $user_image->image_id = $image_id;
-                                $user_image->save();
-                            }
-                        }
-                    }
-                }
-            }
+            imagesAssignToUser($data);
 
             $total_user = Message::where('conversation_id', $conversation->id)
                 ->distinct()
@@ -279,31 +260,33 @@ class MessageController extends Controller
             ->where('expiry', '>=', $currenttime)
             ->first();
 
-        if($conversation){
-            $c_token = $conversation->id;
-            $query = message::with('user')
-                ->where('conversation_id', $c_token)
-                ->join('users', 'users.id', '=', 'messages.user_id')
-                ->select('messages.id','messages.user_id', 'messages.conversation_id','messages.message', 'users.email');
+        if (!$conversation) {
+            return response()->json(['status' => false, 'data' => '']);
+        }
+
+        $c_token = $conversation->id;
+        $query = message::with('user')
+            ->where('conversation_id', $c_token)
+            ->join('users', 'users.id', '=', 'messages.user_id')
+            ->select('messages.id','messages.user_id', 'messages.conversation_id','messages.message','messages.image_ids', 'users.email');
 
             if ($request->lastid) {
                 $query = $query->where('messages.id', '>', $request->lastid);
             }
             $message = $query->get();
 
-            foreach ($message as $value){
-                $created_at = Carbon::parse($value->created_at)->format('d-m-Y H:i');
-                $value->created_at = $created_at;
-            }
+            if(!$message->isEmpty()){
+                imagesAssignToUser($message);
+                foreach ($message as $value){
+                    $created_at = Carbon::parse($value->created_at)->format('d-m-Y H:i');
+                    $value->created_at = $created_at;
+                }
 
-            if ($message->count()){
                 $result = ['status' => true, 'data'=>$message];
             }else{
                 $result = ['status' => true, 'data'=>''];
             }
-        }else{
-            $result = ['status' => false, 'data'=>''];
-        }
+
         return response()->json($result);
     }
 

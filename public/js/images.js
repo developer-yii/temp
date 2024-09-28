@@ -57,7 +57,7 @@ $(document).ready(function(){
             {data : 'created_at_formatted',name:'created_at'},
             {data: 'action', name: 'action', orderable: false }
         ],
-        order: [[2, 'desc']]
+        order: [[3, 'desc']]
     });
 
     $('#select-all-images').on('click', function() {
