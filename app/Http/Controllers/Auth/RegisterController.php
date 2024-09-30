@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RegistrationEmail;
 use App\Mail\AccountApprovalEmail;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 
@@ -53,6 +54,16 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
+
+    public function showRegistrationForm()
+    {
+        $isRegisterEnabled = isRegisterEnabled();
+        if (!$isRegisterEnabled) {
+            abort(403, "Unauthorized");
+        }
+        return view('auth.register', ['isRegisterEnabled' => $isRegisterEnabled]);
+    }
+
     protected function validator(array $data)
     {
         return Validator::make($data, [
@@ -69,6 +80,9 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        if (!isRegisterEnabled()) {
+            abort(403, "Unauthorized");
+        }
         $user = User::create([
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
@@ -78,9 +92,9 @@ class RegisterController extends Controller
 
         $admin_emails = User::where('role_type', 1)->pluck('email');
         Mail::to($admin_emails)->send(new AccountApprovalEmail($user));
-        
+
         return $user;
-        
+
     }
     public function register(Request $request)
     {

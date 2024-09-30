@@ -60,10 +60,10 @@
                             <td style="width: 50%; border: 0px; text-align: right;">
                             @guest
                                 @if (Route::has('login'))
-                                    <a href="{{ route('login') }}" class="btn btn-default btn-xs">&nbsp;Login&nbsp;</a>&nbsp;
+                                    <a href="{{ route('login') }}" class="btn btn-default btn-xs">Login</a>
                                 @endif
-                                @if (Route::has('register'))
-                                    <a href="{{ route('register') }}" class="btn btn-default btn-xs">&nbsp;Register&nbsp;</a>&nbsp;
+                                @if (Route::has('register') && $isRegisterEnabled)
+                                    <a href="{{ route('register') }}" class="btn btn-default btn-xs"> Register </a>
                                 @endif
                             @else
 

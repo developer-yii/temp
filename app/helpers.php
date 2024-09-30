@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Image;
+use App\Models\Setting;
 use App\Models\UserImage;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,6 +11,15 @@ if (!function_exists('pre')) {
         print "<pre>";
         print_r($text);
         exit();
+    }
+}
+
+if (!function_exists('isRegisterEnabled')) {
+    function isRegisterEnabled()
+    {
+        return Setting::where('id', 1)
+            ->where('param_name', 'register')
+            ->value('param_value');
     }
 }
 

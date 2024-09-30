@@ -29,24 +29,18 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        if($user->role_type == 1)
-        {
+        if($user->role_type == 1){
             return view('admin.home', compact('user'));
-        }
-        else
-        {
+        }else{
             return view('home');
         }
     }
     public function viewProfile(Request $request)
     {
         $user = Auth::user();
-        if ($user)
-        {
+        if ($user){
             return view('profile', compact('user'));
-        }
-        else
-        {
+        }else{
             return redirect()->route('login');
         }
     }
@@ -58,14 +52,10 @@ class HomeController extends Controller
             'password' => [
             function ($attribute, $value, $fail) use ($request)
             {
-                if (!empty($value))
-                {
-                    if (strlen($value) < 8)
-                    {
+                if (!empty($value)){
+                    if (strlen($value) < 8){
                         $fail('The password must be at least 8 characters.');
-                    }
-                    elseif ($value !== $request->input('password_confirmation'))
-                    {
+                    }elseif ($value !== $request->input('password_confirmation')){
                         $fail('The password confirmation does not match.');
                     }
                 }
@@ -73,24 +63,18 @@ class HomeController extends Controller
         ],
         ]);
 
-        if ($validatedData->fails())
-        {
+        if ($validatedData->fails()){
             $result = ['status' => false,'errors' => $validatedData->errors()];
             return response()->json($result);
-        }
-        else
-        {
+        }else{
             $user->email = $request->email;
-            if(!empty($request->password))
-            {
+            if(!empty($request->password)){
                 $user->password = Hash::make($request->password);
             }
-            if($user->save())
-            {
+
+            if($user->save()){
                 $result = ['status' => true, 'message' => 'Profile update successfully.', 'data' => $user];
-            }
-            else
-            {
+            }else{
                 $result = ['status' => false, 'message' => 'Profile update fail!', 'data' => []];
             }
             return response()->json($result);

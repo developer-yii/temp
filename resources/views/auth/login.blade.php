@@ -1,21 +1,21 @@
 @extends('layouts.app')
 @section('content')
-<div class="panel-body">                                    
+<div class="panel-body">
     <form action="{{ route('login') }}" method="post" id="login-form" autocomplete="off">
         @csrf
         <div class="well">
-            <b>Login</b>                        
+            <b>Login</b>
         </div>
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
-        @endif 
+        @endif
         @error('approve')
             <div class="alert alert-danger">
                 <strong>{{ $message }}</strong>
             </div>
-        @enderror 
+        @enderror
         <div class="row">
             <div class="col-md-8 mb-1 col-md-offset-2">
                 <label for="email" class="col-md-2 col-form-label text-md-end">Email</label>
@@ -24,8 +24,8 @@
                     @error('email')
                     <span class="error" id="email-error" role="alert">
                         <strong>{{ $message }}</strong>
-                    </span> 
-                    @enderror                             
+                    </span>
+                    @enderror
                 </div>
             </div>
 
@@ -38,16 +38,16 @@
                     @error('password')
                     <span class="error" id="password-error" role="alert">
                         <strong>{{ $message }}</strong>
-                    </span> 
-                    @enderror          
+                    </span>
+                    @enderror
                 </div>
             </div>
 
-            <div class="col-md-8 mb-1 col-md-offset-2 text-center">         
+            <div class="col-md-8 mb-1 col-md-offset-2 text-center">
                 <input type="submit" class="btn btn-default" name="login" id="login"  value="Login">
-            </div>  
-            <div class="col-md-8 mb-1 col-md-offset-2 text-center">         
-                <label> 
+            </div>
+            <div class="col-md-8 mb-1 col-md-offset-2 text-center">
+                <label>
                     @if (Route::has('password.request'))
                         <a class="btn btn-link" href="{{ route('password.request') }}">
                             {{ __('Forgot Your Password?') }}
@@ -56,9 +56,8 @@
                 </label>
             </div>
         </div>
-    </form>             
+    </form>
 </div>
 @endsection
 
 
-   

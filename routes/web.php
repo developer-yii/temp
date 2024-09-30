@@ -31,6 +31,11 @@ Route::get('/cron-run-once', function () {
     return 'Cron have been run.';
 });
 
+Route::get('/seed-run-once', function () {
+    Artisan::call('db:seed');
+    return 'Seeder has been run.';
+});
+
 // Route::group(['middleware' => 'auth'], function ()
 Route::group(['middleware' => ['auth', 'is_blocked']], function ()
 {
@@ -96,6 +101,10 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function ()
         Route::get('/note/list','NoteController@notelist')->name('note.list');
         Route::post('/note/delete','NoteController@notedelete')->name('note.delete');
         Route::post('/delete-multiple-notes', 'NoteController@deleteMultipleNotes')->name('multiple-notes.delete');
+
+        //Setting module
+        Route::get('/setting/register','SettingController@registerSetting')->name('setting.register');
+        Route::post('/setting/update', 'SettingController@update')->name('setting.update');
     });
 });
 
