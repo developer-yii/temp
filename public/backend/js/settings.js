@@ -7,11 +7,9 @@ $.ajaxSetup({
 $('body').on('click', '#register_setting', function (e) {
     e.preventDefault();
     var checkbox = $(this);
-    if (checkbox.prop("checked") == true) {
-        var status = 1;
-    } else {
-        var status = 0;
-    }
+
+    var originalState = checkbox.prop("checked");
+    var status = checkbox.prop("checked") ? 1 : 0;
 
     var id = checkbox.data('id');
     var param_name = checkbox.data('param');
@@ -27,17 +25,15 @@ $('body').on('click', '#register_setting', function (e) {
         dataType: 'json',
         success: function (result) {
             if (result.status) {
+                checkbox.prop('checked', status === 1);
                 toastr.success(result.message);
-                checkbox.prop('disabled', true);
-                setTimeout(function() {
-                    window.location.reload();
-                }, 2000);
             } else {
+                checkbox.prop('checked', originalState);
                 toastr.error(result.message);
             }
         },
         error: function (error) {
-            checkbox.prop('disabled', false);
+            checkbox.prop('checked', originalState);
             toastr.error('An error occurred. Please try again.');
         }
     })

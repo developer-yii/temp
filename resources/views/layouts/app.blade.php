@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="{{ asset('/')}}backend/assets/css/custom.css" >
 </head>
 
-<body>
+<body id="scrollSec">
     <div class="container">
         <div class="panel panel-default panel-background">
             <div class="panel-heading">

@@ -55,7 +55,7 @@
                     </div>
                 @endforeach
             </div>
-
+            <!-- Scroll to Bottom Button -->
             <form method="post" id="reply-form" autocomplete="off" style="display:none;">
                 @csrf
                 <input type="hidden" name="imgids" value="" id="img-ids">
@@ -107,6 +107,9 @@
                 @endif
             </div>
         </div>
+        <button id="scrollToBottomBtn" style="display:none; position:fixed; bottom:20px; right:20px; z-index:1000;" class="btn btn-primary">
+            <i class="fa fa fa-arrow-down"></i>
+        </button>
     @endif
 @endsection
 @section('modal')
@@ -288,6 +291,45 @@
             var deleteUrl = "{{ route('message.delete') }}";
             var createimage = "{{ route('image.store') }}";
             var loginUrl = "{{ route('login') }}";
+            document.addEventListener("DOMContentLoaded", function () {
+
+                var messageReply = document.getElementById("scrollSec");
+                var scrollToBottomBtn = document.getElementById("scrollToBottomBtn");
+
+                // Function to check the height and scroll position
+                function checkScrollButton() {
+                    var body = document.body;
+                    var html = document.documentElement;
+
+                    // Get the height of the entire document (body and HTML)
+                    var documentHeight = Math.max(body.scrollHeight, body.offsetHeight,
+                        html.clientHeight, html.scrollHeight, html.offsetHeight);
+
+                    // Check if the document height is greater than the window height
+                    if (documentHeight > window.innerHeight) {
+                        // Check if the user is scrolled to the bottom
+                        if (window.scrollY + window.innerHeight >= documentHeight - 1) {
+                            scrollToBottomBtn.style.display = "none"; // Hide button when at the bottom
+                        } else {
+                            scrollToBottomBtn.style.display = "block"; // Show button when scrolled up
+                        }
+                    } else {
+                        scrollToBottomBtn.style.display = "none"; // Hide button if content height is not greater than window height
+                    }
+                }
+
+                checkScrollButton();
+                window.addEventListener("scroll", checkScrollButton);
+                scrollToBottomBtn.addEventListener("click", function () {
+                    window.scrollTo({
+                        top: document.body.scrollHeight, // Scroll to the bottom of the body
+                        behavior: 'smooth', // Smooth scrolling effect
+                    });
+
+                    setTimeout(checkScrollButton, 1000); // Recheck after 1 second
+                });
+            });
+
 
             $('body').on('click', '.delete-message', function() {
                 var id = $(this).attr('data-message-id');
@@ -322,7 +364,6 @@
                     toastr.info('Deletion canceled.');
                 }
             });
-
 
             // document.querySelectorAll('.delete-message').forEach(function(button) {
             //     button.addEventListener('click', function() {
