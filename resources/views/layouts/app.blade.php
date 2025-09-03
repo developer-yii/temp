@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{{ asset('/')}}css/bootstrap.min.css" >
     @php
         $route_name = Route::currentRouteName();
-        if($route_name == "notes.list" || $route_name == "image.list"){
+        if($route_name == "notes.list" || $route_name == "image.list" || $route_name == "delivery.list"){
             $main_css = "style_new";
         }else{
             $main_css = "style";
@@ -42,6 +42,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.1/css/lightbox.min.css">
 
     <link rel="stylesheet" href="{{ asset('/')}}backend/assets/css/custom.css" >
+    @yield('css')
 </head>
 
 <body id="scrollSec">
@@ -51,13 +52,13 @@
                 <table style="width: 100%; border: 0px;">
                     <tbody>
                         <tr>
-                            <td style="width: 50%; border: 0px; text-align: left;">
+                            <td style="width: 40%; border: 0px; text-align: left;">
                                 <a href="{{ route('home') }}" class="sitetitle"><img src="{{ asset('/')}}images/logo.png" alt="" class="site-logo-img">
 
                                 <b><span style="font-size: 105%;">Temp.PM</span></b><span style="font-size: 95%;">&nbsp;-&nbsp;Temporary Private Message</span></a>
                             </td>
 
-                            <td style="width: 50%; border: 0px; text-align: right;">
+                            <td style="width: 60%; border: 0px; text-align: right;">
                             @guest
                                 @if (Route::has('login'))
                                     <a href="{{ route('login') }}" class="btn btn-default btn-xs">Login</a>
@@ -67,6 +68,9 @@
                                 @endif
                             @else
 
+                                <a href="{{ route('delivery.list') }}" class="btn btn-default btn-xs notification-btn">Zustellung
+                                    <span class="badge">{{ $unreadCount }}</span>
+                                </a>
                                 <a href="{{ route('image.list') }}" class="btn btn-default btn-xs">My Images</a>
                                 <a href="{{ route('notes.list') }}" class="btn btn-default btn-xs">My Notes</a>
 

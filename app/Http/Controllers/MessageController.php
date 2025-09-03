@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserImage;
 use App\Models\Conversation;
 use App\Models\Image;
+use App\Models\inviteUser;
 use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -84,7 +85,7 @@ class MessageController extends Controller
                 $message_images_ids = implode(',', $message_images);
                 $message->image_ids = $message_images_ids;
                 $message->save();
-                $response = ['status' => true, 'token' => $conversation_token, 'note' => $request->note, 'ttl' => $ttl];
+                $response = ['status' => true, 'token' => $conversation_token, 'note' => $request->note, 'ttl' => $ttl, 'data' => $conversation];
                 return response()->json($response);
             }
         }
@@ -147,8 +148,8 @@ class MessageController extends Controller
         $message = new Message();
         $message->user_id = Auth::id();
         $message->conversation_id = $conversation_id;
+        $message->replied_message_id = $request['reply_to_message_id'];
         $message->message = $request['reply'];
-        // $message->image_ids = $request['imgids'];
         $message->created_at = Carbon::now();
 
         if ($message->save()) {
@@ -220,33 +221,57 @@ class MessageController extends Controller
 
     public function messageRead(Request $request, $token)
     {
+
         $currenttime = Carbon::now();
         $conversation = Conversation::where('conversation_token', $token)
             ->where('expiry', '>=', $currenttime)
             ->first();
 
+        if (!$conversation) {
+            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or You are not authorized to access this conversation');
+        }
+
+        $isInvited = InviteUser::where('conversation_id', $conversation->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if (!$isInvited) {
+            return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
+        }
+
         if ($conversation) {
             $c_token = $conversation->id;
-            $data = message::where('conversation_id', $c_token)
+            $data = message::where('messages.conversation_id', $c_token)
                 ->join('users', 'users.id', '=', 'messages.user_id')
-                ->select('messages.*', 'users.email')
+                ->leftJoin('messages as replied', 'replied.id', '=', 'messages.replied_message_id')
+                ->leftJoin('users as replied_user', 'replied_user.id', '=', 'replied.user_id')
+                ->select(
+                    'messages.*',
+                    'users.email',
+                    'replied.message as replied_message',
+                    'replied_user.email as replied_email'
+                )
                 ->get();
 
             imagesAssignToUser($data);
 
-            $total_user = Message::where('conversation_id', $conversation->id)
-                ->distinct()
-                ->pluck('user_id')
-                ->toArray();
+            return view('messageconfirmation', compact('conversation', 'data'));
 
-            if (in_array(Auth::id(), $total_user) || count($total_user) < 2) {
-                return view('messageconfirmation', compact('conversation', 'data'));
-            } else {
-                return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
-            }
-        } else {
-            return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or You are not authorized to access this conversation');
+            // $total_user = Message::where('conversation_id', $conversation->id)
+            //     ->distinct()
+            //     ->pluck('user_id')
+            //     ->toArray();
+
+            // if (in_array(Auth::id(), $total_user) || count($total_user) < 2) {
+            //     return view('messageconfirmation', compact('conversation', 'data'));
+            // }
+            // else {
+            //     return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
+            // }
         }
+        //  else {
+        //     return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or You are not authorized to access this conversation');
+        // }
     }
 
     public function fetchData(Request $request)
@@ -265,10 +290,30 @@ class MessageController extends Controller
         }
 
         $c_token = $conversation->id;
-        $query = message::with('user')
-            ->where('conversation_id', $c_token)
-            ->join('users', 'users.id', '=', 'messages.user_id')
-            ->select('messages.id','messages.user_id', 'messages.conversation_id','messages.message','messages.image_ids', 'users.email');
+        // $query = message::with('user')
+        //     ->where('conversation_id', $c_token)
+        //     ->join('users', 'users.id', '=', 'messages.user_id')
+        //     ->select('messages.id','messages.user_id', 'messages.conversation_id','messages.message','messages.image_ids', 'users.email');
+
+
+        $query = Message::where('messages.conversation_id', $c_token)
+                ->join('users', 'users.id', '=', 'messages.user_id')
+                ->leftJoin('messages as replied', 'replied.id', '=', 'messages.replied_message_id')
+                ->leftJoin('users as replied_user', 'replied_user.id', '=', 'replied.user_id')
+                ->select(
+                    'messages.id',
+                    'messages.user_id',
+                    'messages.conversation_id',
+                    'messages.message',
+                    'messages.image_ids',
+                    'messages.created_at',
+                    'users.email',
+                    'replied.id as replied_id',
+                    'replied.message as replied_message',
+                    'replied.user_id as replied_user_id',
+                    'replied_user.email as replied_email'
+                );
+
 
             if ($request->lastid) {
                 $query = $query->where('messages.id', '>', $request->lastid);
@@ -282,7 +327,12 @@ class MessageController extends Controller
                     $value->created_at = $created_at;
                 }
 
-                $result = ['status' => true, 'data'=>$message];
+                // $result = ['status' => true, 'data'=>$message];
+                $result = [
+                    'status'  => true,
+                    'auth_id' => auth()->id(),
+                    'data'    => $message
+                ];
             }else{
                 $result = ['status' => true, 'data'=>''];
             }
@@ -335,4 +385,95 @@ class MessageController extends Controller
             }
         }
     }
+
+    public function inviteUserGet(Request $request)
+    {
+        $inviteUser = InviteUser::with('user:id,email')
+                    ->where('conversation_id', $request->conversation_id)
+                    ->where('user_id', '!=', auth()->id())
+                    ->get();
+
+        foreach ($inviteUser as $invite) {
+            $invite->has_message = Message::where('conversation_id', $request->conversation_id)
+                ->where('user_id', $invite->user_id)
+                ->exists();
+
+            $invite->is_creator = ($invite->user_id == $invite->created_by);
+        }
+
+        return response()->json([
+            'status' => true,
+            'inviteUser' => $inviteUser,
+        ]);
+    }
+    public function inviteUserStore(Request $request)
+    {
+        $authEmail = strtolower(auth()->user()->email);
+
+        $rules = [];
+        foreach (range(1, 5) as $i) {
+            $rules["email_$i"] = [
+                'nullable',
+                'email',
+                'exists:users,email',
+                function ($attribute, $value, $fail) use ($authEmail) {
+                    if ($value && strtolower($value) === $authEmail) {
+                        $fail('You cannot invite your own email address.');
+                    }
+                },
+            ];
+        }
+
+        $validator = Validator::make($request->all(), $rules, [
+            'email_*.exists' => 'The entered email must be a registered user.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ]);
+        }
+
+        $emails = [];
+        $userIds = [];
+
+        foreach (range(1, 5) as $i) {
+            if ($request->filled("email_$i")) {
+                $emails[] = strtolower(trim($request->input("email_$i")));
+            }
+
+            if ($request->filled("user_id_$i")) {
+                $userIds[] = (int) $request->input("user_id_$i");
+            }
+        }
+
+        $emails = array_unique($emails);
+        $userIds = array_unique($userIds);
+        $inviteUser = inviteUser::where('conversation_id', $request->conversation_id)->whereIn('user_id', $userIds)->delete();
+        if (empty($userIds)) {
+            InviteUser::create([
+                'conversation_id' => $request->conversation_id,
+                'user_id'         => auth()->id(),
+                'created_by'      => auth()->id(),
+            ]);
+        }
+        foreach ($emails as $email) {
+            $user = User::where('email', $email)->first();
+
+            if ($user) {
+                InviteUser::create([
+                    'conversation_id' => $request->conversation_id,
+                    'user_id'         => $user->id,
+                    'created_by'      => auth()->id(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Invites processed successfully.',
+        ]);
+    }
+
 }

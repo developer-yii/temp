@@ -56,11 +56,17 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function ()
         Route::post('/delete-multiple-images', 'ImageController@deleteMultipleImages')->name('multiple-image.delete');
 
         Route::get('/fetch-data/view', 'MessageController@fetchData')->name('message.fetchData');
-        Route::get('/{token}', 'MessageController@messageRead')->name('message.read1');
+        Route::prefix('invite-user')->group(function () {
+            Route::get('/get', 'MessageController@inviteUserGet')->name('invite.user.get');
+            Route::post('/store', 'MessageController@inviteUserStore')->name('invite.user.store');
+        });
+
         Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
         Route::post('delete/message', 'MessageController@deleteMessage')->name('message.delete');
         Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
         Route::post('extends-validity', 'MessageController@extendsValidity')->name('chat.extends-validity');
+        Route::get('/{token}', 'MessageController@messageRead')->name('message.read1');
+
 
         // my notes notes
         Route::get('/notes/index', 'NotesController@list')->name('notes.list');
@@ -68,6 +74,11 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function ()
         Route::post('/detail','NotesController@detail')->name('notes.detail');
         Route::post('/notes/delete', 'NotesController@delete')->name('notes.delete');
         Route::post('/notes/pin', 'NotesController@pin')->name('notes.pin');
+
+        // delivery notes
+        Route::get('/delivery-message/index', 'DeliveryController@list')->name('delivery.list');
+        Route::post('/delivery-message/mark-read', 'DeliveryController@markRead')->name('delivery.markRead');
+
     });
 
     //Admin
@@ -105,6 +116,14 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function ()
         //Setting module
         Route::get('/setting/register','SettingController@registerSetting')->name('setting.register');
         Route::post('/setting/update', 'SettingController@update')->name('setting.update');
+
+        //Delivery module
+        Route::get('/delivery/list','DeliveryController@list')->name('delivery.list');
+        Route::get('/delivery/details','DeliveryController@details')->name('delivery.details');
+        Route::post('/delivery/add-update','DeliveryController@addupdate')->name('delivery.addupdate');
+        Route::post('/delivery/delete','DeliveryController@delete')->name('delivery.delete');
+        Route::get('/delivery/get-users','DeliveryController@getUsers')->name('delivery.users.list');
+
     });
 });
 

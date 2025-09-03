@@ -3,7 +3,7 @@
 @endphp
 @extends('layouts.admin-app')
 
-@section('title','Admin | Dashboard')
+@section('title','Admin | User List')
 @section('content')
 
 <div class="container-fluid">

@@ -59,6 +59,13 @@
                         <span> Notes </span>
                     </a>
                 </li>
+
+                <li class="side-nav-item">
+                    <a href="{{ route('admin.delivery.list')}}" class="side-nav-link">
+                        <i class="uil-comment-alt-notes"></i>
+                        <span> Zustellung </span>
+                    </a>
+                </li>
                 <li class="side-nav-item">
                     <a href="{{ route('admin.setting.register')}}" class="side-nav-link">
                         <i class="uil-comment-alt-notes"></i>

@@ -42,10 +42,29 @@
                     @endphp
                     <div class="panel panel-default panel-message1">
                         <div class="panel-body panel-message2">
+                            @if ($replydata->repliedMessage)
+                                <div class="alert alert-secondary reply-preview" style="padding:5px; position: relative; margin-bottom: 5px;">
+                                    <strong>
+                                        @if ($replydata->repliedMessage->user_id == $auth_id)
+                                            You
+                                        @else
+                                            {{ $replydata->repliedMessage->user->email }}
+                                        @endif
+                                    </strong>
+                                    <p style="margin:0;">{{ $replydata->repliedMessage->message }}</p>
+                                </div>
+                            @endif
+
                             <b>{{ $replydata->email }} - </b> {{ $date }} <br>
                             <pre>{{ $replydata->message }}</pre>
-                            <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="{{ $replydata->user_id }}" data-message="{{ $replydata->message }}" title="Note"><i class="fa fa-sticky-note-o ml-1"
-                                    aria-hidden="true" style="cursor: pointer;"></i></a>
+
+                            <a class="reply-specific-message" data-message-id="{{ $replydata->id }}" data-sender-id="{{ $replydata->email }}" data-message="{{ $replydata->message }}" title="Reply">
+                                <i class="fa fa-reply ml-1" aria-hidden="true" style="cursor: pointer;"></i>
+                            </a>
+
+                            <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="{{ $replydata->user_id }}" data-message="{{ $replydata->message }}" title="Note">
+                                <i class="fa fa-sticky-note-o" aria-hidden="true" style="cursor: pointer;"></i>
+                            </a>
                             @if ($replydata->user_id == $auth_id)
                                 <a class="delete-message" data-message-id="{{ $replydata->id }}" title="Delete">
                                     <i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;"></i>
@@ -55,6 +74,7 @@
                     </div>
                 @endforeach
             </div>
+
             <!-- Scroll to Bottom Button -->
             <form method="post" id="reply-form" autocomplete="off" style="display:none;">
                 @csrf
@@ -62,8 +82,19 @@
                 <input type="hidden" name="token" value="{{ $conversation->conversation_token }}" id="token">
                 <input type="hidden" name="last_message_id" value="{{ $lastmessageid }}" id="last_message_id">
                 <div class="form-group">
-                    <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="10000"
-                        autofocus="autofocus" autocomplete="off" style="margin-bottom: 20px; resize: vertical;"></textarea>
+                    <div class="custom_rpyBox">
+                        {{-- Reply Preview (hidden initially) --}}
+                        <div id="reply-preview" class="alert alert-secondary d-none reply-preview"
+                            style="padding:5px; position: relative;">
+                            <strong id="reply-user"></strong>
+                            <p id="reply-text" style="margin:0;"></p>
+                            <button type="button" class="close" id="cancel-reply"
+                                    style="position:absolute; top:5px; right:10px;">&times;</button>
+                            <input type="hidden" id="reply_to_message_id" name="reply_to_message_id" value="">
+                        </div>
+                        <textarea name="reply" id="reply" class="form-control form-message" rows="8" maxlength="10000"
+                        autofocus="autofocus" autocomplete="off"></textarea>
+                    </div>
                     <span class="error" id="error"></span>
                     <div id="char-count">
                         Characters remaining:
@@ -105,6 +136,10 @@
                         <button class="btn btn-info btn-extends-validity" data-id="{{ $conversation->conversation_token }}" data-toggle="modal" data-target="#validityModal">Extends Validity?</button>
                     </div>
                 @endif
+
+                <div class="spacer">
+                    <a href="javascript:void(0)" id="invite-button" class="btn btn-default" data-toggle="modal" data-target="#inviteModal" data-user-id="{{ $auth_id }}" data-conversation-id="{{ $conversation->id}}">Invite</a>
+                </div>
             </div>
         </div>
         <button id="scrollToBottomBtn" style="display:none; position:fixed; bottom:20px; right:20px; z-index:1000;" class="btn btn-primary">
@@ -281,6 +316,8 @@
             </div>
         </div>
     </div>
+
+    @include('modal.invite-user')
 @endsection
 
 @if (isset($conversation))
@@ -291,6 +328,35 @@
             var deleteUrl = "{{ route('message.delete') }}";
             var createimage = "{{ route('image.store') }}";
             var loginUrl = "{{ route('login') }}";
+            var getInviteUserUrl = "{{ route('invite.user.get') }}";
+            var inviteUserUrl = "{{ route('invite.user.store') }}";
+
+            hideReplyPreview();
+            $(document).on("click", ".reply-specific-message", function () {
+                let senderId = $(this).data("sender-id");
+                let message = $(this).data("message");
+                let messageId = $(this).data("message-id");
+
+                // Show preview
+                showReplyPreview();
+                $("#reply-user").text(senderId);
+                $("#reply-text").text(message);
+                $("#reply_to_message_id").val(messageId);
+                $("#reply_to_message_id").val(messageId);
+                $("#reply-preview").removeClass("d-none");
+                showReplyTextarea();
+                $("#reply").focus();
+            });
+
+            // Cancel reply
+            $(document).on("click", "#cancel-reply", function () {
+
+                $("#reply_to_message_id").val("");
+                $("#reply_to_message_id").val("");
+                hideReplyPreview();
+                hideReplyTextarea();
+            });
+
             document.addEventListener("DOMContentLoaded", function () {
 
                 var messageReply = document.getElementById("scrollSec");
@@ -330,7 +396,6 @@
                 });
             });
 
-
             $('body').on('click', '.delete-message', function() {
                 var id = $(this).attr('data-message-id');
                 var csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -365,27 +430,6 @@
                 }
             });
 
-            // document.querySelectorAll('.delete-message').forEach(function(button) {
-            //     button.addEventListener('click', function() {
-            //         const messageId = this.getAttribute('data-message-id');
-            //         alert(messageId);
-            //         $.ajax({
-            //             url: deleteUrl,
-            //             data: { 'messageId': messageId},
-            //             type: 'POST',
-            //             headers: {
-            //                 'Content-Type': 'application/json',
-            //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            //             },
-            //             success: function(result) {
-            //                 if (result.status == true) {
-            //                     toastr.success("message deleted successfully");
-            //                 }
-            //             }
-            //         });
-            //     });
-            // });
-
             function fetchMessages() {
                 var token = $('#token').val();
                 var lastid = $('#last_message_id').val();
@@ -402,15 +446,37 @@
                             if (result.status == true) {
                                 if (result.data.length > 0) {
                                     $.each(result.data, function(key, value) {
+
+                                        // reply block
+                                        var replyHtml = "";
+                                        if (value.replied_id) {
+                                            var repliedUser = (value.replied_user_id == result.auth_id)
+                                                ? "You"
+                                                : value.replied_email;
+
+                                            replyHtml = `
+                                                <div class="alert alert-secondary reply-preview"
+                                                    style="padding:5px; position: relative; margin-bottom: 5px;">
+                                                    <strong>${repliedUser}</strong>
+                                                    <p style="margin:0;">${value.replied_message}</p>
+                                                </div>
+                                            `;
+                                        }
+
                                         if (value.user_id != value.auth_id) {
                                             $("#last_message_id").val(value.id);
-                                            var userEmail = value.user.email;
+                                            // var userEmail = value.user.email;
+                                            var userEmail = value.email;
                                             var messageHtml = `
                                                 <div class="panel panel-default panel-message1">
                                                     <div class="panel-body panel-message2">
+                                                        ${replyHtml}
                                                         <b>${userEmail} -</b> ${value.created_at} <br>
                                                         <pre>${value.message}</pre>
-                                                        <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="${value.user_id}" data-message="${value.message}" title="Note"><i class="fa fa-sticky-note-o ml-1" aria-hidden="true" style="cursor: pointer;"></i></a>
+                                                        <a class="reply-specific-message" data-message-id="${value.id}" data-sender-id="${userEmail}" data-message="${value.message}" title="Reply">
+                                                            <i class="fa fa-reply ml-1" aria-hidden="true" style="cursor: pointer;"></i>
+                                                        </a>
+                                                        <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="${value.user_id}" data-message="${value.message}" title="Note"><i class="fa fa-sticky-note-o" aria-hidden="true" style="cursor: pointer;"></i></a>
                                                         <a class="delete-message" data-message-id="${value.id}" title="Delete"><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;"></i>
                                                         </a>
                                                     </div>
@@ -435,12 +501,28 @@
 
             setInterval(fetchMessages, 10000);
 
+            function toggleElement(id, show, displayType = 'block') {
+                const el = document.getElementById(id);
+                if (el) el.style.display = show ? displayType : 'none';
+            }
+
             function showReplyTextarea() {
-                var replyform = document.getElementById('reply-form');
-                replyform.style.display = 'block';
-                var replybut = document.getElementById('reply-btn');
-                replybut.style.display = 'none';
+                toggleElement('reply-form', true, 'block');
+                toggleElement('reply-btn', false);
                 callTextCounter();
+            }
+
+            function hideReplyTextarea() {
+                toggleElement('reply-form', false);
+                toggleElement('reply-btn', true, 'inline-block');
+            }
+
+            function showReplyPreview() {
+                toggleElement('reply-preview', true, 'block');
+            }
+
+            function hideReplyPreview() {
+                toggleElement('reply-preview', false);
             }
 
             $(document).ready(function() {
@@ -630,6 +712,7 @@
                                 $('.error').html("");
 
                                 fetchMessages();
+                                hideReplyPreview();
 
                                 // var deleteAction =
                                 //     "{{ route('message.delete', ['token' => 'TOKEN_PLACEHOLDER']) }}";
@@ -735,6 +818,8 @@
                     });
                 }
             }
+
         </script>
+        <script src="{{ asset('js/invite-users.js') }}"></script>
     @endsection
 @endif

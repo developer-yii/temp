@@ -103,3 +103,73 @@ pre {
   display: block;  /* Make sure it spans the entire width */
   padding: 5px;  /* Add some padding for visual spacing */
 }
+
+.reply-preview {
+    margin-bottom: 0;
+    background-color: #ebfaff;
+}
+
+.reply-preview::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 100%;
+    background-color: #267DDC;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.custom_rpyBox {
+  /* border: 1px solid #ccc; */
+  padding: 10px;
+  box-shadow: 0px 0px 5px #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.custom_rpyBox textarea {
+  border: none;
+  box-shadow: none;
+  margin-bottom: 0 !important;
+  resize: none;
+}
+
+.custom_rpyBox textarea:focus {
+  box-shadow: none !important;
+}
+
+.notification-btn {
+    position: relative;
+    display: inline-block;
+    padding-right: 20px; /* space for badge */
+}
+
+.notification-btn .badge {
+    position: absolute;
+    top: -5px;
+    right: -2px;
+    background: red !important;
+    color: #fff;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 3px 3px;
+    line-height: 1;
+    min-width: 18px;
+    text-align: center;
+}
+
+.select2-container .select2-selection--multiple .select2-selection__choice {
+  color: #000;
+}
+
+.select2-container {
+  border: 1px solid #dee2e6 !important;
+  border-radius: 4px;
+}
+
+.select2-container--default .select2-selection--multiple {
+  border: none !important;
+}

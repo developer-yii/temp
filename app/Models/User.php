@@ -59,6 +59,13 @@ class User extends Authenticatable
         return $this->hasMany(UserImage::class, 'user_id', 'id');
     }
 
+    public function deliveryMessages()
+    {
+        return $this->belongsToMany(DeliveryMessage::class, 'delivery_message_users')
+                    ->withPivot('is_read')
+                    ->withTimestamps();
+    }
+
     protected static function boot()
     {
         parent::boot();

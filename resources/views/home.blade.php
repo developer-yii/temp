@@ -108,7 +108,12 @@
 
                 <span class="input-group-btn">
                     <button class="btn btn-default clipboardjs" type="button" id="copy-url-button"
-                        data-clipboard-target="#noteurl1" style="margin-top: 27px;">Copy</button>
+                        data-clipboard-target="#noteurl1"
+                        style="margin-top: 27px; border-radius:0 !important;">Copy</button>
+                </span>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="invite-button" data-toggle="modal" data-target="#inviteModal"
+                    style="margin-top: 27px; margin-left: 10px; border-radius:0 !important;">Invite</button>
                 </span>
             </div>
         </div>
@@ -185,9 +190,12 @@
             </div>
         </div>
     </div>
+    @include('modal.invite-user')
 @endsection
 @section('script')
     <script>
+        var getInviteUserUrl = "{{ route('invite.user.get') }}";
+        var inviteUserUrl = "{{ route('invite.user.store') }}";
         $(document).ready(function() {
             var createurl = "{{ route('messages.store') }}";
             var createimage = "{{ route('image.store') }}";
@@ -222,6 +230,8 @@
                             $('#message_time').html(response.ttl);
                             var generatedurl = "{{ asset('/') }}" + response.token;
                             $('#noteurl1').val(generatedurl);
+                            $('#invite-button').attr('data-user-id', response.data.user_id);
+                            $('#invite-button').attr('data-conversation-id', response.data.id);
                         } else {
                             first_input = "";
                             $('.error').html("");
@@ -347,4 +357,5 @@
             });
         });
     </script>
+    <script src="{{ asset('js/invite-users.js') }}"></script>
 @endsection
