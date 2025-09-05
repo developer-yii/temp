@@ -52,13 +52,13 @@
                 <table style="width: 100%; border: 0px;">
                     <tbody>
                         <tr>
-                            <td style="width: 40%; border: 0px; text-align: left;">
+                            <td style="width: 36%; border: 0px; text-align: left;">
                                 <a href="{{ route('home') }}" class="sitetitle"><img src="{{ asset('/')}}images/logo.png" alt="" class="site-logo-img">
 
                                 <b><span style="font-size: 105%;">Temp.PM</span></b><span style="font-size: 95%;">&nbsp;-&nbsp;Temporary Private Message</span></a>
                             </td>
 
-                            <td style="width: 60%; border: 0px; text-align: right;">
+                            <td style="width: 64%; border: 0px; text-align: right;">
                             @guest
                                 @if (Route::has('login'))
                                     <a href="{{ route('login') }}" class="btn btn-default btn-xs">Login</a>

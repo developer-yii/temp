@@ -430,7 +430,10 @@
                 }
             });
 
+            let isFetching = false;
             function fetchMessages() {
+                if (isFetching) return;
+                isFetching = true;
                 var token = $('#token').val();
                 var lastid = $('#last_message_id').val();
 
@@ -477,11 +480,24 @@
                                                             <i class="fa fa-reply ml-1" aria-hidden="true" style="cursor: pointer;"></i>
                                                         </a>
                                                         <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="${value.user_id}" data-message="${value.message}" title="Note"><i class="fa fa-sticky-note-o" aria-hidden="true" style="cursor: pointer;"></i></a>
-                                                        <a class="delete-message" data-message-id="${value.id}" title="Delete"><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;"></i>
-                                                        </a>
                                                     </div>
                                                 </div>
                                             `;
+                                            // var messageHtml = `
+                                            //     <div class="panel panel-default panel-message1">
+                                            //         <div class="panel-body panel-message2">
+                                            //             ${replyHtml}
+                                            //             <b>${userEmail} -</b> ${value.created_at} <br>
+                                            //             <pre>${value.message}</pre>
+                                            //             <a class="reply-specific-message" data-message-id="${value.id}" data-sender-id="${userEmail}" data-message="${value.message}" title="Reply">
+                                            //                 <i class="fa fa-reply ml-1" aria-hidden="true" style="cursor: pointer;"></i>
+                                            //             </a>
+                                            //             <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-sender-id="${value.user_id}" data-message="${value.message}" title="Note"><i class="fa fa-sticky-note-o" aria-hidden="true" style="cursor: pointer;"></i></a>
+                                            //             <a class="delete-message" data-message-id="${value.id}" title="Delete"><i class="fa fa-trash-o" aria-hidden="true" style="cursor: pointer;"></i>
+                                            //             </a>
+                                            //         </div>
+                                            //     </div>
+                                            // `;
 
                                             $('#message-list').append(messageHtml);
                                         }
@@ -489,13 +505,18 @@
                                 }
                             }
                         },
+                        complete: function() {
+                            isFetching = false; // allow next fetch
+                        },
                         error: function(xhr) {
+                            isFetching = false;
                             if (xhr.status === 403 && xhr.responseJSON.blocked) {
-                                // alert(xhr.responseJSON.message);  // Show error message
                                 window.location.href = loginUrl;  // Redirect to login page
                             }
                         }
                     });
+                } else {
+                    isFetching = false;
                 }
             }
 
