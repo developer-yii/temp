@@ -16,13 +16,15 @@
                             <button type="button" id="btn-close" class="close" data-dismiss="modal">&times;</button>
                         </div>
                     </div>
+                    <h4 style="margin-bottom: -15px !important;">Message Creator : <span id="creator-user"></span> </h4>
                 </div>
 
                 <!-- Modal Body -->
                 <div class="modal-body">
                     <div class="container">
-                        <input type="text" name="user_id" value="" id="user-id">
-                        <input type="text" name="conversation_id" value="" id="conversation-id">
+
+                        <input type="hidden" name="user_id" value="" id="user-id">
+                        <input type="hidden" name="conversation_id" value="" id="conversation-id">
                         @for ($i = 1; $i <= 5; $i++)
                             <div class="row mb-2">
                                 <div class="col-md-2">

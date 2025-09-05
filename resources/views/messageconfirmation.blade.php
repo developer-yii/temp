@@ -138,7 +138,7 @@
                 @endif
 
                 <div class="spacer">
-                    <a href="javascript:void(0)" id="invite-button" class="btn btn-default" data-toggle="modal" data-target="#inviteModal" data-user-id="{{ $auth_id }}" data-conversation-id="{{ $conversation->id}}">Invite</a>
+                    <a href="javascript:void(0)" id="invite-button" class="btn btn-default" data-toggle="modal" data-target="#inviteModal" data-user-id="{{ $auth_id }}" data-conversation-id="{{ $conversation->id}}" data-creator="{{ $conversation->user_id}}">Invite</a>
                 </div>
             </div>
         </div>
@@ -821,5 +821,9 @@
 
         </script>
         <script src="{{ asset('js/invite-users.js') }}"></script>
+        <script>
+            var loggedInEmail = "{{ auth()->user()->email }}";
+            var loggedInUser  = "{{ auth()->user()->id }}";
+        </script>
     @endsection
 @endif

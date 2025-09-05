@@ -121,7 +121,6 @@
 <script src="{{ asset('/')}}js/custom.js?{{time()}}" ></script>
 <script src="{{ asset('/')}}js/toastr.js?{{time()}}"></script>
 
-
 @yield('modal')
 @yield('script')
 </body>

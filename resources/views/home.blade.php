@@ -358,4 +358,8 @@
         });
     </script>
     <script src="{{ asset('js/invite-users.js') }}"></script>
+    <script>
+        var loggedInEmail = "{{ auth()->user()->email }}";
+        var loggedInUser  = "{{ auth()->user()->id }}";
+    </script>
 @endsection

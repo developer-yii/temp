@@ -1,6 +1,7 @@
 $('#invite-button').on('click', function () {
     let userId = $(this).data('user-id');
     let conversationId = $(this).data('conversation-id');
+    let creatorId = $(this).data('creator');
 
     $('#inviteModal #user-id').val(userId);
     $('#inviteModal #conversation-id').val(conversationId);
@@ -19,7 +20,7 @@ $('#invite-button').on('click', function () {
                         let hidden = $('#user_id_' + (index + 1));
                         input.val(invite.user.email);
 
-                        if (invite.has_message || invite.is_creator) {
+                        if (invite.has_message || invite.is_creator || creatorId != loggedInUser) {
                             input.prop('disabled', true);
                             hidden.prop('disabled', true);
                         } else {
@@ -36,7 +37,6 @@ $('#invite-button').on('click', function () {
         }
     });
 
-
 });
 
 $('#invite-user').submit(function (e) {
@@ -46,7 +46,6 @@ $('#invite-user').submit(function (e) {
 
     let emails = [];
     let duplicateFound = false;
-    let loggedInEmail = "{{ auth()->user()->email }}";
 
     $('#invite-user input[type="email"]').each(function () {
         let val = $(this).val().trim();

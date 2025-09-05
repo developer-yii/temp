@@ -43,6 +43,12 @@ class MessageController extends Controller
 
         if($conversation->save())
         {
+            InviteUser::create([
+                'conversation_id' => $conversation->id,
+                'user_id'         => auth()->id(),
+                'created_by'      => auth()->id(),
+            ]);
+
             $message = new Message();
             $message->user_id = Auth::id();
             $message->conversation_id = $conversation->id;
@@ -451,13 +457,13 @@ class MessageController extends Controller
         $emails = array_unique($emails);
         $userIds = array_unique($userIds);
         $inviteUser = inviteUser::where('conversation_id', $request->conversation_id)->whereIn('user_id', $userIds)->delete();
-        if (empty($userIds)) {
-            InviteUser::create([
-                'conversation_id' => $request->conversation_id,
-                'user_id'         => auth()->id(),
-                'created_by'      => auth()->id(),
-            ]);
-        }
+        // if (empty($userIds)) {
+        //     InviteUser::create([
+        //         'conversation_id' => $request->conversation_id,
+        //         'user_id'         => auth()->id(),
+        //         'created_by'      => auth()->id(),
+        //     ]);
+        // }
         foreach ($emails as $email) {
             $user = User::where('email', $email)->first();
 
