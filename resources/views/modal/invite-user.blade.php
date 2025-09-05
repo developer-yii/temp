@@ -16,7 +16,7 @@
                             <button type="button" id="btn-close" class="close" data-dismiss="modal">&times;</button>
                         </div>
                     </div>
-                    <h4 style="margin-bottom: -15px !important;">Message Creator : <span id="creator-user"></span> </h4>
+                    {{-- <h4 style="margin-bottom: -15px !important;">Message Creator : <span id="creator-user"></span> </h4> --}}
                 </div>
 
                 <!-- Modal Body -->
