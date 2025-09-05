@@ -521,9 +521,32 @@
                 toggleElement('reply-preview', true, 'block');
             }
 
+            // function hideReplyPreview() {
+            //     toggleElement('reply-preview', false);
+            // }
+
             function hideReplyPreview() {
+                // Hide the reply preview div
                 toggleElement('reply-preview', false);
+
+                // Clear preview content
+                document.getElementById('reply-user').textContent = '';
+                document.getElementById('reply-text').textContent = '';
+                document.getElementById('reply_to_message_id').value = '';
+
+                // Clear the reply textarea
+                const replyTextarea = document.getElementById('reply');
+                if (replyTextarea) replyTextarea.value = '';
+
+                // Reset character counter
+                const countEl = document.getElementById('count');
+                if (countEl) countEl.textContent = replyTextarea ? replyTextarea.maxLength : 10000;
+
+                // Optionally clear uploaded image IDs
+                const imgIdsEl = document.getElementById('img-ids');
+                if (imgIdsEl) imgIdsEl.value = '';
             }
+
 
             $(document).ready(function() {
 
