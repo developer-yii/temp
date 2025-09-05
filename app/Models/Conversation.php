@@ -24,6 +24,11 @@ class Conversation extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    public function invitedUsers()
+    {
+        return $this->hasMany(inviteUser::class, 'conversation_id', 'id');
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -31,6 +36,7 @@ class Conversation extends Model
         static::deleting(function ($conversation) {
             // Efficiently delete all related messages in one query
             $conversation->messages()->delete();
+            $conversation->invitedUsers()->delete();
         });
     }
 
