@@ -12,7 +12,8 @@ class inviteUser extends Model
     protected $fillable = [
         'conversation_id',
         'user_id',
-        'created_by'
+        'created_by',
+        'first_visitor'
     ];
 
     public function user()

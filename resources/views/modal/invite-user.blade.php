@@ -37,6 +37,16 @@
                                 </div>
                             </div>
                         @endfor
+
+                        <div class="row mb-3" id="firstVisitorRow" style="display:none;">
+                            <div class="col-md-2">
+                                <label><strong>First Visitor:</strong></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label><span id="firstVisitorEmail"></span></label>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 

@@ -227,7 +227,6 @@ class MessageController extends Controller
 
     public function messageRead(Request $request, $token)
     {
-
         $currenttime = Carbon::now();
         $conversation = Conversation::where('conversation_token', $token)
             ->where('expiry', '>=', $currenttime)
@@ -237,13 +236,32 @@ class MessageController extends Controller
             return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or You are not authorized to access this conversation');
         }
 
+        $userId = Auth::id();
         $isInvited = InviteUser::where('conversation_id', $conversation->id)
             ->where('user_id', Auth::id())
             ->exists();
 
+        $firstUser = InviteUser::where('conversation_id', $conversation->id)
+            ->where('first_visitor', 1)
+            ->first();
+
         if (!$isInvited) {
-            return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
+
+            if (!$firstUser) {
+                InviteUser::create([
+                    'conversation_id' => $conversation->id,
+                    'user_id' => $userId,
+                    'created_by' => $conversation->user_id,
+                    'first_visitor' => 1
+                ]);
+            } else {
+                return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
+            }
         }
+
+        // if (!$isInvited) {
+        //     return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
+        // }
 
         if ($conversation) {
             $c_token = $conversation->id;
@@ -261,8 +279,6 @@ class MessageController extends Controller
 
             imagesAssignToUser($data);
 
-            return view('messageconfirmation', compact('conversation', 'data'));
-
             // $total_user = Message::where('conversation_id', $conversation->id)
             //     ->distinct()
             //     ->pluck('user_id')
@@ -274,6 +290,9 @@ class MessageController extends Controller
             // else {
             //     return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
             // }
+
+            return view('messageconfirmation', compact('conversation', 'data'));
+
         }
         //  else {
         //     return view('messageconfirmation')->with('error', 'The message has either been expired/deleted or You are not authorized to access this conversation');
@@ -394,13 +413,21 @@ class MessageController extends Controller
 
     public function inviteUserGet(Request $request)
     {
+        \Log::info("sdfsdbhfdfg");
+        $conversationId = $request->conversation_id;
         $inviteUser = InviteUser::with('user:id,email')
-                    ->where('conversation_id', $request->conversation_id)
+                    ->where('conversation_id', $conversationId)
                     ->where('user_id', '!=', auth()->id())
+                    ->where('first_visitor', 0)
                     ->get();
 
+        $firstVisitor = InviteUser::with('user:id,email')
+            ->where('conversation_id', $conversationId)
+            ->where('first_visitor', 1)
+            ->first();
+
         foreach ($inviteUser as $invite) {
-            $invite->has_message = Message::where('conversation_id', $request->conversation_id)
+            $invite->has_message = Message::where('conversation_id', $conversationId)
                 ->where('user_id', $invite->user_id)
                 ->exists();
 
@@ -410,8 +437,10 @@ class MessageController extends Controller
         return response()->json([
             'status' => true,
             'inviteUser' => $inviteUser,
+            'firstVisitor' => $firstVisitor,
         ]);
     }
+
     public function inviteUserStore(Request $request)
     {
         $authEmail = strtolower(auth()->user()->email);

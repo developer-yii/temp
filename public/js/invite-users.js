@@ -14,6 +14,13 @@ $('#invite-button').on('click', function () {
             if (result.status == true) {
                 $('#inviteModal input[type="email"]').val('').prop('disabled', false);
 
+                if (result.firstVisitor) {
+                    $("#firstVisitorRow").show();
+                    $("#firstVisitorEmail").text(result.firstVisitor.user.email);
+                } else {
+                    $("#firstVisitorRow").hide();
+                }
+
                 result.inviteUser.forEach(function (invite, index) {
                     if (invite.user && invite.user.email) {
                         let input = $('#email_' + (index + 1));
