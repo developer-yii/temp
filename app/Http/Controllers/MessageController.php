@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\UserImage;
 use App\Models\Conversation;
 use App\Models\Image;
-use App\Models\inviteUser;
+use App\Models\InviteUser;
 use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -155,6 +155,7 @@ class MessageController extends Controller
         $message->user_id = Auth::id();
         $message->conversation_id = $conversation_id;
         $message->replied_message_id = $request['reply_to_message_id'];
+        $message->quoted_text = $request['quoted_text'];
         $message->message = $request['reply'];
         $message->created_at = Carbon::now();
 
@@ -279,6 +280,11 @@ class MessageController extends Controller
 
             imagesAssignToUser($data);
 
+            // Get user colors for this conversation
+            $userColors = InviteUser::where('conversation_id', $conversation->id)
+                ->pluck('color', 'user_id')
+                ->toArray();
+
             // $total_user = Message::where('conversation_id', $conversation->id)
             //     ->distinct()
             //     ->pluck('user_id')
@@ -291,7 +297,7 @@ class MessageController extends Controller
             //     return view('messageconfirmation')->with('error', 'You are not authorized to access this conversation');
             // }
 
-            return view('messageconfirmation', compact('conversation', 'data'));
+            return view('messageconfirmation', compact('conversation', 'data', 'userColors'));
 
         }
         //  else {
@@ -323,8 +329,16 @@ class MessageController extends Controller
 
         $query = Message::where('messages.conversation_id', $c_token)
                 ->join('users', 'users.id', '=', 'messages.user_id')
+                ->leftJoin('invite_users', function ($join) use ($c_token) {
+                    $join->on('invite_users.user_id', '=', 'messages.user_id')
+                         ->where('invite_users.conversation_id', '=', $c_token);
+                })
                 ->leftJoin('messages as replied', 'replied.id', '=', 'messages.replied_message_id')
                 ->leftJoin('users as replied_user', 'replied_user.id', '=', 'replied.user_id')
+                ->leftJoin('invite_users as replied_invite', function ($join) use ($c_token) {
+                    $join->on('replied_invite.user_id', '=', 'replied.user_id')
+                         ->where('replied_invite.conversation_id', '=', $c_token);
+                })
                 ->select(
                     'messages.id',
                     'messages.user_id',
@@ -332,11 +346,14 @@ class MessageController extends Controller
                     'messages.message',
                     'messages.image_ids',
                     'messages.created_at',
+                    'messages.quoted_text',
                     'users.email',
+                    'invite_users.color as user_color',
                     'replied.id as replied_id',
                     'replied.message as replied_message',
                     'replied.user_id as replied_user_id',
-                    'replied_user.email as replied_email'
+                    'replied_user.email as replied_email',
+                    'replied_invite.color as replied_user_color'
                 );
 
 
@@ -415,7 +432,7 @@ class MessageController extends Controller
     {
         \Log::info("sdfsdbhfdfg");
         $conversationId = $request->conversation_id;
-        $inviteUser = InviteUser::with('user:id,email')
+        $inviteUser = InviteUser::with('user:id,email,nickname')
                     ->where('conversation_id', $conversationId)
                     ->where('user_id', '!=', auth()->id())
                     ->where('first_visitor', 0)
@@ -449,19 +466,25 @@ class MessageController extends Controller
         foreach (range(1, 5) as $i) {
             $rules["email_$i"] = [
                 'nullable',
-                'email',
-                'exists:users,email',
+                'string', // Changed from 'email' to 'string' to allow nicknames
                 function ($attribute, $value, $fail) use ($authEmail) {
-                    if ($value && strtolower($value) === $authEmail) {
-                        $fail('You cannot invite your own email address.');
+                    if ($value) {
+                        // Check if it's an email or nickname
+                        $user = User::where('email', $value)
+                            ->orWhere('nickname', $value)
+                            ->first();
+
+                        if (!$user) {
+                            $fail('The entered user is not registered.');
+                        } elseif (strtolower($user->email) === $authEmail) {
+                            $fail('You cannot invite yourself.');
+                        }
                     }
                 },
             ];
         }
 
-        $validator = Validator::make($request->all(), $rules, [
-            'email_*.exists' => 'The entered email must be a registered user.',
-        ]);
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
@@ -470,45 +493,74 @@ class MessageController extends Controller
             ]);
         }
 
-        $emails = [];
-        $userIds = [];
+        $usersToInvite = [];
+        $userIdsToDelete = [];
 
         foreach (range(1, 5) as $i) {
-            if ($request->filled("email_$i")) {
-                $emails[] = strtolower(trim($request->input("email_$i")));
-            }
+            $inputValue = trim($request->input("email_$i"));
+            $hiddenId = $request->input("user_id_$i");
 
-            if ($request->filled("user_id_$i")) {
-                $userIds[] = (int) $request->input("user_id_$i");
+            if (!empty($inputValue)) {
+                $user = null;
+
+                // 1. Try by ID if present (most reliable from autocomplete)
+                if (!empty($hiddenId)) {
+                    $user = User::find($hiddenId);
+                }
+
+                // 2. Try by Email or Nickname if no ID or ID mismatch
+                if (!$user) {
+                    $user = User::where('email', $inputValue)
+                        ->orWhere('nickname', $inputValue)
+                        ->first();
+                }
+
+                if ($user) {
+                    $usersToInvite[$user->id] = $user;
+                    $userIdsToDelete[] = $user->id;
+                }
             }
         }
 
-        $emails = array_unique($emails);
-        $userIds = array_unique($userIds);
-        $inviteUser = inviteUser::where('conversation_id', $request->conversation_id)->whereIn('user_id', $userIds)->delete();
-        // if (empty($userIds)) {
-        //     InviteUser::create([
-        //         'conversation_id' => $request->conversation_id,
-        //         'user_id'         => auth()->id(),
-        //         'created_by'      => auth()->id(),
-        //     ]);
-        // }
-        foreach ($emails as $email) {
-            $user = User::where('email', $email)->first();
-
-            if ($user) {
-                InviteUser::create([
-                    'conversation_id' => $request->conversation_id,
-                    'user_id'         => $user->id,
-                    'created_by'      => auth()->id(),
-                ]);
-            }
+        // Delete users that are being re-invited (or removed if logic was intended for that, 
+        // but current logic seems to be "sync" style or just ensuring no dupes on insert)
+        if (!empty($userIdsToDelete)) {
+            InviteUser::where('conversation_id', $request->conversation_id)
+                ->whereIn('user_id', $userIdsToDelete)
+                ->delete();
+        }
+        
+        foreach ($usersToInvite as $user) {
+             InviteUser::create([
+                'conversation_id' => $request->conversation_id,
+                'user_id'         => $user->id,
+                'created_by'      => auth()->id(),
+            ]);
         }
 
         return response()->json([
             'status' => true,
             'message' => 'Invites processed successfully.',
         ]);
+    }
+
+    public function getSuggestableUsers(Request $request)
+    {
+        $query = $request->get('q', '');
+        
+        $users = User::where('is_suggestable', 1)
+            ->where('id', '!=', auth()->id())
+            ->where('is_block', 0)
+            ->where('is_approve', 1)
+            ->where(function($q) use ($query) {
+                $q->where('email', 'like', '%' . $query . '%')
+                  ->orWhere('nickname', 'like', '%' . $query . '%');
+            })
+            ->select('id', 'email', 'nickname')
+            ->limit(10)
+            ->get();
+
+        return response()->json($users);
     }
 
 }

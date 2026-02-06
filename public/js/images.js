@@ -16,8 +16,7 @@ $(document).ready(function(){
                 render: function (data, type, row, meta) {
                     return '<input type="checkbox" class="image-checkbox" value="' + data + '">';
                 },
-                orderable: false,
-
+                orderable: false
             },
             {
                 data: 'file_name',
@@ -28,6 +27,7 @@ $(document).ready(function(){
             {
                 data: 'image',  // Assuming this is where the path is stored
                 render: function(data, type, row, meta) {
+                    if (!data) return '';
                     var imageTitle = row.file_name || 'File';
                     var fileExtension = data.split('.').pop().toLowerCase();  // Extract file extension
 
@@ -35,7 +35,7 @@ $(document).ready(function(){
                     if(row.password == null){
                         if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'jfif'].includes(fileExtension)) {
                             // Render thumbnail for image files
-                            return '<a href="' + data + '" data-lightbox="image-set" data-title="' + imageTitle + '">' +
+                            return '<a href="' + data + '" class="glightbox" data-gallery="image-set" data-title="' + imageTitle + '">' +
                                 '<img src="' + data + '" class="img-thumbnail" width="100" alt="' + imageTitle + '" />' +
                                 '</a>';
                         } else {
@@ -44,12 +44,11 @@ $(document).ready(function(){
                                 'View File' +
                                 '</a>';
                         }
-                    }else{
-                        // var pwdProtectedUrl = '/image_action/' + row.short_link_token;
+                    } else {
                         var pwdProtectedUrl = basePwdProtectedUrl.replace('__TOKEN__', row.short_link_token);
                         return '<a href="' + pwdProtectedUrl + '" target="_blank" class="btn btn-primary btn-sm">' +
-                                'View File' +
-                                '</a>';
+                            'View File' +
+                            '</a>';
                     }
                 },
                 orderable: false
@@ -57,7 +56,21 @@ $(document).ready(function(){
             {data : 'created_at_formatted',name:'created_at'},
             {data: 'action', name: 'action', orderable: false }
         ],
-        order: [[3, 'desc']]
+        order: [[3, 'desc']],
+        drawCallback: function() {
+            if (typeof GLightbox !== 'undefined') {
+                GLightbox({
+                    selector: '.glightbox',
+                    touchNavigation: true,
+                    loop: true,
+                    zoomable: true,
+                    draggable: true,
+                    autofocusVideos: false,
+                    openEffect: 'fade',
+                    closeEffect: 'fade'
+                });
+            }
+        }
     });
 
     $('#select-all-images').on('click', function() {

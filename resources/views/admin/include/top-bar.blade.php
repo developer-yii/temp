@@ -23,6 +23,12 @@
                 </div>
 
                 <!-- item-->
+                @if(Auth::user()->canAccessUserPanel())
+                <a href="{{ route('home') }}" class="dropdown-item notify-item">
+                    <i class="mdi mdi-home mr-1"></i>
+                    <span>Go to User Panel</span>
+                </a>
+                @endif
                 <a href="{{ route('admin.profile') }}" class="dropdown-item notify-item">
                     <i class="mdi mdi-account-circle mr-1"></i>
                     <span>My Account</span>

@@ -13,12 +13,29 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Role type constants
+     */
+    public const ROLE_SUPER_ADMIN = 0;
+    public const ROLE_ADMIN = 1;
+    public const ROLE_USER = 2;
+
+    public const ROLE_LABELS = [
+        self::ROLE_SUPER_ADMIN => 'Super Admin',
+        self::ROLE_ADMIN => 'Admin',
+        self::ROLE_USER => 'User',
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'nickname',
+        'is_suggestable',
     ];
 
     /**
@@ -27,7 +44,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     /**
@@ -62,8 +80,33 @@ class User extends Authenticatable
     public function deliveryMessages()
     {
         return $this->belongsToMany(DeliveryMessage::class, 'delivery_message_users')
-                    ->withPivot('is_read')
-                    ->withTimestamps();
+            ->withPivot('is_read')
+            ->withTimestamps();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role_type === self::ROLE_ADMIN;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role_type === self::ROLE_SUPER_ADMIN;
+    }
+
+    public function canAccessAdminPanel(): bool
+    {
+        return in_array($this->role_type, [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN]);
+    }
+
+    public function canAccessUserPanel(): bool
+    {
+        return in_array($this->role_type, [self::ROLE_USER, self::ROLE_ADMIN]);
+    }
+
+    public function canAssignAdminRoles(): bool
+    {
+        return in_array($this->role_type, [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN]);
     }
 
     protected static function boot()

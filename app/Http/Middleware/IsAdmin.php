@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class IsAdmin
 {
@@ -17,11 +18,11 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next)
     {
+        /** @var User|null $user */
         $user = Auth::user();
-        if(isset($user->id) && ($user->role_type == '1'))
-        {
+        if ($user && $user->canAccessAdminPanel()) {
             return $next($request);
         }
-        return redirect('login')->with('error','You have not admin access');
+        return redirect('login')->with('error', 'You have not admin access');
     }
 }

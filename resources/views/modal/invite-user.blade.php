@@ -28,10 +28,10 @@
                         @for ($i = 1; $i <= 5; $i++)
                             <div class="row mb-2">
                                 <div class="col-md-2">
-                                    <label for="email_{{ $i }}">Email {{ $i }} : </label>
+                                    <label for="email_{{ $i }}">User {{ $i }} : </label>
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <input type="email" id="email_{{ $i }}" name="email_{{ $i }}" class="form-control">
+                                    <input type="text" id="email_{{ $i }}" name="email_{{ $i }}" class="form-control" placeholder="Email or Nickname">
                                     <input type="hidden" id="user_id_{{ $i }}" name="user_id_{{ $i }}">
                                     <span class="error"></span>
                                 </div>

@@ -11,7 +11,7 @@ class Message extends Model
     protected $table = 'messages';
     public $timestamps = false;
     protected $fillable = [
-        'user_id', 'conversation_id','message','image_ids', 'created_at',
+        'user_id', 'conversation_id','message','image_ids', 'created_at', 'quoted_text',
     ];
 
 

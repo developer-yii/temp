@@ -196,6 +196,7 @@
     <script>
         var getInviteUserUrl = "{{ route('invite.user.get') }}";
         var inviteUserUrl = "{{ route('invite.user.store') }}";
+        var suggestableUsersUrl = "{{ route('invite.suggestable.users') }}";
         $(document).ready(function() {
             var createurl = "{{ route('messages.store') }}";
             var createimage = "{{ route('image.store') }}";

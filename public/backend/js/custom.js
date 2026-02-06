@@ -1,21 +1,20 @@
-$(document).ready(function()
-{
-   $.ajaxSetup({
-        headers : {
+$(document).ready(function () {
+    $.ajaxSetup({
+        headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 
     var messagetable = $('#message_datatable').DataTable({
-        processing : true,
-        serverSide : true,
+        processing: true,
+        serverSide: true,
         bStateSave: true,
         pageLength: 25,
-        ajax : {
-            type : "GET",
-            url : adminmessagelist,
+        ajax: {
+            type: "GET",
+            url: adminmessagelist,
         },
-        columns : [
+        columns: [
             {
                 data: 'id', name: 'id', render: function (data, type, row, meta) {
                     return '<input type="checkbox" class="message-checkbox" value="' + data + '">';
@@ -30,62 +29,107 @@ $(document).ready(function()
         ],
     });
 
+    var userColumns = [
+        {
+            data: 'id',
+            name: 'id',
+            render: function (data, type, row, meta) {
+                return '<input type="checkbox" class="user-checkbox" value="' + data + '">';
+            },
+            orderable: false,
+        },
+        { data: 'id', name: 'id' },
+        { data: 'email', name: 'email' },
+        { data: 'nickname', name: 'nickname', defaultContent: '' },
+        { data: 'created_at', name: 'created_at' },
+        { data: 'approve', name: 'is_approve' },
+        {
+            data: null,
+            name: 'is_block',
+            render: function (data, type, full, meta) {
+                let switchId = `switch_${data.id}`;
+                let html = `<div>
+                                <input type="checkbox" class="block-user" id="${switchId}" ${data.is_block ? 'checked' : ''} data-switch="success" data-id="${data.id}"/>
+                                <label for="${switchId}" data-on-label="Yes" data-off-label="No" class="mb-0 d-block"></label>
+                            </div>`;
+                return html;
+            },
+            orderable: false,
+            searchable: false,
+        },
+        {
+            data: null,
+            name: 'is_suggestable',
+            render: function (data, type, full, meta) {
+                let switchId = `suggest_switch_${data.id}`;
+                let html = `<div>
+                                <input type="checkbox" class="suggest-user" id="${switchId}" ${data.is_suggestable ? 'checked' : ''} data-switch="success" data-id="${data.id}"/>
+                                <label for="${switchId}" data-on-label="Yes" data-off-label="No" class="mb-0 d-block"></label>
+                            </div>`;
+                return html;
+            },
+            orderable: false,
+            searchable: false,
+        }
+    ];
+
+    // Add role column only for Super Admin
+    if (typeof canAssignRoles !== 'undefined' && canAssignRoles) {
+        userColumns.push({
+            data: null,
+            name: 'role_type',
+            render: function (data, type, full, meta) {
+                let roleLabels = {};
+                roleLabels[ROLE_SUPER_ADMIN] = 'Super Admin';
+                roleLabels[ROLE_ADMIN] = 'Admin';
+                roleLabels[ROLE_USER] = 'User';
+
+                let currentRole = data.role_type;
+                let options = '';
+                for (let key in roleLabels) {
+                    let roleKey = parseInt(key);
+                    // Prevent assigning Super Admin role
+                    if (roleKey === ROLE_SUPER_ADMIN && roleKey !== currentRole) {
+                        continue;
+                    }
+                    let selected = (roleKey === currentRole) ? 'selected' : '';
+                    options += `<option value="${roleKey}" ${selected}>${roleLabels[roleKey]}</option>`;
+                }
+                return `<select class="form-control role-select" data-id="${data.id}">${options}</select>`;
+            },
+            orderable: false,
+            searchable: false,
+        });
+    }
+
+    userColumns.push({ data: 'action', name: 'action', orderable: false });
+
     var usertable = $('#user_datatable').DataTable({
-        processing : true,
-        serverSide : true,
+        processing: true,
+        serverSide: true,
         bStateSave: true,
         pageLength: 25,
-        ajax : {
-            type : "GET",
-            url : userlist,
+        ajax: {
+            type: "GET",
+            url: userlist,
         },
-        columns : [
-            {
-                data: 'id',
-                name: 'id',
-                render: function (data, type, row, meta) {
-                    return '<input type="checkbox" class="user-checkbox" value="' + data + '">';
-                },
-                orderable: false,
-
-            },
-            { data: 'id', name: 'id' },
-            { data: 'email', name: 'email' },
-            { data: 'created_at', name: 'created_at' },
-            { data: 'approve', name: 'is_approve' },
-            // { data: 'blockStatus', name: 'blockStatus' },
-            {
-                data: null,
-                name: 'is_block',
-                render: function (data, type, full, meta) {
-                    let switchId = `switch_${data.id}`;
-                    let html = `<div>
-                                    <input type="checkbox" class="block-user" id="${switchId}" ${data.is_block ? 'checked' : ''} data-switch="success" data-id="${data.id}"/>
-                                    <label for="${switchId}" data-on-label="Yes" data-off-label="No" class="mb-0 d-block"></label>
-                                </div>`;
-                    return html;
-                },
-                orderable: false,
-                searchable: false,
-            },
-            { data: 'action', name: 'action', orderable: false }
-        ],
+        columns: userColumns,
     });
 
     var notetable = $('#note_datatable').DataTable({
         // responsive: true,
 
-        processing : true,
+        processing: true,
         // serverSide : true,
         // bStateSave: true,
         pageLength: 25,
-        ajax : {
-            type : "GET",
-            url : notelist,
+        ajax: {
+            type: "GET",
+            url: notelist,
         },
         order: [0, 'desc'],
-        columns : [
-            { data: 'id', name: 'id', visible: false},
+        columns: [
+            { data: 'id', name: 'id', visible: false },
             {
                 data: 'id',
                 name: 'id',
@@ -95,7 +139,7 @@ $(document).ready(function()
                 orderable: false,
 
             },
-            { data: 'user.email', name: 'user.email'},
+            { data: 'user.email', name: 'user.email' },
             {
                 data: 'note',
                 name: 'note',
@@ -116,7 +160,7 @@ $(document).ready(function()
                     return renderContentWithReadMoreAndLess(data, 'message-' + full.id, full.sender_email);
                 }
             },
-            { data: 'action', name: 'action', orderable: false}
+            { data: 'action', name: 'action', orderable: false }
         ],
     });
 
@@ -127,15 +171,15 @@ $(document).ready(function()
 
         if (content && content.length > 100) {
             return '<span class="short-text" id="' + elementId + '-short">' + shortText + '... ' +
-                   '<a href="#" class="read-more" data-id="' + elementId + '">Read More</a>' + sentBy + '</span>' +
-                   '<span class="full-text" id="' + elementId + '" style="display:none;">' + fullText +
-                   ' <a href="#" class="read-less" data-id="' + elementId + '">Read Less</a>' + sentBy + '</span>';
+                '<a href="#" class="read-more" data-id="' + elementId + '">Read More</a>' + sentBy + '</span>' +
+                '<span class="full-text" id="' + elementId + '" style="display:none;">' + fullText +
+                ' <a href="#" class="read-less" data-id="' + elementId + '">Read Less</a>' + sentBy + '</span>';
         }
         return fullText;  // Return full content if less than 100 characters
     }
 });
 
-$(document).on('change', '.block-user', function() {
+$(document).on('change', '.block-user', function () {
     let isChecked = $(this).is(':checked');  // Get the new status (checked or not)
     let id = $(this).data('id');  // Get the data-id of the checkbox
 
@@ -148,15 +192,96 @@ $(document).on('change', '.block-user', function() {
             is_block: isChecked ? 1 : 0,  // Send the new status
         },
         dataType: 'json',
-        success: function(response) {
+        success: function (response) {
             if (response.status) {
                 toastr.success(response.message);
             } else {
                 toastr.error(response.message);
             }
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             alert('An error occurred: ' + error);
+        }
+    });
+});
+
+$(document).on('change', '.suggest-user', function () {
+    let isChecked = $(this).is(':checked');
+    let id = $(this).data('id');
+
+    $.ajax({
+        url: suggestUserUrl,
+        method: 'POST',
+        data: {
+            id: id,
+            is_suggestable: isChecked ? 1 : 0,
+        },
+        dataType: 'json',
+        success: function (response) {
+            if (response.status) {
+                toastr.success(response.message);
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            alert('An error occurred: ' + error);
+        }
+    });
+});
+
+// Store original value on focus (before change)
+$(document).on('focus', '.role-select', function () {
+    $(this).data('original', $(this).val());
+});
+
+$(document).on('change', '.role-select', function () {
+    let $select = $(this);
+    let id = $select.data('id');
+    let newRole = $select.val();
+    let originalValue = $select.data('original');
+
+    let roleLabels = {};
+    roleLabels[ROLE_SUPER_ADMIN] = 'Super Admin';
+    roleLabels[ROLE_ADMIN] = 'Admin';
+    roleLabels[ROLE_USER] = 'User';
+
+    let newRoleLabel = roleLabels[newRole] || 'Unknown';
+
+    Swal.fire({
+        title: `Change user role to ${newRoleLabel}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, proceed!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: roleUpdateUrl,
+                method: 'POST',
+                data: {
+                    id: id,
+                    role_type: newRole,
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status) {
+                        toastr.success(response.message);
+                        $select.data('original', newRole);
+                    } else {
+                        toastr.error(response.message);
+                        $select.val(originalValue);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    toastr.error('An error occurred: ' + error);
+                    $select.val(originalValue);
+                }
+            });
+        } else {
+            $select.val(originalValue);
         }
     });
 });
@@ -179,27 +304,27 @@ $('body').on('click', '.read-less', function (e) {
 });
 
 //user module start
-$('body').on('click','.edit-user',function(){
+$('body').on('click', '.edit-user', function () {
 
     var id = $(this).attr('data-id');
     $('#update-id').val(id);
     $.ajax({
-        url: getuser+'?id='+id,
+        url: getuser + '?id=' + id,
         type: 'GET',
         dataType: 'json',
-        success: function(result) {
+        success: function (result) {
             $('.error').html("");
             $('#edit-form')[0].reset();
-            $.each(result.data.user, function(key) {
-                if($('#edit-form').find('#'+key).length)
-                {
-                    if (key === 'role_type')
-                    {
+            $.each(result.data.user, function (key) {
+                if ($('#edit-form').find('#' + key).length) {
+                    if (key === 'role_type') {
                         $('#edit-form').find('#' + key).val(result.data.user[key]).change();;
                     }
-                    else
-                    {
-                        $('#edit-form').find('#'+key).val(result.data.user[key]);
+                    else if (key === 'is_suggestable') {
+                        $('#edit-form').find('#' + key).prop('checked', result.data.user[key] == 1);
+                    }
+                    else {
+                        $('#edit-form').find('#' + key).val(result.data.user[key]);
                     }
                 }
             });
@@ -207,53 +332,48 @@ $('body').on('click','.edit-user',function(){
     });
 });
 
-$(document).on('submit','.edit-form', function(e){
+$(document).on('submit', '.edit-form', function (e) {
 
     event.preventDefault();
     var $this = $(this);
     var dataString = new FormData($('#edit-form')[0]);
 
-        $.ajax({
+    $.ajax({
         url: userupdate,
         type: 'POST',
         data: dataString,
         processData: false,
         contentType: false,
-        beforeSend: function() {
+        beforeSend: function () {
             $($this).find('button[type="submit"]').prop('disabled', true);
         },
-        success: function(result)
-        {
+        success: function (result) {
             $($this).find('button[type="submit"]').prop('disabled', false);
-            if (result.status == true)
-            {
+            if (result.status == true) {
                 toastr.success(result.message);
                 $('#btn-edit-close').click();
                 $('#user_datatable').DataTable().ajax.reload();
                 $('.error').html("");
             }
 
-            else if(result.status == false && result.validationError == true)
-            {
+            else if (result.status == false && result.validationError == true) {
 
                 toastr.error(result.message);
             }
-            else
-            {
+            else {
                 first_input = "";
                 $('.error').html("");
-                $.each(result.message, function(key)
-                {
-                    if(first_input=="") first_input=key;
+                $.each(result.message, function (key) {
+                    if (first_input == "") first_input = key;
 
-                   $($this).find('#'+key).closest('.form-input').find('.error').html(result.message[key]);
+                    $($this).find('#' + key).closest('.form-input').find('.error').html(result.message[key]);
                 });
 
-                $('#edit-form').find("#"+first_input).focus();
+                $('#edit-form').find("#" + first_input).focus();
 
             }
         },
-        error: function(error) {
+        error: function (error) {
             $($this).find('button[type="submit"]').prop('disabled', false);
             alert('Something want wrong!', 'error');
             location.reload();
@@ -261,20 +381,18 @@ $(document).on('submit','.edit-form', function(e){
     });
 });
 
-$('#btn-cancel').on('click', function()
-{
+$('#btn-cancel').on('click', function () {
     var form = $('#edit-form')[0];
     form.reset();
     $('#edit-modal').modal('hide');
 });
 
-$('#select-all').on('click', function() {
+$('#select-all').on('click', function () {
     var isChecked = $(this).prop('checked');
     $('.user-checkbox').prop('checked', isChecked);
 });
 
-$('body').on('click', '.delete-user', function(e)
-{
+$('body').on('click', '.delete-user', function (e) {
     e.preventDefault();
     var id = $(this).attr('data-id');
 
@@ -294,11 +412,11 @@ $('body').on('click', '.delete-user', function(e)
                 url: userdelete + '?id=' + id,
                 type: 'POST',
                 dataType: 'json',
-                success: function(result) {
+                success: function (result) {
                     toastr.success(result.message);
                     $('#user_datatable').DataTable().ajax.reload();
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr.error('An error occurred while deleting the user.');
                 }
             });
@@ -309,7 +427,7 @@ $('body').on('click', '.delete-user', function(e)
     });
 });
 
-$('body').on('change','.approval_status', function(event) {
+$('body').on('change', '.approval_status', function (event) {
     var status = $(this).val();
     var id = $(this).attr('data-id');
 
@@ -318,7 +436,7 @@ $('body').on('change','.approval_status', function(event) {
         type: 'POST',
         dataType: 'json',
         data: { 'id': id, 'status': status },
-        success: function(result) {
+        success: function (result) {
             toastr.success(result.message);
             $('#user_datatable').DataTable().ajax.reload();
         }
@@ -354,11 +472,11 @@ $('#delete-selected').on('click', function () {
                 data: { ids: ids },
                 type: 'POST',
                 dataType: 'json',
-                success: function(result) {
+                success: function (result) {
                     toastr.success(result.message);
                     $('#user_datatable').DataTable().ajax.reload();
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr.error('An error occurred while deleting the user.');
                 }
             });
@@ -371,13 +489,13 @@ $('#delete-selected').on('click', function () {
 });
 
 $('#edit-modal').on('hidden.bs.modal', function () {
-      $('.error').html("");
-      $('#edit-form')[0].reset();
-  });
+    $('.error').html("");
+    $('#edit-form')[0].reset();
+});
 //user module end
 
 // message module start
-$('#select-all-message').on('click', function() {
+$('#select-all-message').on('click', function () {
     var isChecked = $(this).prop('checked');
     $('.message-checkbox').prop('checked', isChecked);
 });
@@ -410,11 +528,11 @@ $('#delete-selected-messages').on('click', function () {
                 data: { ids: ids },
                 type: 'POST',
                 dataType: 'json',
-                success: function(result) {
+                success: function (result) {
                     toastr.success(result.message);
                     $('#message_datatable').DataTable().ajax.reload();
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr.error('An error occurred while deleting conversations.');
                 }
             });
@@ -425,8 +543,7 @@ $('#delete-selected-messages').on('click', function () {
     });
 
 });
-$('body').on('click', '.delete-conversation', function(e)
-{
+$('body').on('click', '.delete-conversation', function (e) {
     e.preventDefault();
     var id = $(this).attr('data-id');
 
@@ -446,11 +563,11 @@ $('body').on('click', '.delete-conversation', function(e)
                 url: deleteConversationUrl + '?id=' + id,
                 type: 'POST',
                 dataType: 'json',
-                success: function(result) {
+                success: function (result) {
                     toastr.success(result.message);
                     $('#message_datatable').DataTable().ajax.reload();
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr.error('An error occurred while deleting the conversation.');
                 }
             });
@@ -464,59 +581,52 @@ $('body').on('click', '.delete-conversation', function(e)
 // message module end
 
 //admin profile start
-$(document).on('submit','.edit-profile-form', function(e)
-{
+$(document).on('submit', '.edit-profile-form', function (e) {
     event.preventDefault();
     var $this = $(this);
     var dataString = new FormData($('#edit-profile-form')[0]);
 
-        $.ajax({
+    $.ajax({
         url: profileupdate,
         type: 'POST',
         data: dataString,
         processData: false,
         contentType: false,
-        beforeSend: function() {
+        beforeSend: function () {
             $($this).find('button[type="submit"]').prop('disabled', true);
         },
-        success: function(result)
-        {
+        success: function (result) {
             $($this).find('button[type="submit"]').prop('disabled', false);
-            if (result.status == true)
-            {
+            if (result.status == true) {
                 toastr.success(result.message);
                 $('#btn-edit-close').click();
                 $('.error').html("");
                 location.reload();
             }
 
-            else if(result.status == false && result.validationError == true)
-            {
+            else if (result.status == false && result.validationError == true) {
                 toastr.error(result.message);
             }
-            else
-            {
+            else {
                 first_input = "";
                 $('.error').html("");
-                $.each(result.message, function(key)
-                {
-                    if(first_input=="") first_input=key;
-                   $($this).find('#'+key).closest('.form-input').find('.error').html(result.message[key]);
+                $.each(result.message, function (key) {
+                    if (first_input == "") first_input = key;
+                    $($this).find('#' + key).closest('.form-input').find('.error').html(result.message[key]);
                 });
 
-                $('#edit-profile-form').find("#"+first_input).focus();
+                $('#edit-profile-form').find("#" + first_input).focus();
 
             }
         },
-        error: function(error) {
+        error: function (error) {
             $($this).find('button[type="submit"]').prop('disabled', false);
             alert('Something want wrong!', 'error');
             location.reload();
         }
     });
 });
-$('#btn-edit-cancel').on('click', function()
-{
+$('#btn-edit-cancel').on('click', function () {
     var form = $('#edit-profile-form')[0];
     form.reset();
     $('#edit-profile').modal('hide');
@@ -524,8 +634,7 @@ $('#btn-edit-cancel').on('click', function()
 //admin profile end
 
 // note module start
-$('body').on('click', '.delete-note', function(e)
-{
+$('body').on('click', '.delete-note', function (e) {
     e.preventDefault();
     var id = $(this).attr('data-id');
 
@@ -545,11 +654,11 @@ $('body').on('click', '.delete-note', function(e)
                 url: notedelete + '?id=' + id,
                 type: 'POST',
                 dataType: 'json',
-                success: function(result) {
+                success: function (result) {
                     toastr.success(result.message);
                     $('#note_datatable').DataTable().ajax.reload();
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr.error('An error occurred while deleting the note.');
                 }
             });
@@ -560,7 +669,7 @@ $('body').on('click', '.delete-note', function(e)
     });
 });
 
-$('#select-all-notes').on('click', function() {
+$('#select-all-notes').on('click', function () {
     var isChecked = $(this).prop('checked');
     $('.note-checkbox').prop('checked', isChecked);
 });
@@ -593,11 +702,11 @@ $('#delete-selected-notes').on('click', function () {
                 data: { ids: ids },
                 type: 'POST',
                 dataType: 'json',
-                success: function(result) {
+                success: function (result) {
                     toastr.success(result.message);
                     $('#note_datatable').DataTable().ajax.reload();
                 },
-                error: function(error) {
+                error: function (error) {
                     toastr.error('An error occurred while deleting the notes.');
                 }
             });
