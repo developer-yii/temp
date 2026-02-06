@@ -130,7 +130,7 @@ $('body').on('click', '.edit-message', function () {
                     $('#existing-images').empty();
                     if (data.images && data.images.length > 0) {
                         data.images.forEach(function (image) {
-                            let imageUrl = '/storage/delivery_images/' + image.image_path; // Adjust path if needed
+                            let imageUrl = storageUrl + '/delivery_images/' + image.image_path;
                             let html = `
                                 <div class="col-md-3 mb-2 text-center" id="image-${image.id}">
                                     <div class="card p-1">

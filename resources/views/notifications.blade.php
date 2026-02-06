@@ -32,6 +32,7 @@
     <script>
         var listUrl = "{{ route('notifications.list') }}";
         var markAsReadUrl = "{{ route('notifications.markRead') }}";
+        var storageUrl = "{{ asset('/') }}storage";
     </script>
     <script src="{{ asset('js/notifications.js') }}"></script>
 @endsection

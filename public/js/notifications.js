@@ -30,7 +30,7 @@ $(document).ready(function () {
                     if (data && data.length > 0) {
                         let html = '<div class="notification-gallery" id="notification-gallery-' + full.id + '">';
                         data.forEach(function (image) {
-                            let imageUrl = '/storage/delivery_images/' + image.image_path;
+                            let imageUrl = storageUrl + '/delivery_images/' + image.image_path;
                             html += `<a href="${imageUrl}" class="glightbox" data-gallery="gallery-${full.id}" style="display: inline-block; margin: 4px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
                                         <img src="${imageUrl}" style="height: 60px; width: 60px; object-fit: cover; display:block;">
                                      </a>`;

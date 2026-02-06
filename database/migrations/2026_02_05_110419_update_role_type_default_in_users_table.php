@@ -18,7 +18,7 @@ class UpdateRoleTypeDefaultInUsersTable extends Migration
 
         // Upgrade the first admin (id=1) to super admin if exists
         DB::table('users')
-            ->where('id', 1)
+            // ->where('id', 1)
             ->where('role_type', User::ROLE_ADMIN)
             ->update(['role_type' => User::ROLE_SUPER_ADMIN]);
     }

@@ -151,6 +151,7 @@
         var addUpdateDeliveryMsgUrl = "{{ route('admin.delivery.addupdate') }}";
         var deleteMsgUrl = "{{ route('admin.delivery.delete') }}";
         var deleteImageMsgUrl = "{{ route('admin.delivery.image.delete') }}";
+        var storageUrl = "{{ Storage::url('') }}";
     </script>
     <script src="{{ $baseUrl }}js/delivery.js"></script>
 @endsection
