@@ -41,14 +41,14 @@ class InviteUser extends Model
             $usedColors = self::where('conversation_id', $conversationId)
                 ->pluck('color')
                 ->toArray();
-            
+
             $availableColors = array_diff(self::COLOR_PALETTE, $usedColors);
-            
+
             if (!empty($availableColors)) {
                 return $availableColors[array_rand($availableColors)];
             }
         }
-        
+
         return self::COLOR_PALETTE[array_rand(self::COLOR_PALETTE)];
     }
 
@@ -68,6 +68,7 @@ class InviteUser extends Model
             }
         });
     }
+
 
     public function user()
     {
