@@ -62,21 +62,21 @@ class LoginController extends Controller
     {
         $this->validateLogin($request);
 
-        if ($this->hasTooManyLoginAttempts($request)){
+        if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
             return $this->sendLockoutResponse($request);
         }
 
         $user = User::where('email', $request->email)->first();
-        if($user->role_type == 2 && $user->is_approve == 0){
+        if ($user->role_type == 2 && $user->is_approve == 0) {
             return redirect('login')->withErrors(['approve' => 'Your account is not approved.'])->withInput();
-        }else{
-            if($user->is_block == 1){
+        } else {
+            if ($user->is_block == 1) {
                 return redirect('login')->withErrors(['approve' => 'Your account is blocked'])->withInput();
             }
 
-            if ($user && Hash::check($request->password, $user->password)){
-                $redirectRoute = ($user->role_type == '1') ? 'admin.home' : 'home';
+            if ($user && Hash::check($request->password, $user->password)) {
+                $redirectRoute = in_array($user->role_type, [User::ROLE_SUPER_ADMIN]) ? 'admin.home' : 'home';
                 Auth::login($user);
                 return redirect()->intended(route($redirectRoute));
             }
@@ -92,6 +92,6 @@ class LoginController extends Controller
     {
         Auth::logout();
         Session::forget('url.intended');
-        return redirect('login')->with('message','You have been successfully logout!');
+        return redirect('login')->with('message', 'You have been successfully logout!');
     }
 }

@@ -52,6 +52,7 @@ $(document).ready(function () {
                             var newCount = currentCount - unreadIds.length;
                             if (newCount <= 0) {
                                 $badge.hide();
+                                $('a[href*="notifications"]').removeClass('notification-btn');
                             } else {
                                 $badge.text(newCount);
                             }

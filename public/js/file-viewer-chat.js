@@ -16,7 +16,7 @@ $(document).ready(function () {
         var password = passwordCache[token] || '';
 
         $.ajax({
-            url: '/image/view',
+            url: viewUrl,
             type: 'POST',
             data: {
                 token: token,

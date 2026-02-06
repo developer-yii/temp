@@ -1346,6 +1346,7 @@
         <script>
             var loggedInEmail = "{{ auth()->user()->email }}";
             var loggedInUser = "{{ auth()->user()->id }}";
+            var viewUrl = "{{ route('image.view') }}";
         </script>
     @endsection
 @endif

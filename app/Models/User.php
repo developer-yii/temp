@@ -86,12 +86,12 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role_type === self::ROLE_ADMIN;
+        return $this->role_type == self::ROLE_ADMIN;
     }
 
     public function isSuperAdmin(): bool
     {
-        return $this->role_type === self::ROLE_SUPER_ADMIN;
+        return $this->role_type == self::ROLE_SUPER_ADMIN;
     }
 
     public function canAccessAdminPanel(): bool
@@ -106,7 +106,7 @@ class User extends Authenticatable
 
     public function canAssignAdminRoles(): bool
     {
-        return in_array($this->role_type, [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN]);
+        return $this->role_type === self::ROLE_SUPER_ADMIN;
     }
 
     protected static function boot()

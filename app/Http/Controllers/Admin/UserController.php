@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Message;
 use App\Models\User;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -80,7 +78,8 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $request->id],
-            'password' => 'sometimes|nullable|min:8|confirmed'
+            'password' => 'sometimes|nullable|min:8|confirmed',
+            'nickname' => 'required|string|max:255|unique:users,nickname,' . $request->id,
         ]);
 
         if ($validator->fails()) {
@@ -89,11 +88,21 @@ class UserController extends Controller
             $user->nickname = $request->input('nickname');
             $user->email = $request->input('email');
 
-            $newRole = (int) $request->input('role_type');
-            if ($newRole === User::ROLE_SUPER_ADMIN) {
-                return response()->json(['status' => false, 'message' => 'Assigning Super Admin role is not allowed.', 'data' => []]);
+            /** @var User $currentUser */
+            $currentUser = Auth::user();
+
+            if ($request->has('role_type')) {
+                $newRole = (int) $request->input('role_type');
+                if ($newRole !== (int)$user->role_type) {
+                    if (!$currentUser->canAssignAdminRoles()) {
+                        return response()->json(['status' => false, 'message' => 'You do not have permission to change roles.', 'data' => []]);
+                    }
+                    if ($newRole === User::ROLE_SUPER_ADMIN) {
+                        return response()->json(['status' => false, 'message' => 'Assigning Super Admin role is not allowed.', 'data' => []]);
+                    }
+                    $user->role_type = $newRole;
+                }
             }
-            $user->role_type = $newRole;
 
             $user->is_suggestable = $request->has('is_suggestable') ? 1 : 0;
             if ($request->input('password')) {

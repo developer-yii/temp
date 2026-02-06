@@ -430,7 +430,6 @@ class MessageController extends Controller
 
     public function inviteUserGet(Request $request)
     {
-        \Log::info("sdfsdbhfdfg");
         $conversationId = $request->conversation_id;
         $inviteUser = InviteUser::with('user:id,email,nickname')
                     ->where('conversation_id', $conversationId)

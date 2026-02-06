@@ -65,7 +65,7 @@
     <div class="container">
         <div class="panel panel-default panel-background">
             <div class="panel-heading">
-                @if (in_array(Route::currentRouteName(), ['home', 'profile.view', 'message.read1']))
+                @if (in_array(Route::currentRouteName(), ['home', 'profile.view', 'message.read1', 'image.action']))
                     {{-- New Flexbox Layout for Home and Profile Page with Two Rows --}}
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
