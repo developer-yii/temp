@@ -31,8 +31,16 @@ $(document).ready(function () {
                         let html = '<div class="notification-gallery" id="notification-gallery-' + full.id + '">';
                         data.forEach(function (image) {
                             let imageUrl = storageUrl + '/delivery_images/' + image.image_path;
-                            html += `<a href="${imageUrl}" class="glightbox" data-gallery="gallery-${full.id}" style="display: inline-block; margin: 4px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
-                                        <img src="${imageUrl}" style="height: 60px; width: 60px; object-fit: cover; display:block;">
+                            let isPdf = image.image_path.toLowerCase().endsWith('.pdf');
+                            
+                            let thumbnailHtml = isPdf 
+                                ? `<div style="height: 60px; width: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                                        <i class="fa fa-file-pdf-o text-danger" style="font-size: 36px; line-height: 1;"></i>
+                                   </div>`
+                                : `<img src="${imageUrl}" style="height: 60px; width: 60px; object-fit: cover; display:block;">`;
+
+                            html += `<a href="${imageUrl}" class="glightbox" data-gallery="gallery-${full.id}" style="display: inline-block; margin: 4px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+                                        ${thumbnailHtml}
                                      </a>`;
                         });
                         html += '</div>';

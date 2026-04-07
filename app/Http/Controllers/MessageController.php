@@ -545,10 +545,13 @@ class MessageController extends Controller
 
     public function getSuggestableUsers(Request $request)
     {
+        if (!auth()->user()->can_get_suggestions) {
+            return response()->json([]);
+        }
+
         $query = $request->get('q', '');
         
-        $users = User::where('is_suggestable', 1)
-            ->where('id', '!=', auth()->id())
+        $users = User::where('id', '!=', auth()->id())
             ->where('is_block', 0)
             ->where('is_approve', 1)
             ->where(function($q) use ($query) {

@@ -59,11 +59,11 @@ $(document).ready(function () {
         },
         {
             data: null,
-            name: 'is_suggestable',
+            name: 'can_get_suggestions',
             render: function (data, type, full, meta) {
                 let switchId = `suggest_switch_${data.id}`;
                 let html = `<div>
-                                <input type="checkbox" class="suggest-user" id="${switchId}" ${data.is_suggestable ? 'checked' : ''} data-switch="success" data-id="${data.id}"/>
+                                <input type="checkbox" class="suggest-user" id="${switchId}" ${data.can_get_suggestions ? 'checked' : ''} data-switch="success" data-id="${data.id}"/>
                                 <label for="${switchId}" data-on-label="Yes" data-off-label="No" class="mb-0 d-block"></label>
                             </div>`;
                 return html;
@@ -214,7 +214,7 @@ $(document).on('change', '.suggest-user', function () {
         method: 'POST',
         data: {
             id: id,
-            is_suggestable: isChecked ? 1 : 0,
+            can_get_suggestions: isChecked ? 1 : 0,
         },
         dataType: 'json',
         success: function (response) {
@@ -315,13 +315,17 @@ $('body').on('click', '.edit-user', function () {
         success: function (result) {
             $('.error').html("");
             $('#edit-form')[0].reset();
-            $.each(result.data.user, function (key) {
+            $.each(result.data.user, function (key, value) {
                 if ($('#edit-form').find('#' + key).length) {
                     if (key === 'role_type') {
                         $('#edit-form').find('#' + key).val(result.data.user[key]).change();;
                     }
-                    else if (key === 'is_suggestable') {
-                        $('#edit-form').find('#' + key).prop('checked', result.data.user[key] == 1);
+                    else if (key === 'can_get_suggestions') {
+                        if (value === 1) {
+                            $('#can_get_suggestions').prop('checked', true);
+                        } else {
+                            $('#can_get_suggestions').prop('checked', false);
+                        }
                     }
                     else {
                         $('#edit-form').find('#' + key).val(result.data.user[key]);

@@ -104,7 +104,7 @@ class UserController extends Controller
                 }
             }
 
-            $user->is_suggestable = $request->has('is_suggestable') ? 1 : 0;
+            $user->can_get_suggestions = $request->has('can_get_suggestions') ? 1 : 0;
             if ($request->input('password')) {
                 $user->password = Hash::make($request->input('password'));
             }
@@ -173,9 +173,9 @@ class UserController extends Controller
     public function userSuggestableUpdate(Request $request)
     {
         $id = $request->id;
-        $status = $request->is_suggestable;
+        $status = $request->can_get_suggestions;
         $message = $status ? "enabled" : "disabled";
-        $user = User::where('id', $id)->update(['is_suggestable' => $status]);
+        $user = User::where('id', $id)->update(['can_get_suggestions' => $status]);
         if ($user) {
             $result = ['status' => true, 'message' => 'User suggestion ' . $message . ' successfully.'];
         } else {

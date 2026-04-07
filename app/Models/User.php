@@ -35,7 +35,7 @@ class User extends Authenticatable
         'email',
         'password',
         'nickname',
-        'is_suggestable',
+        'can_get_suggestions',
     ];
 
     /**

@@ -14,7 +14,7 @@ class AddIsSuggestableToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_suggestable')->default(0)->after('is_block');
+            $table->boolean('can_get_suggestions')->default(0)->after('is_block');
         });
     }
 
@@ -26,7 +26,7 @@ class AddIsSuggestableToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_suggestable');
+            $table->dropColumn('can_get_suggestions');
         });
     }
 }
