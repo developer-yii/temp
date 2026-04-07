@@ -132,14 +132,13 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="is_suggestable"
-                                    name="is_suggestable" value="1">
-                                <label class="custom-control-label" for="is_suggestable">Suggest user while Invite to
-                                    chat</label>
+                            <div class="form-group row">
+                                <div class="custom-control custom-checkbox ml-3">
+                                    <input type="checkbox" class="custom-control-input" id="can_get_suggestions"
+                                        name="can_get_suggestions" value="1">
+                                    <label class="custom-control-label" for="can_get_suggestions">Allow user to receive suggestions</label>
+                                </div>
                             </div>
-                        </div>
 
                         <div class="form-group text-center">
                             <button class="btn btn-primary" type="submit">Update</button>

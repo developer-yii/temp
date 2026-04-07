@@ -81,10 +81,20 @@ $(document).on('submit', '.add-form', function (e) {
                 $.each(result.message, function (key) {
                     if (first_input == "") first_input = key;
 
-                    $($this).find('#' + key).closest('.form-input').find('.error').html(result.message[key]);
+                    var fieldId = key.indexOf('.') !== -1 ? key.split('.')[0] : key;
+                    var errorHtml = $($this).find('#' + fieldId).closest('.form-input').find('.error').html();
+                    var newError = Array.isArray(result.message[key]) ? result.message[key][0] : result.message[key];
+                    if (errorHtml != "") {
+                        if (errorHtml.indexOf(newError) === -1) {
+                            $($this).find('#' + fieldId).closest('.form-input').find('.error').html(errorHtml + "<br>" + newError);
+                        }
+                    } else {
+                        $($this).find('#' + fieldId).closest('.form-input').find('.error').html(newError);
+                    }
                 });
 
-                $('#add-form').find("#" + first_input).focus();
+                var focusId = first_input.indexOf('.') !== -1 ? first_input.split('.')[0] : first_input;
+                $('#add-form').find("#" + focusId).focus();
             }
         },
         error: function (error) {
@@ -125,28 +135,33 @@ $('body').on('click', '.edit-message', function () {
                 });
 
                 if (data.type === 'notification') {
-                    $('#image-upload-wrapper').show();
-                    // Handle existing images
-                    $('#existing-images').empty();
+                    $('#file-upload-wrapper').show();
+                    // Handle existing files
+                    $('#existing-files').empty();
                     if (data.images && data.images.length > 0) {
                         data.images.forEach(function (image) {
                             let imageUrl = storageUrl + 'delivery_images/' + image.image_path;
+                            let isPdf = image.image_path.toLowerCase().endsWith('.pdf');
+                            let mediaHtml = isPdf 
+                                ? `<div style="height: 100px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;"><i class="mdi mdi-file-pdf text-danger" style="font-size: 40px;"></i></div><span style="font-size: 12px;">PDF File</span>`
+                                : `<img src="${imageUrl}" class="img-fluid" style="height: 100px; object-fit: cover;">`;
+
                             let html = `
-                                <div class="col-md-3 mb-2 text-center" id="image-${image.id}">
+                                <div class="col-md-3 mb-2 text-center" id="file-${image.id}">
                                     <div class="card p-1">
                                         <a href="${imageUrl}" target="_blank">
-                                            <img src="${imageUrl}" class="img-fluid" style="height: 100px; object-fit: cover;">
+                                            ${mediaHtml}
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-danger mt-1 delete-image-btn" data-id="${image.id}">Delete</button>
+                                        <button type="button" class="btn btn-sm btn-danger mt-1 delete-file-btn" data-id="${image.id}">Delete</button>
                                     </div>
                                 </div>
                             `;
-                            $('#existing-images').append(html);
+                            $('#existing-files').append(html);
                         });
                     }
                 } else {
-                    $('#image-upload-wrapper').hide();
-                    $('#existing-images').empty();
+                    $('#file-upload-wrapper').hide();
+                    $('#existing-files').empty();
                 }
 
                 $('#add-modal').modal('show');
@@ -155,12 +170,12 @@ $('body').on('click', '.edit-message', function () {
     });
 });
 
-$('body').on('click', '.delete-image-btn', function (e) {
+$('body').on('click', '.delete-file-btn', function (e) {
     e.preventDefault();
     let imageId = $(this).data('id');
 
     Swal.fire({
-        title: 'Delete Image?',
+        title: 'Delete File?',
         text: "You won't be able to revert this!",
         icon: 'warning',
         showCancelButton: true,
@@ -175,14 +190,14 @@ $('body').on('click', '.delete-image-btn', function (e) {
                 data: { id: imageId },
                 success: function (response) {
                     if (response.status) {
-                        $('#image-' + imageId).remove();
+                        $('#file-' + imageId).remove();
                         toastr.success(response.message);
                     } else {
                         toastr.error(response.message);
                     }
                 },
                 error: function () {
-                    toastr.error('Error deleting image.');
+                    toastr.error('Error deleting file.');
                 }
             });
         }
@@ -228,8 +243,8 @@ function resetAddForm() {
     $('#update-id').val('');
     $('#email').val(null).trigger('change');
     $('.error').html('');
-    $('#image-upload-wrapper').hide();
-    $('#existing-images').empty();
+    $('#file-upload-wrapper').hide();
+    $('#existing-files').empty();
 }
 
 $('#btn-cancel').on('click', function () {
@@ -243,8 +258,8 @@ $('#add-modal').on('hidden.bs.modal', function () {
 
 $('input[name="type"]').on('change', function () {
     if ($(this).val() === 'notification') {
-        $('#image-upload-wrapper').show();
+        $('#file-upload-wrapper').show();
     } else {
-        $('#image-upload-wrapper').hide();
+        $('#file-upload-wrapper').hide();
     }
 });

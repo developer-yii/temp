@@ -110,13 +110,14 @@
                             </div>
                         </div>
 
-                        <div class="form-group" id="image-upload-wrapper" style="display:none;">
-                            <label for="images">Images</label>
+                        <div class="form-group" id="file-upload-wrapper" style="display:none;">
+                            <label for="files">Files</label>
                             <div class="form-input">
-                                <input type="file" id="images" name="images[]" class="form-control" multiple>
+                                <input type="file" id="files" name="files[]" class="form-control" multiple accept=".jpeg,.png,.jpg,.gif,.pdf">
+                                <small class="form-text text-muted">You can upload multiple files. Formats allowed: jpeg, png, jpg, gif, pdf.</small>
                                 <span class="error text-danger"></span>
                             </div>
-                            <div id="existing-images" class="mt-2 row"></div>
+                            <div id="existing-files" class="mt-2 row"></div>
                         </div>
 
                         <div class="form-group">

@@ -362,5 +362,6 @@
     <script>
         var loggedInEmail = "{{ auth()->user()->email }}";
         var loggedInUser  = "{{ auth()->user()->id }}";
+        var canGetSuggestions = {{ auth()->user()->can_get_suggestions ? 'true' : 'false' }};
     </script>
 @endsection

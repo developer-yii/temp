@@ -68,7 +68,12 @@ class DeliveryController extends Controller
             'delivery_message' => 'required|string',
             'email'            => 'required|array|min:1',
             'email.*'          => 'required|integer|exists:users,id',
-            'images.*'         => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'files.*'          => 'nullable|mimes:jpeg,png,jpg,gif,pdf|max:512000',
+        ], [
+            'delivery_message.required' => 'Please enter a message.',
+            'email.required' => 'Please select at least one user.',
+            'files.*.mimes' => 'The file format must be jpeg, png, jpg, gif, or pdf.',
+            'files.*.max'   => 'The uploaded file must not exceed 500MB.'
         ]);
 
         if ($validator->fails()) {
@@ -85,8 +90,8 @@ class DeliveryController extends Controller
                 ]
             );
 
-            if ($request->type === 'notification' && $request->hasFile('images')) {
-                foreach ($request->file('images') as $image) {
+            if ($request->type === 'notification' && $request->hasFile('files')) {
+                foreach ($request->file('files') as $image) {
                     $unique_image_name = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                     $filePath = 'public/delivery_images/' . $unique_image_name;
                     Storage::disk("local")->put($filePath, File::get($image));

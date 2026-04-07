@@ -54,6 +54,11 @@ $('#invite-button').on('click', function () {
 
 // Initialize autocomplete for email fields
 function initEmailAutocomplete() {
+    // Only initialize if the current user has permission to receive suggestions
+    if (typeof canGetSuggestions === 'undefined' || !canGetSuggestions) {
+        return;
+    }
+
     if (typeof suggestableUsersUrl !== 'undefined') {
         $('#inviteModal input[type="text"]').each(function() {
             var $input = $(this);
