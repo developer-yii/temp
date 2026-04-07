@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,13 +19,22 @@ class isUser
     public function handle(Request $request, Closure $next)
     {
         $user = Auth::user();
-        if(isset($user->id) && ($user->role_type == '2'))
-        {
+
+        /** @var User|null $user */
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Allow users and admins to access user panel (not super admin)
+        if ($user->canAccessUserPanel()) {
             return $next($request);
         }
-        else
-        {
+
+        // Super admin goes to admin panel
+        if ($user->isSuperAdmin()) {
             return redirect()->route('admin.home');
         }
+
+        return redirect()->route('login');
     }
 }

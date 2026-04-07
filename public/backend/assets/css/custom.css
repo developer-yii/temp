@@ -143,6 +143,9 @@ pre {
 .notification-btn {
     position: relative;
     display: inline-block;
+}
+
+.notification-btn:has(.badge) {
     padding-right: 20px; /* space for badge */
 }
 
@@ -172,4 +175,11 @@ pre {
 
 .select2-container--default .select2-selection--multiple {
   border: none !important;
+}
+
+/* Role dropdown in user list */
+.role-select {
+  min-width: 100px;
+  padding: 5px 8px;
+  font-size: 13px;
 }

@@ -28,12 +28,7 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
-        if($user->role_type == 1){
-            return view('admin.home', compact('user'));
-        }else{
-            return view('home');
-        }
+        return view('home');
     }
     public function viewProfile(Request $request)
     {

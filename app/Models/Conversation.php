@@ -26,7 +26,7 @@ class Conversation extends Model
 
     public function invitedUsers()
     {
-        return $this->hasMany(inviteUser::class, 'conversation_id', 'id');
+        return $this->hasMany(InviteUser::class, 'conversation_id', 'id');
     }
 
     protected static function boot()

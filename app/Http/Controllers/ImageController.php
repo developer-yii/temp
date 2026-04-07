@@ -224,4 +224,82 @@ class ImageController extends Controller
             return response()->json($result);
         }
     }
+
+    public function viewFile(Request $request)
+    {
+        // Support both ID and token
+        if (isset($request->token)) {
+            $image = Image::where('short_link_token', $request->token)->first();
+        } else {
+            $image = Image::find($request->id);
+        }
+        
+        if (!$image) {
+            return response()->json([
+                'status' => false,
+                'message' => 'File does not exist',
+            ]);
+        }
+
+        $filepath = 'public/uploaded_images/' . $image->image_path;
+        
+        if (!Storage::disk('local')->exists($filepath)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'File does not exist',
+            ]);
+        }
+
+        // Check password protection
+        if ($image->password != "" && $image->password != null) {
+            if (!isset($request->password)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'File is password protected',
+                ]);
+            }
+            
+            if ($image->password != md5($request->password)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Please enter valid password',
+                ]);
+            }
+        }
+
+        // Get file extension and determine file type
+        $extension = strtolower(pathinfo($image->image_name, PATHINFO_EXTENSION));
+        $imagePath = asset('storage/uploaded_images/' . $image->image_path);
+
+        $fileType = $this->getFileType($extension);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'File loaded successfully',
+            'filePath' => $imagePath,
+            'fileName' => $image->image_name,
+            'fileType' => $fileType,
+            'extension' => $extension
+        ]);
+    }
+
+    private function getFileType($extension)
+    {
+        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'jfif'];
+        $pdfExtensions = ['pdf'];
+        $videoExtensions = ['mp4', 'webm', 'ogg', 'avi', 'mov'];
+        $audioExtensions = ['mp3', 'wav', 'ogg', 'aac'];
+
+        if (in_array($extension, $imageExtensions)) {
+            return 'image';
+        } elseif (in_array($extension, $pdfExtensions)) {
+            return 'pdf';
+        } elseif (in_array($extension, $videoExtensions)) {
+            return 'video';
+        } elseif (in_array($extension, $audioExtensions)) {
+            return 'audio';
+        } else {
+            return 'other';
+        }
+    }
 }

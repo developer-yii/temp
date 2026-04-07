@@ -22,7 +22,7 @@ $expirydate = date('d-m-Y H:i:s', $expiryTimestamp);
         <div class="panel panel-default panel-message1">
             <div class="panel-body panel-message2">
                 <b>{{ $replydata->email }} -</b>  {{ $date }}<br>
-                <pre>{{ $replydata->message }}</pre>
+                <pre>{!! makeLinksClickable($replydata->message) !!}</pre>
                 <a data-toggle="modal" data-target="#notesModal" class="open-notes-modal" data-message="{{ $replydata->message }}">
                     <i class="fa fa-sticky-note-o ml-1" aria-hidden="true" style="cursor: pointer;"></i>
                 </a>

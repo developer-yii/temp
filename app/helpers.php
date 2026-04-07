@@ -44,4 +44,16 @@ if (!function_exists('imagesAssignToUser')) {
     }
 }
 
+if (!function_exists('makeLinksClickable')) {
+    function makeLinksClickable($text) {
+        // First strip any existing HTML tags to prevent double-processing
+        $cleanText = strip_tags($text);
+        
+        // Convert URLs to clickable links
+        $pattern = '/(https?:\/\/[^\s]+)/i';
+        $replacement = '<a href="$1" target="_blank">$1</a>';
+        return preg_replace($pattern, $replacement, $cleanText);
+    }
+}
+
 ?>

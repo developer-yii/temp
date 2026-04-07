@@ -20,6 +20,27 @@ $(document).ready(function () {
                     return renderContentWithReadMoreAndLess(data, 'message-' + full.id, full.sender_email);
                 }
             },
+            {
+                data: 'images',
+                name: 'images',
+                orderable: false,
+                searchable: false,
+                className: 'text-center',
+                render: function (data, type, full, meta) {
+                    if (data && data.length > 0) {
+                        let html = '<div class="notification-gallery" id="notification-gallery-' + full.id + '">';
+                        data.forEach(function (image) {
+                            let imageUrl = storageUrl + '/delivery_images/' + image.image_path;
+                            html += `<a href="${imageUrl}" class="glightbox" data-gallery="gallery-${full.id}" style="display: inline-block; margin: 4px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff;">
+                                        <img src="${imageUrl}" style="height: 60px; width: 60px; object-fit: cover; display:block;">
+                                     </a>`;
+                        });
+                        html += '</div>';
+                        return html;
+                    }
+                    return '';
+                }
+            },
         ],
         createdRow: function (row, data) {
             if (data.is_read == 0) {
@@ -28,6 +49,9 @@ $(document).ready(function () {
         },
         initComplete: function () {
             var api = this.api();
+
+            // Initialize GLightbox for notification galleries
+            initNotificationGalleries();
 
             var unreadIds = [];
             api.rows().data().each(function (d) {
@@ -43,11 +67,11 @@ $(document).ready(function () {
                         type: 'POST',
                         data: {
                             ids: unreadIds,
-                            type: 'delivery',
+                            type: 'notification',
                             _token: $('meta[name="csrf-token"]').attr('content')
                         },
                         success: function () {
-                            var $badge = $('a[href*="delivery"]').find('.badge');
+                            var $badge = $('a[href*="notifications"]').find('.badge');
                             var currentCount = parseInt($badge.text()) || 0;
                             var newCount = currentCount - unreadIds.length;
                             if (newCount <= 0) {
@@ -98,5 +122,20 @@ $(document).ready(function () {
         $('#' + elementId).hide();  // Hide the full text with "Read Less"
         $('#' + elementId + '-short').show();  // Show the short text with "Read More"
     });
+
+    function initNotificationGalleries() {
+        if (typeof GLightbox === 'undefined') return;
+
+        GLightbox({
+            selector: '.glightbox',
+            touchNavigation: true,
+            loop: true,
+            zoomable: true,
+            draggable: true,
+            autofocusVideos: false,
+            openEffect: 'fade',
+            closeEffect: 'fade'
+        });
+    }
 
 });

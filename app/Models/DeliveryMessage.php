@@ -10,6 +10,7 @@ class DeliveryMessage extends Model
     use HasFactory;
     protected $fillable = [
         'delivery_message',
+        'type',
         'added_by',
     ];
 
@@ -21,8 +22,12 @@ class DeliveryMessage extends Model
     public function invitedUsers()
     {
         return $this->belongsToMany(User::class, 'delivery_message_users')
-                    ->withPivot('is_read')
-                    ->withTimestamps();
+            ->withPivot('is_read')
+            ->withTimestamps();
     }
 
+    public function images()
+    {
+        return $this->hasMany(DeliveryMessageImage::class);
+    }
 }

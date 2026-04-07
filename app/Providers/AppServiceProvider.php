@@ -26,12 +26,20 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('*', function ($view) {
             if (auth()->check()) {
-                $unreadCount = auth()->user()
+                $unreadDeliveryCount = auth()->user()
                     ->deliveryMessages()
+                    ->where('type', 'delivery')
                     ->wherePivot('is_read', 0)
                     ->count();
 
-                $view->with('unreadCount', $unreadCount);
+                $unreadNotificationCount = auth()->user()
+                    ->deliveryMessages()
+                    ->where('type', 'notification')
+                    ->wherePivot('is_read', 0)
+                    ->count();
+
+                $view->with('unreadDeliveryCount', $unreadDeliveryCount);
+                $view->with('unreadNotificationCount', $unreadNotificationCount);
             }
         });
     }

@@ -25,7 +25,13 @@ $('#invite-button').on('click', function () {
                     if (invite.user && invite.user.email) {
                         let input = $('#email_' + (index + 1));
                         let hidden = $('#user_id_' + (index + 1));
-                        input.val(invite.user.email);
+                        
+                        // Show nickname if available, otherwise email
+                        if (invite.user.nickname) {
+                            input.val(invite.user.nickname);
+                        } else {
+                            input.val(invite.user.email);
+                        }
 
                         if (invite.has_message || invite.is_creator || creatorId != loggedInUser) {
                             input.prop('disabled', true);
@@ -46,6 +52,51 @@ $('#invite-button').on('click', function () {
 
 });
 
+// Initialize autocomplete for email fields
+function initEmailAutocomplete() {
+    if (typeof suggestableUsersUrl !== 'undefined') {
+        $('#inviteModal input[type="text"]').each(function() {
+            var $input = $(this);
+            var inputId = $input.attr('id');
+            var hiddenId = inputId.replace('email_', 'user_id_');
+            
+            $input.autocomplete({
+                source: function(request, response) {
+                    $.ajax({
+                        url: suggestableUsersUrl,
+                        type: 'GET',
+                        data: { q: request.term },
+                        success: function(data) {
+                            response($.map(data, function(user) {
+                                var label = user.email;
+                                if (user.nickname) {
+                                    label = user.nickname + ' (' + user.email + ')';
+                                }
+                                return {
+                                    label: label,
+                                    value: user.email,
+                                    id: user.id
+                                };
+                            }));
+                        }
+                    });
+                },
+                minLength: 1,
+                select: function(event, ui) {
+                    $input.val(ui.item.value);
+                    $('#' + hiddenId).val(ui.item.id);
+                    return false;
+                }
+            });
+        });
+    }
+}
+
+// Initialize autocomplete when modal is shown
+$('#inviteModal').on('shown.bs.modal', function() {
+    initEmailAutocomplete();
+});
+
 $('#invite-user').submit(function (e) {
     e.preventDefault();
 
@@ -54,20 +105,20 @@ $('#invite-user').submit(function (e) {
     let emails = [];
     let duplicateFound = false;
 
-    $('#invite-user input[type="email"]').each(function () {
+    $('#invite-user input[type="text"]').each(function () {
         let val = $(this).val().trim();
         let $errorField = $(this).closest('.form-group').find('.error');
 
         if (val !== "") {
             if (emails.includes(val)) {
                 duplicateFound = true;
-                $errorField.text("Duplicate email not allowed.");
+                $errorField.text("Duplicate user not allowed.");
             }
             emails.push(val);
 
             if (val.toLowerCase() == loggedInEmail.toLowerCase()) {
                 duplicateFound = true;
-                $errorField.text("You cannot invite your own email.");
+                $errorField.text("You cannot invite yourself.");
             }
         }
     });
