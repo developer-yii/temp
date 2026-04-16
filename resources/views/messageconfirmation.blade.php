@@ -41,6 +41,18 @@
             padding-left: 8px;
             color: #555;
         }
+
+        #search-section {
+            position: sticky;
+            bottom: 0;
+            z-index: 1000;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 @endsection
 
@@ -144,8 +156,7 @@
             </div>
 
             <!-- Search Section -->
-            <div
-                style="margin-bottom: 20px; padding: 10px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px;">
+            <div id="search-section">
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                     <div style="width: 50%;">
                         <input type="text" id="word-search" class="form-control" placeholder="Search in chat..."
@@ -1181,7 +1192,7 @@
 
                 if (matches.length > 0) {
                     $('#search-nav').css('display', 'flex');
-                    currentMatchIndex = 0;
+                    currentMatchIndex = matches.length - 1;
                     updateMatchHighlight();
                 } else {
                     $('#search-count').text('0/0');

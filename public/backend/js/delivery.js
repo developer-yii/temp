@@ -142,9 +142,10 @@ $('body').on('click', '.edit-message', function () {
                         data.images.forEach(function (image) {
                             let imageUrl = storageUrl + 'delivery_images/' + image.image_path;
                             let isPdf = image.image_path.toLowerCase().endsWith('.pdf');
+                            let displayName = image.original_name ? image.original_name : (isPdf ? 'PDF File' : 'Image');
                             let mediaHtml = isPdf 
-                                ? `<div style="height: 100px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;"><i class="mdi mdi-file-pdf text-danger" style="font-size: 40px;"></i></div><span style="font-size: 12px;">PDF File</span>`
-                                : `<img src="${imageUrl}" class="img-fluid" style="height: 100px; object-fit: cover;">`;
+                                ? `<div style="height: 100px; display: flex; align-items: center; justify-content: center; background: #f8f9fa;"><i class="mdi mdi-file-pdf text-danger" style="font-size: 40px;"></i></div><span style="font-size: 12px; display:block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${displayName}">${displayName}</span>`
+                                : `<img src="${imageUrl}" class="img-fluid" style="height: 100px; object-fit: cover;"><span style="font-size: 12px; display:block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" title="${displayName}">${displayName}</span>`;
 
                             let html = `
                                 <div class="col-md-3 mb-2 text-center" id="file-${image.id}">

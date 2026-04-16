@@ -98,7 +98,8 @@ class DeliveryController extends Controller
 
                     DeliveryMessageImage::create([
                         'delivery_message_id' => $deliveryMessage->id,
-                        'image_path' => $unique_image_name
+                        'image_path' => $unique_image_name,
+                        'original_name' => $image->getClientOriginalName()
                     ]);
                 }
             }
