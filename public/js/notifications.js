@@ -39,7 +39,7 @@ $(document).ready(function () {
                                    </div>`
                                 : `<img src="${imageUrl}" style="height: 60px; width: 60px; object-fit: cover; display:block;">`;
 
-                            html += `<a href="${imageUrl}" class="glightbox" data-gallery="gallery-${full.id}" style="display: inline-block; margin: 4px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">
+                            html += `<a href="${imageUrl}" class="glightbox" data-gallery="gallery-${full.id}" style="display: inline-block; margin: 4px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; background: #fff; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1" title="${image.original_name || image.image_path}">
                                         ${thumbnailHtml}
                                      </a>`;
                         });

@@ -12,6 +12,7 @@ class DeliveryMessageImage extends Model
     protected $fillable = [
         'delivery_message_id',
         'image_path',
+        'original_name',
     ];
 
     public function deliveryMessage()
