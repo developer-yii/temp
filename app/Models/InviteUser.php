@@ -19,20 +19,21 @@ class InviteUser extends Model
 
     public const COLOR_PALETTE = [
         '#f0f8ff', // AliceBlue
-        '#fff8f0', // Light Orange
         '#f0fff0', // Honeydew
-        '#fff0f5', // LavenderBlush
-        '#f5fffa', // MintCream
-        '#fffff0', // Ivory
         '#f0ffff', // Azure
-        '#fff5ee', // SeaShell
-        '#f5f5dc', // Beige
-        '#faf0e6', // Linen
         '#e6f2ff', // Light Sky Blue
-        '#fff0e6', // Light Peach
-        '#e6ffe6', // Light Green
-        '#ffe6f0', // Light Pink
+        '#fff0f5', // LavenderBlush
         '#f0e6ff', // Light Lavender
+
+        // '#ffe6f0', // Light Pink
+        // '#e6ffe6', // Light Green
+        // '#fffff0', // Ivory            base on yellow and brown
+        // '#fff5ee', // SeaShell         base on yellow and brown
+        // '#f5f5dc', // Beige            base on yellow and brown
+        // '#faf0e6', // Linen            base on yellow and brown
+        // '#fff0e6', // Light Peach      base on yellow and brown
+        // '#f5fffa', // MintCream
+        // '#fff8f0', // Light Orange     base on yellow and brown
     ];
 
     public static function getRandomColor($conversationId = null)

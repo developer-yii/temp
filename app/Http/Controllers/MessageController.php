@@ -10,6 +10,7 @@ use App\Models\Conversation;
 use App\Models\Image;
 use App\Models\InviteUser;
 use App\Models\Note;
+use App\Models\PinnedMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Session;
@@ -187,6 +188,35 @@ class MessageController extends Controller
         }
     }
 
+    public function pinMessage(Request $request)
+    {
+        $message = Message::whereHas('conversation', function ($q) {
+            $q->whereHas('invitedUsers', function ($q2) {
+                $q2->where('user_id', Auth::id());
+            });
+        })->find($request->id);
+
+        if (!$message) {
+            return response()->json(['status' => false, 'message' => 'Not authorized.']);
+        }
+
+        $existing = PinnedMessage::where('user_id', Auth::id())->where('message_id', $message->id)->first();
+
+        if ($existing) {
+            $existing->delete();
+            return response()->json(['status' => true, 'pinned' => false, 'message' => 'Message unpinned!']);
+        }
+
+        PinnedMessage::create([
+            'user_id'         => Auth::id(),
+            'message_id'      => $message->id,
+            'conversation_id' => $message->conversation_id,
+            'created_at'      => now(),
+        ]);
+
+        return response()->json(['status' => true, 'pinned' => true, 'message' => 'Message pinned!']);
+    }
+
     public function deleteMessage(Request $request)
     {
         $authUserId = Auth::user()->id;
@@ -266,15 +296,21 @@ class MessageController extends Controller
 
         if ($conversation) {
             $c_token = $conversation->id;
+            $authId = Auth::id();
             $data = message::where('messages.conversation_id', $c_token)
                 ->join('users', 'users.id', '=', 'messages.user_id')
                 ->leftJoin('messages as replied', 'replied.id', '=', 'messages.replied_message_id')
                 ->leftJoin('users as replied_user', 'replied_user.id', '=', 'replied.user_id')
+                ->leftJoin('pinned_messages', function ($join) use ($authId) {
+                    $join->on('pinned_messages.message_id', '=', 'messages.id')
+                         ->where('pinned_messages.user_id', '=', $authId);
+                })
                 ->select(
                     'messages.*',
                     'users.email',
                     'replied.message as replied_message',
-                    'replied_user.email as replied_email'
+                    'replied_user.email as replied_email',
+                    DB::raw('IF(pinned_messages.id IS NOT NULL, 1, 0) as is_pinned')
                 )
                 ->get();
 
@@ -339,6 +375,10 @@ class MessageController extends Controller
                     $join->on('replied_invite.user_id', '=', 'replied.user_id')
                          ->where('replied_invite.conversation_id', '=', $c_token);
                 })
+                ->leftJoin('pinned_messages', function ($join) use ($c_token) {
+                    $join->on('pinned_messages.message_id', '=', 'messages.id')
+                         ->where('pinned_messages.user_id', '=', Auth::id());
+                })
                 ->select(
                     'messages.id',
                     'messages.user_id',
@@ -353,7 +393,8 @@ class MessageController extends Controller
                     'replied.message as replied_message',
                     'replied.user_id as replied_user_id',
                     'replied_user.email as replied_email',
-                    'replied_invite.color as replied_user_color'
+                    'replied_invite.color as replied_user_color',
+                    DB::raw('IF(pinned_messages.id IS NOT NULL, 1, 0) as is_pinned')
                 );
 
 

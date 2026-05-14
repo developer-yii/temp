@@ -183,3 +183,22 @@ pre {
   padding: 5px 8px;
   font-size: 13px;
 }
+
+.unpin-icon{
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+}
+
+.unpin-icon::after{
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    width: 1.5px;
+    height: 120%;
+    background: rgba(0,0,0,0.7);
+    transform: translateX(-50%) rotate(45deg);
+    border-radius: 2px;
+    pointer-events: none;
+}

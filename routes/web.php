@@ -64,6 +64,7 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function () {
 
             Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
             Route::post('delete/message', 'MessageController@deleteMessage')->name('message.delete');
+            Route::post('pin/message', 'MessageController@pinMessage')->name('message.pin');
             Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
             Route::post('extends-validity', 'MessageController@extendsValidity')->name('chat.extends-validity');
             Route::get('/{token}', 'MessageController@messageRead')->name('message.read1');

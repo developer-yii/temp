@@ -89,6 +89,31 @@
                     • The contents of this page will disappear in <span id="message_time2">{{ $expirydate }}</span>.
                 </div>
             </div>
+            {{-- Pinned Messages Banner --}}
+            @php $pinnedMessages = $data->where('is_pinned', true); @endphp
+            <div id="pinned-banner" style="{{ $pinnedMessages->isEmpty() ? 'display:none;' : '' }}background:#f5f5f5; border-left:4px solid #ffc107; padding:10px 14px; margin-bottom:10px; border-radius:4px;">
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                    <i class="fa fa-thumb-tack" style="color:#ffc107;"></i>
+                    <strong>Pinned Messages</strong>
+                </div>
+                <div id="pinned-list">
+                    @foreach ($pinnedMessages as $pm)
+                        <div class="pinned-item" data-message-id="{{ $pm->id }}" style="display:flex; align-items:flex-start; gap:8px; padding:6px 8px; border-top:1px solid #ddd; background-color:{{ $userColors[$pm->user_id] ?? '#ffffff' }}; border-radius:4px; margin-bottom:4px;">
+                            <div style="flex:1;">
+                                <strong style="font-size:13px; display:block; font-weight:700;">{{ $pm->email }}</strong>
+                                <span style="white-space:pre-wrap; display:block;">{{ Str::limit($pm->message, 150) }}</span>
+                            </div>
+                            <a href="#" class="scroll-to-pinned" data-message-id="{{ $pm->id }}" style="font-size:12px; white-space:nowrap;">Go</a>
+                            <a href="#" class="unpin-from-banner" data-message-id="{{ $pm->id }}" title="Unpin" style="font-size:12px; white-space:nowrap;">
+                                <span class="unpin-icon">
+                                    <i class="fa fa-thumb-tack" style="font-size: 16px;"></i>
+                                </span>
+                            </a>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
             <div class="panel-body" id="message-list">
                 @php $lastmessageid = ''; @endphp
                 @foreach ($data as $replydata)
@@ -147,6 +172,17 @@
                                         style="text-decoration: none;">
                                         <i class="fa fa-trash-o" aria-hidden="true"
                                             style="cursor: pointer; font-size: 18px;"></i>
+                                    </a>
+                                @endif
+                                @if (in_array($auth_id, array_keys($userColors)))
+                                    <a class="pin-message" data-message-id="{{ $replydata->id }}" data-message="{{ $replydata->message }}"
+                                        data-email="{{ $replydata->email }}" data-color="{{ $userBgColor }}"
+                                        title="{{ $replydata->is_pinned ? 'Unpin Message' : 'Pin Message' }}" style="text-decoration: none;">
+                                        @if($replydata->is_pinned)
+                                            <span class="unpin-icon"><i class="fa fa-thumb-tack pinned" style="cursor: pointer; font-size: 18px;"></i></span>
+                                        @else
+                                            <i class="fa fa-thumb-tack" aria-hidden="true" style="cursor: pointer; font-size: 18px;"></i>
+                                        @endif
                                     </a>
                                 @endif
                             </div>
@@ -447,6 +483,9 @@
             var fetchData = "{{ route('message.fetchData') }}";
             var replyurl = "{{ route('messages.reply') }}";
             var deleteUrl = "{{ route('message.delete') }}";
+            var pinUrl = "{{ route('message.pin') }}";
+            var conversationCreatorId = {{ $conversation->user_id }};
+            var authId = {{ Auth::id() }};
             var createimage = "{{ route('image.store') }}";
             var loginUrl = "{{ route('login') }}";
             var getInviteUserUrl = "{{ route('invite.user.get') }}";
@@ -631,6 +670,87 @@
                 });
             });
 
+            $('body').on('click', '.pin-message', function() {
+                var id = $(this).data('message-id');
+                var message = $(this).data('message');
+                var email = $(this).data('email');
+                var color = $(this).data('color') || '#ffffff';
+                var $icon = $(this).find('i');
+                var csrfToken = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url: pinUrl,
+                    data: { id: id },
+                    type: 'POST',
+                    dataType: 'json',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    success: function(result) {
+                        if (result.status) {
+                            toastr.success(result.message);
+                            if (result.pinned) {
+                                $icon.addClass('pinned').wrap('<span class="unpin-icon"></span>');
+                                $icon.closest('a').attr('title', 'Unpin Message');
+                                var msgText = message.length > 150 ? message.substring(0, 150) + '...' : message;
+                                var itemHtml =
+                                    '<div class="pinned-item" data-message-id="' + id + '" style="display:flex; align-items:flex-start; gap:8px; padding:6px 8px; border-top:1px solid #ddd; background-color:' + color + '; border-radius:4px; margin-bottom:4px;">' +
+                                        '<div style="flex:1;"><strong style="font-size:13px; display:block; font-weight:700;">' + escapeHtml(email) + '</strong>' +
+                                        '<span style="white-space:pre-wrap; display:block;">' + escapeHtml(msgText) + '</span></div>' +
+                                        '<a href="#" class="scroll-to-pinned" data-message-id="' + id + '" style="font-size:12px; white-space:nowrap;">Go</a>' +
+                                        '<a href="#" class="unpin-from-banner" data-message-id="' + id + '" title="Unpin" style="font-size:12px; white-space:nowrap;"><span class="unpin-icon"><i style="cursor: pointer; font-size: 16px;" class="fa fa-thumb-tack"></i></span></a>' +
+                                    '</div>';
+                                $('#pinned-list').append(itemHtml);
+                                $('#pinned-banner').show();
+                            } else {
+                                $icon.removeClass('pinned').unwrap();
+                                $icon.closest('a').attr('title', 'Pin Message');
+                                $('#pinned-list .pinned-item[data-message-id="' + id + '"]').remove();
+                                if ($('#pinned-list .pinned-item').length === 0) {
+                                    $('#pinned-banner').hide();
+                                }
+                            }
+                        } else {
+                            toastr.error(result.message);
+                        }
+                    }
+                });
+            });
+
+            $('body').on('click', '.unpin-from-banner', function(e) {
+                e.preventDefault();
+                var id = $(this).data('message-id');
+                var csrfToken = $('meta[name="csrf-token"]').attr('content');
+                $.ajax({
+                    url: pinUrl,
+                    data: { id: id },
+                    type: 'POST',
+                    dataType: 'json',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    success: function(result) {
+                        if (result.status) {
+                            toastr.success(result.message);
+                            $('#pinned-list .pinned-item[data-message-id="' + id + '"]').remove();
+                            if ($('#pinned-list .pinned-item').length === 0) $('#pinned-banner').hide();
+                            var $icon = $('.pin-message[data-message-id="' + id + '"] i');
+                            $icon.removeClass('pinned').unwrap();
+                            $icon.closest('a').attr('title', 'Pin Message');
+                        } else {
+                            toastr.error(result.message);
+                        }
+                    }
+                });
+            });
+
+            $('body').on('click', '.scroll-to-pinned', function(e) {
+                e.preventDefault();
+                var id = $(this).data('message-id');
+                var $target = $('.panel-message1[data-message-id="' + id + '"]');
+                if ($target.length) {
+                    $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    var $panel = $target.find('.panel-message2');
+                    $panel.css({ transition: 'box-shadow 0.3s ease', 'box-shadow': '0 0 15px rgba(255,193,7,0.8)', border: '2px solid #ffc107' });
+                    setTimeout(() => { $panel.css({ 'box-shadow': '', border: '', transition: '' }); }, 2000);
+                }
+            });
+
             $('body').on('click', '.delete-message', function() {
                 var id = $(this).attr('data-message-id');
                 var csrfToken = $('meta[name="csrf-token"]').attr('content');
@@ -723,6 +843,14 @@
                                                 </a>`;
                                         }
 
+                                        var pinButtonHtml = `
+                                                <a class="pin-message" data-message-id="${value.id}" data-message="${value.message.replace(/"/g, '&quot;')}" data-email="${userEmail}" data-color="${bgColor}" title="${value.is_pinned ? 'Unpin Message' : 'Pin Message'}" style="text-decoration: none;">
+                                                    ${value.is_pinned
+                                                        ? `<span class="unpin-icon"><i class="fa fa-thumb-tack pinned" style="cursor:pointer; font-size:16px;"></i></span>`
+                                                        : `<i class="fa fa-thumb-tack" aria-hidden="true" style="cursor:pointer; font-size:18px;"></i>`
+                                                    }
+                                                </a>`;
+
                                         var messageHtml = `
                                                 <div class="panel panel-default panel-message1" data-message-id="${value.id}" data-date="${value.created_at.split(' ')[0]}">
                                                     <div class="panel-body panel-message2" style="background-color: ${bgColor}">
@@ -737,6 +865,7 @@
                                                                 <i class="fa fa-sticky-note-o" aria-hidden="true" style="cursor: pointer; font-size: 18px;"></i>
                                                             </a>
                                                             ${deleteButtonHtml}
+                                                            ${pinButtonHtml}
                                                         </div>
                                                     </div>
                                                 </div>
