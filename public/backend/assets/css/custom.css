@@ -202,3 +202,60 @@ pre {
     border-radius: 2px;
     pointer-events: none;
 }
+
+#pinned-banner {
+  background:#f5f5f5;
+  border-left:4px solid #337ab7;
+  border-right:1px solid #337ab7;
+  border-top:1px solid #337ab7;
+  border-bottom:1px solid #337ab7;
+  padding:10px 14px;
+  margin-bottom:10px;
+  border-radius:4px;
+}
+
+.pinned-banner-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.pinned-banner-header .fa-thumb-tack {
+    color: #337ab7;
+}
+
+.pinned-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.pinned-item-body {
+    flex: 1;
+}
+
+.pinned-item-body strong {
+    font-size: 13px;
+    display: block;
+    font-weight: 700;
+}
+
+.pinned-item-body span {
+    white-space: pre-wrap;
+    display: block;
+}
+
+.scroll-to-pinned,
+.unpin-from-banner {
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.pinned-item .fa-thumb-tack {
+    font-size: 16px;
+}

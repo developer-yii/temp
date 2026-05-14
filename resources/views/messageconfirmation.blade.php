@@ -91,22 +91,22 @@
             </div>
             {{-- Pinned Messages Banner --}}
             @php $pinnedMessages = $data->where('is_pinned', true); @endphp
-            <div id="pinned-banner" style="{{ $pinnedMessages->isEmpty() ? 'display:none;' : '' }}background:#f5f5f5; border-left:4px solid #ffc107; padding:10px 14px; margin-bottom:10px; border-radius:4px;">
-                <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
-                    <i class="fa fa-thumb-tack" style="color:#ffc107;"></i>
+            <div id="pinned-banner" @if($pinnedMessages->isEmpty()) style="display:none;" @endif>
+                <div class="pinned-banner-header">
+                    <i class="fa fa-thumb-tack"></i>
                     <strong>Pinned Messages</strong>
                 </div>
                 <div id="pinned-list">
                     @foreach ($pinnedMessages as $pm)
-                        <div class="pinned-item" data-message-id="{{ $pm->id }}" style="display:flex; align-items:flex-start; gap:8px; padding:6px 8px; border-top:1px solid #ddd; background-color:{{ $userColors[$pm->user_id] ?? '#ffffff' }}; border-radius:4px; margin-bottom:4px;">
-                            <div style="flex:1;">
-                                <strong style="font-size:13px; display:block; font-weight:700;">{{ $pm->email }}</strong>
-                                <span style="white-space:pre-wrap; display:block;">{{ Str::limit($pm->message, 150) }}</span>
+                        <div class="pinned-item" data-message-id="{{ $pm->id }}" style="background-color:{{ $userColors[$pm->user_id] ?? '#ffffff' }};">
+                            <div class="pinned-item-body">
+                                <strong>{{ $pm->email }}</strong>
+                                <span>{{ Str::limit($pm->message, 150) }}</span>
                             </div>
-                            <a href="#" class="scroll-to-pinned" data-message-id="{{ $pm->id }}" style="font-size:12px; white-space:nowrap;">Go</a>
-                            <a href="#" class="unpin-from-banner" data-message-id="{{ $pm->id }}" title="Unpin" style="font-size:12px; white-space:nowrap;">
+                            <a href="#" class="scroll-to-pinned" data-message-id="{{ $pm->id }}">Go</a>
+                            <a href="#" class="unpin-from-banner" data-message-id="{{ $pm->id }}" title="Unpin">
                                 <span class="unpin-icon">
-                                    <i class="fa fa-thumb-tack" style="font-size: 16px;"></i>
+                                    <i class="fa fa-thumb-tack"></i>
                                 </span>
                             </a>
                         </div>
@@ -691,11 +691,11 @@
                                 $icon.closest('a').attr('title', 'Unpin Message');
                                 var msgText = message.length > 150 ? message.substring(0, 150) + '...' : message;
                                 var itemHtml =
-                                    '<div class="pinned-item" data-message-id="' + id + '" style="display:flex; align-items:flex-start; gap:8px; padding:6px 8px; border-top:1px solid #ddd; background-color:' + color + '; border-radius:4px; margin-bottom:4px;">' +
-                                        '<div style="flex:1;"><strong style="font-size:13px; display:block; font-weight:700;">' + escapeHtml(email) + '</strong>' +
-                                        '<span style="white-space:pre-wrap; display:block;">' + escapeHtml(msgText) + '</span></div>' +
-                                        '<a href="#" class="scroll-to-pinned" data-message-id="' + id + '" style="font-size:12px; white-space:nowrap;">Go</a>' +
-                                        '<a href="#" class="unpin-from-banner" data-message-id="' + id + '" title="Unpin" style="font-size:12px; white-space:nowrap;"><span class="unpin-icon"><i style="cursor: pointer; font-size: 16px;" class="fa fa-thumb-tack"></i></span></a>' +
+                                    '<div class="pinned-item" data-message-id="' + id + '" style="background-color:' + color + ';">' +
+                                        '<div class="pinned-item-body"><strong>' + escapeHtml(email) + '</strong>' +
+                                        '<span>' + escapeHtml(msgText) + '</span></div>' +
+                                        '<a href="#" class="scroll-to-pinned" data-message-id="' + id + '">Go</a>' +
+                                        '<a href="#" class="unpin-from-banner" data-message-id="' + id + '" title="Unpin"><span class="unpin-icon"><i class="fa fa-thumb-tack"></i></span></a>' +
                                     '</div>';
                                 $('#pinned-list').append(itemHtml);
                                 $('#pinned-banner').show();
