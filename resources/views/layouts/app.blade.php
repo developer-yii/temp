@@ -26,7 +26,8 @@
             $route_name == 'notes.list' ||
             $route_name == 'image.list' ||
             $route_name == 'delivery.list' ||
-            $route_name == 'notifications.list'
+            $route_name == 'notifications.list' ||
+            $route_name == 'my.links'
         ) {
             $main_css = 'style_new';
         } else {
@@ -91,6 +92,7 @@
                                 <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end;">
                                     <a href="{{ route('image.list') }}" class="btn btn-default btn-xs">My Images</a>
                                     <a href="{{ route('notes.list') }}" class="btn btn-default btn-xs">My Notes</a>
+                                    <a href="{{ route('my.links') }}" class="btn btn-default btn-xs">My Links</a>
                                     <a href="{{ route('profile.view') }}"
                                         class="btn btn-default btn-xs">&nbsp;{{ Auth::user()->email }}&nbsp;</a>
                                     <a href="{{ route('logout') }}" class="btn btn-default btn-xs"
@@ -162,6 +164,7 @@
                                         </a>
                                         <a href="{{ route('image.list') }}" class="btn btn-default btn-xs">My Images</a>
                                         <a href="{{ route('notes.list') }}" class="btn btn-default btn-xs">My Notes</a>
+                                        <a href="{{ route('my.links') }}" class="btn btn-default btn-xs">My Links</a>
 
                                         <a href="{{ route('profile.view') }}"
                                             class="btn btn-default btn-xs">&nbsp;{{ Auth::user()->email }}&nbsp;</a>

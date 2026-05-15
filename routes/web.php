@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function () {
             Route::post('/image/view', 'ImageController@viewFile')->name('image.view');
             Route::post('/delete-multiple-images', 'ImageController@deleteMultipleImages')->name('multiple-image.delete');
 
+            Route::get('/my-links', 'MessageController@myLinks')->name('my.links');
             Route::get('/fetch-data/view', 'MessageController@fetchData')->name('message.fetchData');
             Route::prefix('invite-user')->group(function () {
                 Route::get('/get', 'MessageController@inviteUserGet')->name('invite.user.get');

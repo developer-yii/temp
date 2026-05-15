@@ -341,6 +341,22 @@ class MessageController extends Controller
         // }
     }
 
+    public function myLinks(Request $request)
+    {
+        $userId = Auth::id();
+        $conversations = Conversation::whereHas('invitedUsers', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->with([
+                'invitedUsers.user:id,email,nickname',
+                'invitedUsers.createdBy:id,email,nickname',
+            ])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('mylinks', compact('conversations'));
+    }
+
     public function fetchData(Request $request)
     {
         if(!$request->ajax()) {

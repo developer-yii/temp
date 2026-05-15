@@ -1,9 +1,10 @@
 var clipboard = new ClipboardJS('.clipboardjs');
-    clipboard.on('success', function(e) 
-    { 
+    clipboard.on('success', function(e)
+    {
         $('#copy-url-button').html('Copied!');
+        toastr.success('Link copied!');
         e.clearSelection();
-    }); 
+    });
 
 function confirmDelete(event) {
     event.preventDefault();
@@ -12,7 +13,7 @@ function confirmDelete(event) {
     }
 }
 
-function DeleteChat(event) {    
+function DeleteChat(event) {
     event.preventDefault();
     if (confirm('Are you sure you want to delete this Conversation?')) {
         document.getElementById('delete-chat').submit();
