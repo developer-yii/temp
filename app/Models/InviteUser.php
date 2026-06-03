@@ -21,7 +21,7 @@ class InviteUser extends Model
         '#f0f8ff', // AliceBlue
         '#f0fff0', // Honeydew
         '#f0ffff', // Azure
-        '#e6f2ff', // Light Sky Blue
+        '#BBDEFB', // Light Sky Blue
         '#fff0f5', // LavenderBlush
         '#f0e6ff', // Light Lavender
 
