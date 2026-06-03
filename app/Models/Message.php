@@ -11,7 +11,7 @@ class Message extends Model
     protected $table = 'messages';
     public $timestamps = false;
     protected $fillable = [
-        'user_id', 'conversation_id','message','image_ids', 'created_at', 'quoted_text',
+        'user_id', 'conversation_id', 'message', 'image_ids', 'created_at', 'quoted_text',
     ];
 
 
@@ -28,6 +28,11 @@ class Message extends Model
     public function repliedMessage()
     {
         return $this->belongsTo(Message::class, 'replied_message_id');
+    }
+
+    public function pinnedByUsers()
+    {
+        return $this->hasMany(PinnedMessage::class, 'message_id');
     }
 
 }

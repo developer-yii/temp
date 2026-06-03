@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function () {
             Route::post('/image/view', 'ImageController@viewFile')->name('image.view');
             Route::post('/delete-multiple-images', 'ImageController@deleteMultipleImages')->name('multiple-image.delete');
 
+            Route::get('/my-links', 'MessageController@myLinks')->name('my.links');
             Route::get('/fetch-data/view', 'MessageController@fetchData')->name('message.fetchData');
             Route::prefix('invite-user')->group(function () {
                 Route::get('/get', 'MessageController@inviteUserGet')->name('invite.user.get');
@@ -64,6 +65,7 @@ Route::group(['middleware' => ['auth', 'is_blocked']], function () {
 
             Route::match(['get', 'post'], '/reply/message', 'MessageController@reply')->name('messages.reply');
             Route::post('delete/message', 'MessageController@deleteMessage')->name('message.delete');
+            Route::post('pin/message', 'MessageController@pinMessage')->name('message.pin');
             Route::match(['get', 'post'], '/chat/{token}', 'MessageController@deleteChat')->name('chat.delete');
             Route::post('extends-validity', 'MessageController@extendsValidity')->name('chat.extends-validity');
             Route::get('/{token}', 'MessageController@messageRead')->name('message.read1');
