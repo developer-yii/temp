@@ -24,6 +24,7 @@ class InviteUser extends Model
         '#BBDEFB', // Light Sky Blue
         '#fff0f5', // LavenderBlush
         '#f0e6ff', // Light Lavender
+        '#D1C4E9', // Light Lavender
 
         // '#ffe6f0', // Light Pink
         // '#e6ffe6', // Light Green
