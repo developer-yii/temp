@@ -20,11 +20,11 @@ class InviteUser extends Model
     public const COLOR_PALETTE = [
         '#f0f8ff', // AliceBlue
         '#f0fff0', // Honeydew
-        '#f0ffff', // Azure
-        '#BBDEFB', // Light Sky Blue
+        '#f0ffff', // Azure   done
+        '#BBDEFB', // Light Sky Blue done
         '#fff0f5', // LavenderBlush
         '#f0e6ff', // Light Lavender
-        '#D1C4E9', // Light Lavender
+        '#D1C4E9', // Light Lavender done
 
         // '#ffe6f0', // Light Pink
         // '#e6ffe6', // Light Green
@@ -58,15 +58,9 @@ class InviteUser extends Model
     {
         parent::boot();
 
-        static::creating(function ($model) {
-            if (empty($model->color)) {
-                $model->color = self::getRandomColor($model->conversation_id);
-            }
-        });
-
         static::saving(function ($model) {
             if (empty($model->color) || !preg_match('/^#[0-9a-fA-F]{6}$/', $model->color)) {
-                $model->color = self::getRandomColor();
+                $model->color = self::getRandomColor($model->conversation_id);
             }
         });
     }
